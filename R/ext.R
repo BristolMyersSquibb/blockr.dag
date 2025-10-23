@@ -1,3 +1,13 @@
+#' DAG extension
+#'
+#' Visualizes the DAG (directed acyclic graph) underlying a board and provides
+#' UI elemtnts to manipulate the board,
+#'
+#' @param graph A `graph` object (or `NULL`)
+#' @param ... Forwarded to [blockr.dock::new_dock_extension()]
+#'
+#' @rdname dag
+#' @export
 new_dag_extension <- function(graph = NULL, ...) {
 
   blockr.dock::new_dock_extension(
@@ -28,6 +38,7 @@ context_menu_items.dag_extension <- function(x) {
         graph.updateBehavior({ key: 'drag-element', enable: false });
         graph.updateBehavior({ key: 'drag-element-force', enable: false });
       }",
+      action = NULL, # handled by the 'create-edge' behavior
       condition = function(board, target) {
         target$type == "node"
       },
@@ -47,9 +58,7 @@ context_menu_items.dag_extension <- function(x) {
       action = function(input, output, session, board, update) {
         observeEvent(
           input$remove_node,
-          {
-
-          }
+          update(list(blocks = list(rm = input$remove_node)))
         )
       },
       condition = function(board, target) {
@@ -74,9 +83,7 @@ context_menu_items.dag_extension <- function(x) {
       action = function(input, output, session, board, update) {
         observeEvent(
           input$remove_edge,
-          {
-
-          }
+          update(list(links = list(rm = input$remove_edge)))
         )
       },
       condition = function(board, target) {

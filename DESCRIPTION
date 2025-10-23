@@ -2,14 +2,14 @@ Package: blockr.dag
 Title: A DAG extension for blockr.dock
 Version: 0.0.1
 Authors@R: 
-    c(person(given = "Nicolas",
-             family = "Bennett",
-             role = c("aut"),
-             email = "nicolas@cynkra.com"),
-      person(given = "David",
+    c(person(given = "David",
              family = "Granjon",
              role = c("aut", "cre"),
-             email = "david@cynkra.com")
+             email = "david@cynkra.com"),
+      person(given = "Nicolas",
+             family = "Bennett",
+             role = c("aut"),
+             email = "nicolas@cynkra.com")
     )
 Description: Using the docking layout manager provided by blockr.dock, this
     provides an extension that allows for visualizing and manipulating a blockr
@@ -24,3 +24,7 @@ Imports:
     shiny,
     g6R,
     jsonlite
+Remotes:
+    BristolMyersSquibb/blockr.core,
+    BristolMyersSquibb/blockr.dock,
+    cynkra/dockViewR

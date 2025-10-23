@@ -46,6 +46,8 @@ dag_ext_srv <- function(graph) {
 					session = session
 				)
 
+				update_observer(update, proxy)
+
 				reactive(
 					input[[paste0(graph_id(), "-state")]]
 				)
@@ -54,3 +56,11 @@ dag_ext_srv <- function(graph) {
 	}
 }
 
+update_observer <- function(update, proxy) {
+	observeEvent(
+		update(),
+		{
+
+		}
+	)
+}

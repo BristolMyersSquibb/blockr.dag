@@ -4,8 +4,14 @@ g6_from_board <- function(board) {
 }
 
 g6_from_graph <- function(graph) {
+
 	stopifnot(is_graph(graph))
-	g6R::g6()
+
+	g6R::g6(
+		nodes = graph_nodes(graph),
+		edges = graph_edges(graph),
+		combos = graph_combos(graph)
+	)
 }
 
 set_g6_options <- function(graph, ...) {
@@ -21,7 +27,52 @@ set_g6_behaviors <- function(graph, ..., ns) {
 }
 
 set_g6_plugins <- function(graph, ..., ns, path, ctx) {
-	graph
+
+	g6R::g6_plugins(
+    graph,
+    ...,
+    g6R::context_menu(
+      enable = g6R::JS(
+        "(e) => {
+        let cond = e.targetType === 'edge' ||
+          e.targetType === 'node' ||
+          e.targetType === 'canvas' ||
+          e.targetType === 'combo';
+        return cond;
+        }"
+      ),
+      # nolint start
+      onClick = g6R::JS(
+        context_menu_entry_js(ctx, ns)
+      ),
+      # nolint end
+      getItems = g6R::JS(
+        sprintf(
+          "async (e) => {
+            const response = await fetch(
+              ''%s',
+              {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(
+                  {
+                    id: e.target.id,
+                    type: e.targetType
+                  }
+                )
+              }
+            );
+            const items = await response.json();
+            return items;
+          }",
+          path
+        )
+      )
+    )
+  )
 }
 
 g6_proxy <- function(session = get_session()) {
