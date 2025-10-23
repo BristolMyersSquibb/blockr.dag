@@ -1,9 +1,19 @@
 Package: blockr.dag
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: A DAG extension for blockr.dock
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    c(person(given = "Nicolas",
+             family = "Bennett",
+             role = c("aut"),
+             email = "nicolas@cynkra.com"),
+      person(given = "David",
+             family = "Granjon",
+             role = c("aut", "cre"),
+             email = "david@cynkra.com")
+    )
+Description: Using the docking layout manager provided by blockr.dock, this
+    provides an extension that allows for visualizing and manipulating a blockr
+    board using a DAG-based user interface.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
