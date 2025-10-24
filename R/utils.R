@@ -1,6 +1,5 @@
 graph_id <- function(ns = NULL) {
-
-	res <- "graph"
+  res <- "graph"
 
   if (is.null(ns)) {
     return(res)

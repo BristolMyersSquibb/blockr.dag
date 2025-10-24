@@ -9,7 +9,7 @@
 #' @rdname graph
 #' @export
 new_graph <- function(nodes = list(), edges = list(), combos = list()) {
-	structure(
+  structure(
     list(nodes = nodes, edges = edges, combos = combos),
     class = "graph"
   )

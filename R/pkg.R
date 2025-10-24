@@ -1,2 +1,2 @@
-#' @import blockr.core shiny
+#' @import blockr.core shiny g6R
 NULL
