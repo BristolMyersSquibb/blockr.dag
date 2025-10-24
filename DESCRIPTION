@@ -28,3 +28,6 @@ Remotes:
     BristolMyersSquibb/blockr.core,
     BristolMyersSquibb/blockr.dock,
     cynkra/dockViewR
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
