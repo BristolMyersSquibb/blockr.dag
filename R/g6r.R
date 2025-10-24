@@ -1,6 +1,11 @@
 g6_from_board <- function(board) {
   stopifnot(is_board(board))
-  g6()
+  graph <- g6_data_from_board(board)
+  g6(
+    nodes = graph_nodes(graph),
+    edges = graph_edges(graph),
+    combos = graph_combos(graph)
+  )
 }
 
 g6_from_graph <- function(graph) {
@@ -193,4 +198,77 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   session$output[[graph_id()]] <- render_g6(res)
 
   blockr_g6_proxy(session)
+}
+
+#' @rdname g6-from-board
+#' @param links Board links.
+g6_edges_from_links <- function(links) {
+  unname(lapply(seq_along(links), function(i) {
+    link <- links[[i]]
+    list(
+      id = names(links)[[i]],
+      type = "line",
+      source = link$from,
+      target = link$to,
+      label = link$input
+    )
+  }))
+}
+
+#' @rdname g6-from-board
+#' @param blocks Board blocks.
+#' @param stacks Board stacks.
+#' @keywords internal
+g6_nodes_from_blocks <- function(blocks, stacks) {
+  blocks_in_stacks <- lapply(stacks, stack_blocks)
+
+  lapply(seq_along(blocks), function(i) {
+    current <- blocks[[i]]
+
+    info <- get_block_metadata(current)
+    blk_color <- blk_color(info$category)
+
+    tmp <- list(
+      id = names(blocks)[[i]],
+      label = paste(
+        blk_name(current),
+        "\n id:",
+        names(blocks)[[i]]
+      ),
+      style = list(
+        fill = blk_color
+      )
+    )
+
+    # Find in which stack the node is
+    tmp$combo <- unlist(lapply(seq_along(blocks_in_stacks), function(i) {
+      stack <- blocks_in_stacks[[i]]
+      if (tmp$id %in% stack) {
+        sprintf("combo-%s", names(blocks_in_stacks)[[i]])
+      }
+    }))
+    tmp
+  })
+}
+
+#' Create network data from board
+#'
+#' @keywords internal
+#' @param board Board object.
+#' @rdname g6-from-board
+g6_data_from_board <- function(board) {
+  # Cold start
+  links <- board_links(board)
+  blocks <- board_blocks(board)
+  stacks <- board_stacks(board)
+
+  edges_data <- g6_edges_from_links(links)
+  combos_data <- NULL # TBD
+  nodes_data <- g6_nodes_from_blocks(blocks, stacks)
+
+  new_graph(
+    nodes = nodes_data,
+    edges = edges_data,
+    combos = combos_data
+  )
 }

@@ -22,7 +22,27 @@ pak::pak("BristolMyersSquibb/blockr.dag")
 
 ## Example
 
-Tto start up a board with the `dag` extension, run the following code:
+To start up a board with the `dag` extension, run the following code:
+
+``` r
+library(blockr.dag)
+library(blockr.dock)
+library(blockr.core)
+
+serve(
+  new_dock_board(
+    blocks = c(
+      a = new_dataset_block("iris"),
+      b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width")
+    ),
+    links = list(from = "a", to = "b", input = "data"),
+    extensions = new_dag_extension()
+  )
+)
+## basic example code
+```
+
+To start up the dag extension with dummy nodes and edges:
 
 ``` r
 library(blockr.dag)
@@ -47,11 +67,6 @@ graph <- new_graph(
 
 serve(
   new_dock_board(
-    blocks = c(
-      a = new_dataset_block("iris"),
-      b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width")
-    ),
-    links = list(from = "a", to = "b", input = "data"),
     extensions = new_dag_extension(graph)
   )
 )
