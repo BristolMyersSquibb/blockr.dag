@@ -284,3 +284,8 @@ remove_edges <- function(edges, proxy = blockr_g6_proxy()) {
 remove_combos <- function(combos, proxy = blockr_g6_proxy()) {
   g6_remove_combos(proxy, combos)
 }
+
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  g6_add_nodes(proxy, nodes)
+}

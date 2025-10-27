@@ -43,7 +43,10 @@ dag_ext_srv <- function(graph) {
           session = session
         )
 
-        update_observer(update, proxy)
+        # TBD: when adding new node, register node validation (see old API).
+        # TBD: when adding new blocks call register_node_stack_link (see old API).
+
+        update_observer(update, board$board, proxy)
 
         reactive(
           input[[paste0(graph_id(), "-state")]]
@@ -53,7 +56,7 @@ dag_ext_srv <- function(graph) {
   }
 }
 
-update_observer <- function(update, proxy) {
+update_observer <- function(update, board, proxy) {
   observeEvent(
     update(),
     {
@@ -69,6 +72,12 @@ update_observer <- function(update, proxy) {
 
       if (length(upd$blocks$rm)) {
         remove_nodes(upd$blocks$rm, proxy)
+      }
+
+      # TBD: how to manage append/insert between block? Can
+      # the core also provide a mechanism like for removing blocks and links.
+      if (length(upd$blocks$add)) {
+        add_nodes(upd$blocks$add, board, proxy)
       }
     }
   )
