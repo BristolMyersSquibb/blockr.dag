@@ -111,7 +111,7 @@ context_menu_items.dag_extension <- function(x) {
                 selectInput(
                   ns("new_block"),
                   "Select block to add",
-                  choices = names(available_blocks())
+                  choices = list_blocks()
                 ),
                 footer = tagList(
                   modalButton("Cancel"),
@@ -204,17 +204,33 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
+
         ns <- session$ns
+        blk <- reactiveVal()
+
         observeEvent(
           input$add_block,
           {
+            blk(NULL)
             showModal(
               modalDialog(
                 title = "Add new block",
-                selectInput(
-                  ns("new_block"),
-                  "Select block to add",
-                  choices = names(available_blocks())
+                tagList(
+                  selectInput(
+                    ns("new_block"),
+                    label = "Select block to add",
+                    choices = c("", list_blocks())
+                  ),
+                  textInput(
+                    ns("block_name"),
+                    label = "Block name",
+                    placeholder = "Select block to generate default"
+                  ),
+                  textInput(
+                    ns("block_id"),
+                    label = "Block ID",
+                    value = rand_names(board_block_ids(board$board))
+                  )
                 ),
                 footer = tagList(
                   modalButton("Cancel"),
@@ -222,19 +238,80 @@ context_menu_items.dag_extension <- function(x) {
                 )
               )
             )
-          })
+          }
+        )
 
-          observeEvent(input$confirm_add_block, {
+        observeEvent(
+          input$new_block,
+          {
+            req(input$new_block)
+
+            new_blk <- create_block_with_name(
+              input$new_block,
+              chr_ply(board_blocks(board$board), block_name)
+            )
+
+            updateTextInput(
+              session,
+              "block_name",
+              value = block_name(new_blk)
+            )
+
+            blk(new_blk)
+          }
+        )
+
+        observeEvent(
+          input$confirm_add_block,
+          {
+            id <- input$block_id
+            bk <- blk()
+
+            if (!nchar(id) || id %in% board_block_ids(board$board)) {
+              notify(
+                "Please choose valid block IDs.",
+                type = "warning",
+                session = session
+              )
+
+              return()
+            }
+
+            if (!is_block(bk)) {
+              notify(
+                "Please choose a block type.",
+                type = "warning",
+                session = session
+              )
+
+              return()
+            }
+
+            if (!identical(input$block_name, block_name(bk))) {
+              block_name(bk) <- input$block_name
+            }
+
+            bk <- as_blocks(set_names(list(bk), id))
+
+            update(list(blocks = list(add = bk)))
             removeModal()
-            new_id <- rand_names(board_block_ids(board$board))
-            new_blk <- create_block(input$new_block)
-            new_blk <- as_blocks(set_names(list(new_blk), new_id))
-            update(list(blocks = list(add = new_blk)))
-          })
+          }
+        )
       },
       condition = function(board, target) {
         target$type == "canvas"
       }
     )
   )
+}
+
+create_block_with_name <- function(reg_id, blk_nms, ...) {
+
+  name_fun <- function(nms) {
+    function(class) {
+      last(make.unique(c(nms, default_block_name(class)), sep = " "))
+    }
+  }
+
+  create_block(reg_id, ..., name = name_fun(blk_nms))
 }

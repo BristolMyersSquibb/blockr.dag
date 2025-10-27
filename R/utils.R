@@ -61,3 +61,5 @@ blk_color <- function(category) {
     "#6c757d"
   )
 }
+
+last <- function(x) x[[length(x)]]
