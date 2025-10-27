@@ -178,7 +178,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
 }
 
 blockr_g6_proxy <- function(session = get_session()) {
-  g6_proxy(graph_id(), session = session)
+  g6_proxy(graph_id(session$ns), session = session)
 }
 
 init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
