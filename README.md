@@ -36,10 +36,7 @@ serve(
       b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width")
     ),
     links = list(from = "a", to = "b", input = "data"),
-    extensions = list(
-      new_dag_extension(),
-      blockr.dock:::new_edit_board_extension()
-    )
+    extensions = new_dag_extension()
   )
 )
 ## basic example code
