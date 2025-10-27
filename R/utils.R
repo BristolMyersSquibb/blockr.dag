@@ -8,11 +8,6 @@ graph_id <- function(ns = NULL) {
   ns(res)
 }
 
-blk_name <- function(x) {
-  stopifnot(inherits(x, "block"))
-  gsub("block", "", block_name(x))
-}
-
 #' Get block info in registry
 #'
 #' @param x Block object

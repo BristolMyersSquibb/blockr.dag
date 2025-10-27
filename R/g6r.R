@@ -231,7 +231,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     tmp <- list(
       id = names(blocks)[[i]],
       label = paste(
-        blk_name(current),
+        block_name(current),
         "\n id:",
         names(blocks)[[i]]
       ),
