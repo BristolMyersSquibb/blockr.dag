@@ -272,3 +272,15 @@ g6_data_from_board <- function(board) {
     combos = combos_data
   )
 }
+
+remove_nodes <- function(nodes, proxy = blockr_g6_proxy()) {
+  g6_remove_nodes(proxy, nodes)
+}
+
+remove_edges <- function(edges, proxy = blockr_g6_proxy()) {
+  g6_remove_edges(proxy, edges)
+}
+
+remove_combos <- function(combos, proxy = blockr_g6_proxy()) {
+  g6_remove_combos(proxy, combos)
+}

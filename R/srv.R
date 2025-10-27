@@ -57,7 +57,19 @@ update_observer <- function(update, proxy) {
   observeEvent(
     update(),
     {
-      # TBD
+    	upd <- update()
+
+      if (length(upd$stacks$rm)) {
+        remove_combos(upd$stacks$rm, proxy)
+      }
+
+      if (length(upd$links$rm)) {
+        remove_edges(upd$links$rm, proxy)
+      }
+
+      if (length(upd$blocks$rm)) {
+        remove_nodes(upd$blocks$rm, proxy)
+      }
     }
   )
 }
