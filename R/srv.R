@@ -79,6 +79,10 @@ update_observer <- function(update, board, proxy) {
       if (length(upd$blocks$add)) {
         add_nodes(upd$blocks$add, board, proxy)
       }
+
+      if (length(upd$links$add)) {
+        add_links(upd$links$add, proxy)
+      }
     }
   )
 }

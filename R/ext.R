@@ -95,18 +95,55 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
+            Shiny.setInputValue('%s', current.id, {priority: 'event'});
           }",
-          ns("append_node")
+          ns("append_block")
         )
       },
       action = function(input, output, session, board, update) {
+        ns <- session$ns
         observeEvent(
-          input$append_node,
+          input$append_block,
           {
+            showModal(
+              modalDialog(
+                title = "Append new block",
+                selectInput(
+                  ns("new_block"),
+                  "Select block to add",
+                  choices = names(available_blocks())
+                ),
+                footer = tagList(
+                  modalButton("Cancel"),
+                  actionButton(ns("confirm_append_block"), "Append Block")
+                )
+              )
+            )
+          })
 
-          }
-        )
+          observeEvent(input$confirm_append_block, {
+            removeModal()
+            new_id <- rand_names(board_block_ids(board$board))
+            new_blk <- create_block(input$new_block)
+            block_name(new_blk) <- blk_name(new_blk)
+            new_blk <- as_blocks(set_names(list(new_blk), new_id))
+
+            # TBD: build the input by checking the block inputs
+            new_link <- as_links(
+              new_link(
+                from = input$append_block,
+                to = new_id,
+                input = "data" # replace by correct input
+              )
+            )
+
+            update(
+              list(
+                blocks = list(add = new_blk),
+                links = list(add = new_link)
+              )
+            )
+          })
       },
       condition = function(board, target) {
         target$type == "node"
