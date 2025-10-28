@@ -31,8 +31,8 @@ set_g6_options <- function(graph, ...) {
         labelPadding = c(0, 4),
         labelText = JS(
           "(d) => {
-        return d.label
-      }"
+            return d.label
+          }"
         )
       )
     ),
@@ -43,8 +43,8 @@ set_g6_options <- function(graph, ...) {
       style = list(
         labelText = JS(
           "(d) => {
-        return `Stack: ${d.label}`
-      }"
+            return `Stack: ${d.label}`
+          }"
         )
       )
     ),
@@ -55,8 +55,8 @@ set_g6_options <- function(graph, ...) {
         lineDash = c(5, 5),
         labelText = JS(
           "(d) => {
-        return d.label
-      }"
+            return d.label
+          }"
         )
       )
     )
@@ -83,7 +83,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     drag_canvas(
       enable = JS(
         "(e) => {
-        return e.targetType === 'canvas' && !e.shiftKey && !e.altKey;
+          return e.targetType === 'canvas' && !e.shiftKey && !e.altKey;
         }"
       )
     ),
@@ -91,7 +91,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     drag_element(
       enable = JS(
         "(e) => {
-        return !e.shiftKey && !e.altKey;
+          return !e.shiftKey && !e.altKey;
         }"
       ),
       dropEffect = "link"
@@ -137,11 +137,11 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
     context_menu(
       enable = JS(
         "(e) => {
-        let cond = e.targetType === 'edge' ||
-          e.targetType === 'node' ||
-          e.targetType === 'canvas' ||
-          e.targetType === 'combo';
-        return cond;
+          let cond = e.targetType === 'edge' ||
+            e.targetType === 'node' ||
+            e.targetType === 'canvas' ||
+            e.targetType === 'combo';
+          return cond;
         }"
       ),
       # nolint start
