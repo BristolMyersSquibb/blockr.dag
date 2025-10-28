@@ -158,7 +158,7 @@ context_menu_items.dag_extension <- function(x) {
               chr_ply(board_blocks(board$board), block_name)
             )
 
-            choices <- c("", block_inputs(new_blk))
+            choices <- block_inputs(new_blk)
 
             if (is.na(block_arity(new_blk))) {
               opts <- list(create = TRUE)

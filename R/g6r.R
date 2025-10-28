@@ -106,8 +106,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
     g6R::create_edge(
       enable = JS(
         "(e) => {
-        return e.shiftKey;
-      }"
+          return e.shiftKey;
+        }"
       ),
       onFinish = JS(
         sprintf(
@@ -116,12 +116,13 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType !== 'node') {
+              console.log(edge);
               graph.removeEdgeData([edge.id]);
             } else {
               Shiny.setInputValue('%s', edge);
             }
           }",
-          ns("network"),
+          graph_id(ns),
           ns("added_edge")
         )
       )
