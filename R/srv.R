@@ -44,7 +44,8 @@ dag_ext_srv <- function(graph) {
         )
 
         # TBD: when adding new node, register node validation (see old API).
-        # TBD: when adding new blocks call register_node_stack_link (see old API).
+        # TBD: when adding new blocks call register_node_stack_link (see old
+        # API).
 
         add_edge_observer(input, board, proxy, update)
 
@@ -62,7 +63,7 @@ update_observer <- function(update, board, proxy) {
   observeEvent(
     update(),
     {
-    	upd <- update()
+      upd <- update()
 
       if (length(upd$stacks$rm)) {
         remove_combos(upd$stacks$rm, proxy)
