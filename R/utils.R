@@ -8,11 +8,6 @@ graph_id <- function(ns = NULL) {
   ns(res)
 }
 
-blk_name <- function(x) {
-  stopifnot(inherits(x, "block"))
-  gsub("block", "", block_name(x))
-}
-
 #' Get block info in registry
 #'
 #' @param x Block object
@@ -66,3 +61,5 @@ blk_color <- function(category) {
     "#6c757d"
   )
 }
+
+last <- function(x) x[[length(x)]]

@@ -31,8 +31,8 @@ set_g6_options <- function(graph, ...) {
         labelPadding = c(0, 4),
         labelText = JS(
           "(d) => {
-        return d.label
-      }"
+            return d.label
+          }"
         )
       )
     ),
@@ -43,8 +43,8 @@ set_g6_options <- function(graph, ...) {
       style = list(
         labelText = JS(
           "(d) => {
-        return `Stack: ${d.label}`
-      }"
+            return `Stack: ${d.label}`
+          }"
         )
       )
     ),
@@ -55,8 +55,8 @@ set_g6_options <- function(graph, ...) {
         lineDash = c(5, 5),
         labelText = JS(
           "(d) => {
-        return d.label
-      }"
+            return d.label
+          }"
         )
       )
     )
@@ -83,7 +83,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     drag_canvas(
       enable = JS(
         "(e) => {
-        return e.targetType === 'canvas' && !e.shiftKey && !e.altKey;
+          return e.targetType === 'canvas' && !e.shiftKey && !e.altKey;
         }"
       )
     ),
@@ -91,7 +91,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     drag_element(
       enable = JS(
         "(e) => {
-        return !e.shiftKey && !e.altKey;
+          return !e.shiftKey && !e.altKey;
         }"
       ),
       dropEffect = "link"
@@ -106,8 +106,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
     g6R::create_edge(
       enable = JS(
         "(e) => {
-        return e.shiftKey;
-      }"
+          return e.shiftKey;
+        }"
       ),
       onFinish = JS(
         sprintf(
@@ -116,12 +116,13 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType !== 'node') {
+              console.log(edge);
               graph.removeEdgeData([edge.id]);
             } else {
               Shiny.setInputValue('%s', edge);
             }
           }",
-          ns("network"),
+          graph_id(ns),
           ns("added_edge")
         )
       )
@@ -136,11 +137,11 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
     context_menu(
       enable = JS(
         "(e) => {
-        let cond = e.targetType === 'edge' ||
-          e.targetType === 'node' ||
-          e.targetType === 'canvas' ||
-          e.targetType === 'combo';
-        return cond;
+          let cond = e.targetType === 'edge' ||
+            e.targetType === 'node' ||
+            e.targetType === 'canvas' ||
+            e.targetType === 'combo';
+          return cond;
         }"
       ),
       # nolint start
@@ -231,7 +232,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     tmp <- list(
       id = names(blocks)[[i]],
       label = paste(
-        blk_name(current),
+        block_name(current),
         "\n id:",
         names(blocks)[[i]]
       ),
@@ -283,4 +284,14 @@ remove_edges <- function(edges, proxy = blockr_g6_proxy()) {
 
 remove_combos <- function(combos, proxy = blockr_g6_proxy()) {
   g6_remove_combos(proxy, combos)
+}
+
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  g6_add_nodes(proxy, nodes)
+}
+
+add_links <- function(links, proxy = blockr_g6_proxy()) {
+  edges <- g6_edges_from_links(links)
+  g6_add_edges(proxy, edges)
 }
