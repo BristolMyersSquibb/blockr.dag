@@ -24,7 +24,8 @@ Imports:
     shiny,
     g6R,
     jsonlite,
-    grDevices
+    grDevices,
+    shinyWidgets
 Remotes:
     BristolMyersSquibb/blockr.core,
     BristolMyersSquibb/blockr.dock,

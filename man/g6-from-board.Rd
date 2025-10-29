@@ -11,10 +11,7 @@ g6_edges_from_links(links)
 
 g6_nodes_from_blocks(blocks, stacks)
 
-g6_combos_data_from_stacks(
-  stacks,
-  colors = grDevices::hcl.colors(50, palette = grDevices::hcl.pals()[1])
-)
+g6_combos_data_from_stacks(stacks, colors)
 
 g6_data_from_board(board, session)
 }

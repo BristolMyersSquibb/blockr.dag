@@ -9,13 +9,21 @@
 #' @rdname dag
 #' @export
 new_dag_extension <- function(graph = NULL, ...) {
-
   blockr.dock::new_dock_extension(
     dag_ext_srv(graph),
     dag_ext_ui,
     name = "DAG",
     class = "dag_extension",
+    options = dag_extension_options(),
     ...
+  )
+}
+
+#' @rdname dag
+#' @export
+dag_extension_options <- function() {
+  new_board_options(
+    new_stack_colors_option(category = "Board options")
   )
 }
 
@@ -101,7 +109,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         ns <- session$ns
         blk <- reactiveVal()
 
@@ -163,20 +170,15 @@ context_menu_items.dag_extension <- function(x) {
             arity <- block_arity(new_blk)
 
             if (is.na(arity)) {
-
               opts <- list(create = TRUE)
-
             } else if (identical(arity, 0L)) {
-
               notify(
                 "No inputs are available for the selected block.",
                 type = "warning"
               )
 
               return()
-
             } else {
-
               opts <- list()
             }
 
@@ -275,12 +277,86 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
+        ns <- session$ns
+
         observeEvent(
           input$create_stack,
           {
+            blk_ids <- board_block_ids(board$board)
+            stacks_nodes <- unlist(
+              lapply(board_stacks(board$board), stack_blocks),
+              use.names = FALSE
+            )
+            blk_ids <- blk_ids[!(blk_ids %in% stacks_nodes)]
 
+            browser()
+
+            showModal(
+              modalDialog(
+                title = "New stack",
+                size = "m",
+                div(
+                  class = "d-grid gap-2 mx-auto",
+                  role = "group",
+                  div(
+                    class = "d-flex gap-4 align-items-center justify-content-around",
+                    selectInput(
+                      ns("new_stack_nodes"),
+                      "Select nodes (leaving NULL creates an empty stack)",
+                      choices = set_names(
+                        blk_ids,
+                        chr_ply(blk_ids, function(id) {
+                          paste(
+                            attr(board_blocks(board$board)[[id]], "name"),
+                            id
+                          )
+                        })
+                      ),
+                      selected = blk_ids[1],
+                      multiple = TRUE
+                    ),
+                    shinyWidgets::colorPickr(
+                      inputId = ns("stack_color"),
+                      label = "Pick a color for the stack:",
+                      hue = FALSE,
+                      preview = FALSE,
+                      swatches = get_board_option_or_default(
+                        "stack_colors",
+                        board_options(board$board),
+                        session
+                      ),
+                      theme = "nano",
+                      position = "right-end",
+                      useAsButton = TRUE
+                    )
+                  ),
+                  textInput(
+                    ns("stack_id"),
+                    "Stack ID",
+                    value = rand_names(board_stack_ids(board$board))
+                  )
+                ),
+                footer = tagList(
+                  actionButton(
+                    ns("create_stack_confirm"),
+                    "Confirm",
+                    icon = icon("object-group")
+                  ),
+                  modalButton("Dismiss")
+                )
+              )
+            )
           }
         )
+
+        observeEvent(input$create_stack_confirm, {
+          id <- input$stack_id
+          new_stack <- new_stack(blocks = input$new_stack_nodes, name = id)
+          update(list(
+            stacks = list(add = as_stacks(set_names(list(new_stack), id)))
+          ))
+          removeModal()
+        })
       },
       condition = function(board, target) {
         target$type == "canvas"
@@ -320,7 +396,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         ns <- session$ns
         blk <- reactiveVal()
 
@@ -422,7 +497,6 @@ context_menu_items.dag_extension <- function(x) {
 }
 
 create_block_with_name <- function(reg_id, blk_nms, ...) {
-
   name_fun <- function(nms) {
     function(class) {
       last(make.unique(c(nms, default_block_name(class)), sep = " "))

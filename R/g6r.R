@@ -256,13 +256,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 #' @param stacks Board stacks.
 #' @param colors Stacks colors. Internal.
 #' @keywords internal
-g6_combos_data_from_stacks <- function(
-  stacks,
-  colors = grDevices::hcl.colors(
-    50,
-    palette = grDevices::hcl.pals()[1]
-  )
-) {
+g6_combos_data_from_stacks <- function(stacks, colors) {
   lapply(seq_along(stacks), function(i) {
     stack_id <- names(stacks)[[i]]
     if (length(stacks) == 0) {
@@ -301,7 +295,14 @@ g6_data_from_board <- function(board, session) {
   stacks <- board_stacks(board)
 
   edges_data <- g6_edges_from_links(links)
-  combos_data <- g6_combos_data_from_stacks(stacks)
+  combos_data <- g6_combos_data_from_stacks(
+    stacks,
+    get_board_option_or_default(
+      "stack_colors",
+      board_options(board),
+      session
+    )
+  )
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
   new_graph(
