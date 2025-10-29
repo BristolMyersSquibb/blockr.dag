@@ -436,15 +436,6 @@ create_block_modal <- function(mode = c("append", "add"), ns,
     block_registry_selectize(ns(selection_id))
   )
 
-  # Add block input field only for append mode (visible)
-  if (mode == "append") {
-    visible_fields[[length(visible_fields) + 1]] <- selectizeInput(
-      ns("append_block_input"),
-      "Block input",
-      choices = c(`Select a block to populate options` = "")
-    )
-  }
-
   # Add block name field (visible)
   visible_fields[[length(visible_fields) + 1]] <- textInput(
     ns(name_id),
@@ -471,12 +462,22 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   )
 
   # Advanced options (collapsible)
-  advanced_fields <- list(
-    textInput(
-      ns(block_id_field),
-      label = "Block ID",
-      value = rand_names(board_block_ids)
+  advanced_fields <- list()
+
+  # Add block input field only for append mode (in advanced options)
+  if (mode == "append") {
+    advanced_fields[[length(advanced_fields) + 1]] <- selectizeInput(
+      ns("append_block_input"),
+      "Block input",
+      choices = c(`Select a block to populate options` = "")
     )
+  }
+
+  # Add Block ID field
+  advanced_fields[[length(advanced_fields) + 1]] <- textInput(
+    ns(block_id_field),
+    label = "Block ID",
+    value = rand_names(board_block_ids)
   )
 
   # Add link ID field only for append mode (in advanced options)
@@ -555,11 +556,18 @@ block_registry_selectize <- function(id) {
 
   tagList(
     tags$style(HTML("
+      .selectize-dropdown-content {
+        max-height: 450px !important;
+        padding: 8px 0;
+      }
       .block-option {
-        padding: 12px 16px;
+        padding: 16px 24px;
         display: flex;
         align-items: flex-start;
-        gap: 14px;
+        gap: 16px;
+        margin: 4px 8px;
+        border-radius: 6px;
+        transition: background-color 0.15s ease;
       }
       .block-icon-wrapper {
         flex-shrink: 0;
@@ -607,9 +615,6 @@ block_registry_selectize <- function(id) {
       }
       .selectize-dropdown .block-option {
         border-bottom: 1px solid #f0f0f0;
-        margin-bottom: 0px;
-        padding-bottom: 8px;
-        padding-top: 8px;
       }
       .selectize-dropdown .block-option:last-child {
         border-bottom: none;
