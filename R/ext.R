@@ -297,7 +297,10 @@ context_menu_items.dag_extension <- function(x) {
                   class = "d-grid gap-2 mx-auto",
                   role = "group",
                   div(
-                    class = "d-flex gap-4 align-items-center justify-content-around",
+                    class = paste(
+                      "d-flex gap-4 align-items-center",
+                      "justify-content-around"
+                    ),
                     selectInput(
                       ns("new_stack_nodes"),
                       "Select nodes (leaving NULL creates an empty stack)",
