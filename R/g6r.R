@@ -254,15 +254,13 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 
 #' @rdname g6-from-board
 #' @param stacks Board stacks.
-#' @param colors Stacks colors. Internal.
 #' @keywords internal
-g6_combos_data_from_stacks <- function(stacks, colors) {
+g6_combos_data_from_stacks <- function(stacks) {
   lapply(seq_along(stacks), function(i) {
     stack_id <- names(stacks)[[i]]
-    if (length(stacks) == 0) {
-      stack_color <- colors[1]
-    } else {
-      stack_color <- colors[length(stacks) * 5]
+    stack_color <- attributes(stacks[[i]])[["color"]]
+    if (is.null(stack_color)) {
+      stack_color <- "#888888"
     }
 
     list(
@@ -295,14 +293,7 @@ g6_data_from_board <- function(board, session) {
   stacks <- board_stacks(board)
 
   edges_data <- g6_edges_from_links(links)
-  combos_data <- g6_combos_data_from_stacks(
-    stacks,
-    get_board_option_or_default(
-      "stack_colors",
-      board_options(board),
-      session
-    )
-  )
+  combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
   new_graph(
@@ -337,14 +328,7 @@ add_edges <- function(links, proxy = blockr_g6_proxy()) {
 }
 
 add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
-  combos <- g6_combos_data_from_stacks(
-    stacks,
-    get_board_option_or_default(
-      "stack_colors",
-      board_options(board),
-      proxy$session
-    )
-  )
+  combos <- g6_combos_data_from_stacks(stacks)
   g6_add_combos(proxy, combos)
 
   # Add nodes to stacks if any

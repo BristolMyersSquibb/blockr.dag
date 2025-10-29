@@ -12,7 +12,7 @@ dag_extension_options()
 \arguments{
 \item{graph}{A \code{graph} object (or \code{NULL})}
 
-\item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}}
+\item{...}{Forwarded to \code{\link[blockr.dock:new_dock_extension]{blockr.dock::new_dock_extension()}}}
 }
 \description{
 Visualizes the DAG (directed acyclic graph) underlying a board and provides

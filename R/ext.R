@@ -352,7 +352,11 @@ context_menu_items.dag_extension <- function(x) {
 
         observeEvent(input$create_stack_confirm, {
           id <- input$stack_id
-          new_stack <- new_stack(blocks = input$new_stack_nodes, name = id)
+          new_stack <- new_stack(
+            blocks = input$new_stack_nodes,
+            name = id,
+            color = input$stack_color
+          )
           update(list(
             stacks = list(add = as_stacks(set_names(list(new_stack), id)))
           ))

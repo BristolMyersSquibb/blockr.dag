@@ -11,7 +11,7 @@ g6_edges_from_links(links)
 
 g6_nodes_from_blocks(blocks, stacks)
 
-g6_combos_data_from_stacks(stacks, colors)
+g6_combos_data_from_stacks(stacks)
 
 g6_data_from_board(board, session)
 }
@@ -21,8 +21,6 @@ g6_data_from_board(board, session)
 \item{blocks}{Board blocks.}
 
 \item{stacks}{Board stacks.}
-
-\item{colors}{Stacks colors. Internal.}
 
 \item{board}{Board object.}
 
