@@ -9,7 +9,6 @@
 #' @rdname dag
 #' @export
 new_dag_extension <- function(graph = NULL, ...) {
-
   blockr.dock::new_dock_extension(
     dag_ext_srv(graph),
     dag_ext_ui,
@@ -439,8 +438,8 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   # Add block name field (visible)
   visible_fields[[length(visible_fields) + 1]] <- textInput(
     ns(name_id),
-    label = "Block name",
-    placeholder = "Select block to generate default"
+    label = "User defined block title (can be changed after creation)",
+    placeholder = "Select block first"
   )
 
   # Advanced options toggle button
@@ -548,8 +547,8 @@ block_registry_selectize <- function(id) {
       description = desc,
       category = category,
       package = package,
-      icon = blk_icon_name(category),  # Use blk_icon_name function
-      color = blk_color(category),      # Use blk_color function
+      icon = blk_icon_name(category), # Use blk_icon_name function
+      color = blk_color(category), # Use blk_color function
       searchtext = paste(name, desc, package)
     )
   }
