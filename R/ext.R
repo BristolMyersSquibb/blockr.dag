@@ -289,8 +289,6 @@ context_menu_items.dag_extension <- function(x) {
             )
             blk_ids <- blk_ids[!(blk_ids %in% stacks_nodes)]
 
-            browser()
-
             showModal(
               modalDialog(
                 title = "New stack",

@@ -82,14 +82,17 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$add)) {
-        add_links(upd$links$add, proxy)
+        add_edges(upd$links$add, proxy)
+      }
+
+      if (length(upd$stacks$add)) {
+        add_combos(upd$stacks$add, proxy)
       }
     }
   )
 }
 
 add_edge_observer <- function(input, board, proxy, update) {
-
   ns <- proxy$session$ns
 
   observeEvent(
@@ -107,15 +110,10 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (is.na(block_arity(trg))) {
-
         opts <- list(create = TRUE)
-
       } else if (length(inputs)) {
-
         opts <- list()
-
       } else {
-
         notify(
           "No inputs are available for block {new_edg$target}.",
           type = "warning"
@@ -179,7 +177,6 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (new_edg$id %in% board_link_ids(board$board)) {
-
         notify(
           "Cannot add edge with existing ID {new_edg$id}.",
           type = "warning"
