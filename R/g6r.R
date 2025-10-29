@@ -245,7 +245,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     tmp$combo <- unlist(lapply(seq_along(blocks_in_stacks), function(i) {
       stack <- blocks_in_stacks[[i]]
       if (tmp$id %in% stack) {
-        sprintf("combo-%s", names(blocks_in_stacks)[[i]])
+        names(blocks_in_stacks)[[i]]
       }
     }))
     tmp
@@ -264,7 +264,7 @@ g6_combos_data_from_stacks <- function(
   )
 ) {
   lapply(seq_along(stacks), function(i) {
-    stack_id <- sprintf("combo-%s", names(stacks)[[i]])
+    stack_id <- names(stacks)[[i]]
     if (length(stacks) == 0) {
       stack_color <- colors[1]
     } else {
@@ -273,7 +273,7 @@ g6_combos_data_from_stacks <- function(
 
     list(
       id = stack_id,
-      label = strsplit(stack_id, "combo-")[[1]][2],
+      label = stack_id,
       style = list(
         stroke = stack_color,
         fill = stack_color,

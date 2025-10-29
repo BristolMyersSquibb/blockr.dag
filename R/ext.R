@@ -301,7 +301,7 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$remove_stack,
           {
-
+            update(list(stacks = list(rm = input$remove_stack)))
           }
         )
       },
