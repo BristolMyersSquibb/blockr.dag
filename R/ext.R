@@ -376,7 +376,7 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   block_id_field <- paste0(mode, "_block_id")
   confirm_id <- paste0(mode, "_block_confirm")
 
-  # CSS for advanced options toggle (based on blockr.dplyr pattern)
+  # CSS for advanced options toggle and compact modal styling
   advanced_css <- tags$style(HTML(sprintf("
     #%s {
       max-height: 0;
@@ -408,8 +408,22 @@ create_block_modal <- function(mode = c("append", "add"), ns,
     .block-chevron.rotated {
       transform: rotate(90deg);
     }
+    /* Compact modal styling */
+    #shiny-modal .modal-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    #shiny-modal .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    #shiny-modal .modal-body {
+      padding: 20px;
+    }
     #shiny-modal .modal-body .form-group {
       width: 100%%;
+      margin-bottom: 16px;
     }
     #shiny-modal .modal-body .selectize-input,
     #shiny-modal .modal-body input[type='text'] {
@@ -423,6 +437,11 @@ create_block_modal <- function(mode = c("append", "add"), ns,
       color: #6c757d;
       margin-bottom: 4px;
       font-weight: normal;
+    }
+    #shiny-modal .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #e2e8f0;
+      gap: 8px;
     }
     #shiny-modal .modal-footer .btn {
       font-size: 0.875rem;
@@ -494,6 +513,16 @@ create_block_modal <- function(mode = c("append", "add"), ns,
     tagList(advanced_fields)
   )
 
+  # Button section (right-aligned at bottom)
+  button_section <- div(
+    style = "display: flex; justify-content: flex-end; margin-top: 20px;",
+    actionButton(
+      ns(confirm_id),
+      button_label,
+      class = "btn-primary"
+    )
+  )
+
   # Add auto-focus script
   auto_focus_script <- tags$script(HTML(sprintf("
     $('#shiny-modal').on('shown.bs.modal', function() {
@@ -504,21 +533,15 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   modalDialog(
     title = title,
     size = "l",
+    easyClose = TRUE,
+    footer = NULL,
     tagList(
       advanced_css,
       visible_fields,
       toggle_button,
       advanced_section,
+      button_section,
       auto_focus_script
-    ),
-    footer = tagList(
-      tags$button(
-        type = "button",
-        class = "btn btn-outline-secondary",
-        `data-bs-dismiss` = "modal",
-        "Cancel"
-      ),
-      actionButton(ns(confirm_id), button_label, class = "btn-primary")
     )
   )
 }
