@@ -101,7 +101,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         ns <- session$ns
         blk <- reactiveVal()
 
@@ -235,9 +234,7 @@ context_menu_items.dag_extension <- function(x) {
       action = function(input, output, session, board, update) {
         observeEvent(
           input$create_stack,
-          {
-
-          }
+          {}
         )
       },
       condition = function(board, target) {
@@ -258,9 +255,7 @@ context_menu_items.dag_extension <- function(x) {
       action = function(input, output, session, board, update) {
         observeEvent(
           input$remove_stack,
-          {
-
-          }
+          {}
         )
       },
       condition = function(board, target) {
@@ -278,7 +273,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         ns <- session$ns
         blk <- reactiveVal()
 
@@ -361,7 +355,6 @@ context_menu_items.dag_extension <- function(x) {
 }
 
 create_block_with_name <- function(reg_id, blk_nms, ...) {
-
   name_fun <- function(nms) {
     function(class) {
       last(make.unique(c(nms, default_block_name(class)), sep = " "))
@@ -375,49 +368,133 @@ create_block_modal <- function(mode = c("append", "add"), ns, board_block_ids, b
   mode <- match.arg(mode)
 
   title <- if (mode == "append") "Append new block" else "Add new block"
-  selection_id <- if (mode == "append") "append_block_selection" else "add_block_selection"
-  confirm_id <- if (mode == "append") "append_block_confirm" else "add_block_confirm"
-  name_id <- if (mode == "append") "append_block_name" else "add_block_name"
-  block_id_field <- if (mode == "append") "append_block_block_id" else "add_block_id"
+  button_label <- if (mode == "append") "Append Block" else "Add Block"
 
-  # Build field list
-  fields <- list(
+  # Use different IDs for each mode to avoid conflicts
+  selection_id <- paste0(mode, "_block_selection")
+  name_id <- paste0(mode, "_block_name")
+  block_id_field <- paste0(mode, "_block_id")
+  confirm_id <- paste0(mode, "_block_confirm")
+
+  # CSS for advanced options toggle (based on blockr.dplyr pattern)
+  advanced_css <- tags$style(HTML(sprintf("
+    #%s {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    #%s.expanded {
+      max-height: 500px;
+      overflow: visible;
+      transition: max-height 0.5s ease-in;
+    }
+    .block-advanced-toggle {
+      cursor: pointer;
+      user-select: none;
+      padding: 8px 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+    .block-chevron {
+      transition: transform 0.2s;
+      display: inline-block;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .block-chevron.rotated {
+      transform: rotate(90deg);
+    }
+    #shiny-modal .modal-body .form-group {
+      width: 100%%;
+    }
+    #shiny-modal .modal-body .selectize-input,
+    #shiny-modal .modal-body input[type='text'] {
+      width: 100%%;
+    }
+    #shiny-modal .modal-body .shiny-input-container {
+      width: 100%%;
+    }
+    #shiny-modal .modal-body .control-label {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-bottom: 4px;
+      font-weight: normal;
+    }
+    #shiny-modal .modal-footer .btn {
+      font-size: 0.875rem;
+      padding: 0.375rem 0.75rem;
+    }
+  ", ns("advanced-options"), ns("advanced-options"))))
+
+  # Always visible fields
+  visible_fields <- list(
     block_registry_selectize(ns(selection_id))
   )
 
-  # Add block input field only for append mode
+  # Add block input field only for append mode (visible)
   if (mode == "append") {
-    fields[[length(fields) + 1]] <- selectizeInput(
+    visible_fields[[length(visible_fields) + 1]] <- selectizeInput(
       ns("append_block_input"),
       "Block input",
       choices = c(`Select a block to populate options` = "")
     )
   }
 
-  # Add common fields
-  fields[[length(fields) + 1]] <- textInput(
+  # Add block name field (visible)
+  visible_fields[[length(visible_fields) + 1]] <- textInput(
     ns(name_id),
     label = "Block name",
     placeholder = "Select block to generate default"
   )
 
-  fields[[length(fields) + 1]] <- textInput(
-    ns(block_id_field),
-    label = "Block ID",
-    value = rand_names(board_block_ids)
+  # Advanced options toggle button
+  toggle_button <- div(
+    class = "block-advanced-toggle text-muted",
+    id = ns("advanced-toggle"),
+    onclick = sprintf(
+      "
+      const section = document.getElementById('%s');
+      const chevron = document.querySelector('#%s .block-chevron');
+      section.classList.toggle('expanded');
+      chevron.classList.toggle('rotated');
+      ",
+      ns("advanced-options"),
+      ns("advanced-toggle")
+    ),
+    tags$span(class = "block-chevron", "\u203A"),
+    "Show advanced options"
   )
 
-  # Add link ID field only for append mode
+  # Advanced options (collapsible)
+  advanced_fields <- list(
+    textInput(
+      ns(block_id_field),
+      label = "Block ID",
+      value = rand_names(board_block_ids)
+    )
+  )
+
+  # Add link ID field only for append mode (in advanced options)
   if (mode == "append") {
-    fields[[length(fields) + 1]] <- textInput(
-      ns("append_block_link_id"),
+    advanced_fields[[length(advanced_fields) + 1]] <- textInput(
+      ns("append_link_id"),
       label = "Link ID",
       value = rand_names(board_link_ids)
     )
   }
 
+  # Collapsible advanced options section
+  advanced_section <- div(
+    id = ns("advanced-options"),
+    tagList(advanced_fields)
+  )
+
   # Add auto-focus script
-  fields[[length(fields) + 1]] <- tags$script(HTML(sprintf("
+  auto_focus_script <- tags$script(HTML(sprintf("
     $('#shiny-modal').on('shown.bs.modal', function() {
       $('#%s')[0].selectize.focus();
     });
@@ -425,10 +502,21 @@ create_block_modal <- function(mode = c("append", "add"), ns, board_block_ids, b
 
   modalDialog(
     title = title,
-    tagList(fields),
+    tagList(
+      advanced_css,
+      visible_fields,
+      toggle_button,
+      advanced_section,
+      auto_focus_script
+    ),
     footer = tagList(
-      modalButton("Cancel"),
-      actionButton(ns(confirm_id), if (mode == "append") "Append Block" else "Add Block")
+      tags$button(
+        type = "button",
+        class = "btn btn-outline-secondary",
+        `data-bs-dismiss` = "modal",
+        "Cancel"
+      ),
+      actionButton(ns(confirm_id), button_label, class = "btn-primary")
     )
   )
 }
