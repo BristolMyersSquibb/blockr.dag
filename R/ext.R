@@ -415,9 +415,76 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
 }
 
 block_registry_selectize <- function(id) {
-  selectInput(
-    id,
-    label = "Select block to add",
-    choices = c("", list_blocks())
+  # Get all available blocks with metadata
+  blocks <- available_blocks()
+  block_ids <- list_blocks()
+
+  # Build options list for selectize
+  options_data <- list()
+  for (uid in block_ids) {
+    entry <- blocks[[uid]]
+    name <- attr(entry, "name")
+    if (is.null(name)) name <- uid
+    desc <- attr(entry, "description")
+    if (is.null(desc)) desc <- ""
+
+    options_data[[length(options_data) + 1]] <- list(
+      value = uid,
+      label = name,
+      description = desc,
+      searchtext = paste(name, desc) # Combined text for searching
+    )
+  }
+
+  tagList(
+    tags$style(HTML("
+      .block-option {
+        padding: 10px 16px;
+      }
+      .block-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #212529;
+        margin-bottom: 4px;
+      }
+      .block-desc {
+        font-size: 12px;
+        color: #6c757d;
+        line-height: 1.4;
+      }
+      .selectize-dropdown .block-option {
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 4px;
+        padding-bottom: 8px;
+      }
+      .selectize-dropdown .block-option:last-child {
+        border-bottom: none;
+      }
+    ")),
+    selectizeInput(
+      id,
+      label = "Select block to add",
+      choices = NULL,
+      options = list(
+        options = options_data,
+        valueField = "value",
+        labelField = "label",
+        searchField = c("label", "description", "searchtext"),
+        render = I("{
+          item: function(item, escape) {
+            return '<div>' + escape(item.label) + '</div>';
+          },
+          option: function(item, escape) {
+            var name = escape(item.label);
+            var desc = escape(item.description || '');
+
+            return '<div class=\"block-option\">' +
+                     '<div class=\"block-name\">' + name + '</div>' +
+                     (desc ? '<div class=\"block-desc\">' + desc + '</div>' : '') +
+                   '</div>';
+          }
+        }")
+      )
+    )
   )
 }
