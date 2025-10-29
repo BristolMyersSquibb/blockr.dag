@@ -143,7 +143,10 @@ add_edge_observer <- function(input, board, proxy, update) {
             )
           ),
           footer = tagList(
-            modalButton("Cancel"),
+            actionButton(
+              ns("added_edge_cancel"),
+              "Cancel"
+            ),
             actionButton(
               ns("added_edge_confirm"),
               "Select input"
@@ -151,6 +154,14 @@ add_edge_observer <- function(input, board, proxy, update) {
           )
         )
       )
+    }
+  )
+
+  observeEvent(
+    input$added_edge_confirm,
+    {
+      remove_edges(input$added_edge$id, proxy)
+      removeModal()
     }
   )
 
