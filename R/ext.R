@@ -313,7 +313,6 @@ context_menu_items.dag_extension <- function(x) {
                           )
                         })
                       ),
-                      selected = blk_ids[1],
                       multiple = TRUE
                     ),
                     shinyWidgets::colorPickr(
@@ -352,11 +351,16 @@ context_menu_items.dag_extension <- function(x) {
 
         observeEvent(input$create_stack_confirm, {
           id <- input$stack_id
-          new_stack <- new_stack(
-            blocks = input$new_stack_nodes,
-            name = id,
-            color = input$stack_color
-          )
+          if (is.null(input$new_stack_nodes)) {
+            new_stack <- new_stack(name = id, color = input$stack_color)
+          } else {
+            new_stack <- new_stack(
+              blocks = input$new_stack_nodes,
+              name = id,
+              color = input$stack_color
+            )
+          }
+
           update(list(
             stacks = list(add = as_stacks(set_names(list(new_stack), id)))
           ))
@@ -385,6 +389,80 @@ context_menu_items.dag_extension <- function(x) {
             update(list(stacks = list(rm = input$remove_stack)))
           }
         )
+      },
+      condition = function(board, target) {
+        target$type == "combo"
+      }
+    ),
+    new_context_menu_entry(
+      name = "Edit stack",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            if (current.id === undefined) return;
+            Shiny.setInputValue('%s', current.id, {priority: 'event'});
+          }",
+          ns("edit_stack")
+        )
+      },
+      action = function(input, output, session, board, update) {
+        ns <- session$ns
+        observeEvent(
+          input$edit_stack,
+          {
+            blocks <- stack_blocks(
+              board_stacks(board$board)[[input$edit_stack]]
+            )
+            not_in_stack <- setdiff(
+              board_block_ids(board$board),
+              blocks
+            )
+
+            showModal(
+              modalDialog(
+                title = "Edit stack",
+                size = "m",
+                shiny::selectInput(
+                  inputId = ns("edit_stack_nodes"),
+                  label = "Move blocks in an out the stack :",
+                  choices = board_block_ids(board$board),
+                  selected = blocks,
+                  multiple = TRUE,
+                  width = "100%"
+                ),
+                footer = tagList(
+                  actionButton(
+                    ns("edit_stack_confirm"),
+                    "Confirm",
+                    icon = icon("object-group")
+                  ),
+                  modalButton("Dismiss")
+                )
+              )
+            )
+          }
+        )
+
+        observeEvent(input$edit_stack_confirm, {
+          id <- input$edit_stack
+          new_blocks <- input$edit_stack_nodes
+
+          new_stack <- board_stacks(board$board)[[id]]
+          if (is.null(new_blocks)) {
+            new_blocks <- character(0)
+          }
+          stack_blocks(new_stack) <- new_blocks
+
+          update(list(
+            stacks = list(
+              mod = as_stacks(set_names(
+                list(new_stack),
+                id
+              ))
+            )
+          ))
+          removeModal()
+        })
       },
       condition = function(board, target) {
         target$type == "combo"

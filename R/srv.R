@@ -88,6 +88,10 @@ update_observer <- function(update, board, proxy) {
       if (length(upd$stacks$add)) {
         add_combos(upd$stacks$add, proxy)
       }
+
+      if (length(upd$stacks$mod)) {
+        update_combo_nodes(upd$stacks$mod, board$board, proxy)
+      }
     }
   )
 }

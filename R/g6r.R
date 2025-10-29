@@ -354,5 +354,30 @@ add_nodes_to_combo <- function(id, blocks, proxy = blockr_g6_proxy()) {
   })
 
   g6_update_nodes(proxy, nodes)
-  nodes
+}
+
+remove_nodes_from_combo <- function(id, blocks, proxy = blockr_g6_proxy()) {
+  nodes <- lapply(blocks, function(block) {
+    list(
+      id = block,
+      combo = NULL
+    )
+  })
+
+  g6_update_nodes(proxy, nodes)
+}
+
+update_combo_nodes <- function(stacks, board, proxy = blockr_g6_proxy()) {
+  lapply(stacks, function(stack) {
+    stack_name <- stack_name(stack)
+    current_stack_state <- stack_blocks(
+      board_stacks(board)[[stack_name]]
+    )
+    new_stack_blocks <- stack_blocks(stack)
+
+    to_add <- setdiff(new_stack_blocks, current_stack_state)
+    to_remove <- setdiff(current_stack_state, new_stack_blocks)
+    remove_nodes_from_combo(stack_name, to_remove, proxy)
+    add_nodes_to_combo(stack_name, to_add, proxy)
+  })
 }
