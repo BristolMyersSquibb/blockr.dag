@@ -632,6 +632,8 @@ block_registry_selectize <- function(id) {
         valueField = "value",
         labelField = "label",
         searchField = c("label", "description", "searchtext"),
+        placeholder = "Type to search",
+        openOnFocus = FALSE,
         render = I("{
           item: function(item, escape) {
             return '<div>' + escape(item.label) + '</div>';
