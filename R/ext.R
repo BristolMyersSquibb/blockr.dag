@@ -364,7 +364,8 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
   create_block(reg_id, ..., name = name_fun(blk_nms))
 }
 
-create_block_modal <- function(mode = c("append", "add"), ns, board_block_ids, board_link_ids = NULL) {
+create_block_modal <- function(mode = c("append", "add"), ns,
+                               board_block_ids, board_link_ids = NULL) {
   mode <- match.arg(mode)
 
   title <- if (mode == "append") "Append new block" else "Add new block"
@@ -536,15 +537,18 @@ block_registry_selectize <- function(id) {
     if (is.null(desc)) desc <- ""
     category <- attr(entry, "category")
     if (is.null(category)) category <- "uncategorized"
+    package <- attr(entry, "package")
+    if (is.null(package)) package <- ""
 
     options_data[[length(options_data) + 1]] <- list(
       value = uid,
       label = name,
       description = desc,
       category = category,
+      package = package,
       icon = blk_icon_name(category),  # Use blk_icon_name function
       color = blk_color(category),      # Use blk_color function
-      searchtext = paste(name, desc)
+      searchtext = paste(name, desc, package)
     )
   }
 
@@ -553,7 +557,7 @@ block_registry_selectize <- function(id) {
       .block-option {
         padding: 8px 12px;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 12px;
       }
       .block-icon-wrapper {
@@ -571,16 +575,34 @@ block_registry_selectize <- function(id) {
         flex: 1;
         min-width: 0;
       }
+      .block-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 2px;
+      }
       .block-name {
         font-weight: 600;
         font-size: 14px;
         color: #212529;
-        margin-bottom: 2px;
+        flex: 1;
       }
       .block-desc {
         font-size: 12px;
         color: #6c757d;
         line-height: 1.4;
+      }
+      .badge-two-tone {
+        display: inline-block;
+        padding: 0.125rem 0.375rem;
+        font-size: 0.625rem;
+        border-radius: 0.25rem;
+        background-color: rgba(148, 163, 184, 0.1);
+        color: rgba(100, 116, 139, 0.9);
+        border: 1px solid rgba(100, 116, 139, 0.1);
+        white-space: nowrap;
+        flex-shrink: 0;
       }
       .selectize-dropdown .block-option {
         border-bottom: 1px solid #f0f0f0;
@@ -611,16 +633,26 @@ block_registry_selectize <- function(id) {
           option: function(item, escape) {
             var name = escape(item.label);
             var desc = escape(item.description || '');
+            var pkg = escape(item.package || '');
             var icon = item.icon || 'circle';
             var color = item.color || '#6c757d';
 
-            return '<div class=\"block-option\">' +
-                     '<div class=\"block-icon-wrapper\" style=\"background-color: ' + color + ';\">' +
-                       '<i class=\"fa fa-' + icon + '\"></i>' +
-                     '</div>' +
+            var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
+                              'style=\"background-color: ' + color + ';\">' +
+                              '<i class=\"fa fa-' + icon + '\"></i></div>';
+            var pkgBadge = pkg ?
+                           '<div class=\"badge-two-tone\">' + pkg + '</div>' :
+                           '';
+            var descHtml = desc ?
+                           '<div class=\"block-desc\">' + desc + '</div>' :
+                           '';
+            return '<div class=\"block-option\">' + iconWrapper +
                      '<div class=\"block-content\">' +
-                       '<div class=\"block-name\">' + name + '</div>' +
-                       (desc ? '<div class=\"block-desc\">' + desc + '</div>' : '') +
+                       '<div class=\"block-header\">' +
+                         '<div class=\"block-name\">' + name + '</div>' +
+                         pkgBadge +
+                       '</div>' +
+                       descHtml +
                      '</div>' +
                    '</div>';
           }
