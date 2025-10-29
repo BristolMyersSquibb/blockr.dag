@@ -110,37 +110,11 @@ context_menu_items.dag_extension <- function(x) {
           {
             blk(NULL)
             showModal(
-              modalDialog(
-                title = "Append new block",
-                tagList(
-                  block_registry_selectize(
-                    ns("append_block_selection")
-                  ),
-                  selectizeInput(
-                    ns("append_block_input"),
-                    "Block input",
-                    choices = c(`Select a block to populate options` = "")
-                  ),
-                  textInput(
-                    ns("append_block_name"),
-                    label = "Block name",
-                    placeholder = "Select block to generate default"
-                  ),
-                  textInput(
-                    ns("append_block_block_id"),
-                    label = "Block ID",
-                    value = rand_names(board_block_ids(board$board))
-                  ),
-                  textInput(
-                    ns("append_block_link_id"),
-                    label = "Link ID",
-                    value = rand_names(board_link_ids(board$board))
-                  )
-                ),
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton(ns("append_block_confirm"), "Append Block")
-                )
+              create_block_modal(
+                mode = "append",
+                ns = ns,
+                board_block_ids = board_block_ids(board$board),
+                board_link_ids = board_link_ids(board$board)
               )
             )
           }
@@ -184,8 +158,8 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$append_block_confirm,
           {
-            blk_id <- input$append_block_block_id
-            lnk_id <- input$append_block_link_id
+            blk_id <- input$append_block_id
+            lnk_id <- input$append_link_id
 
             if (!nchar(blk_id) || blk_id %in% board_block_ids(board$board)) {
               notify(
@@ -313,27 +287,10 @@ context_menu_items.dag_extension <- function(x) {
           {
             blk(NULL)
             showModal(
-              modalDialog(
-                title = "Add new block",
-                tagList(
-                  block_registry_selectize(
-                    ns("add_block_selection")
-                  ),
-                  textInput(
-                    ns("add_block_name"),
-                    label = "Block name",
-                    placeholder = "Select block to generate default"
-                  ),
-                  textInput(
-                    ns("add_block_id"),
-                    label = "Block ID",
-                    value = rand_names(board_block_ids(board$board))
-                  )
-                ),
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton(ns("add_block_confirm"), "Add Block")
-                )
+              create_block_modal(
+                mode = "add",
+                ns = ns,
+                board_block_ids = board_block_ids(board$board)
               )
             )
           }
@@ -412,6 +369,68 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
   }
 
   create_block(reg_id, ..., name = name_fun(blk_nms))
+}
+
+create_block_modal <- function(mode = c("append", "add"), ns, board_block_ids, board_link_ids = NULL) {
+  mode <- match.arg(mode)
+
+  title <- if (mode == "append") "Append new block" else "Add new block"
+  selection_id <- if (mode == "append") "append_block_selection" else "add_block_selection"
+  confirm_id <- if (mode == "append") "append_block_confirm" else "add_block_confirm"
+  name_id <- if (mode == "append") "append_block_name" else "add_block_name"
+  block_id_field <- if (mode == "append") "append_block_block_id" else "add_block_id"
+
+  # Build field list
+  fields <- list(
+    block_registry_selectize(ns(selection_id))
+  )
+
+  # Add block input field only for append mode
+  if (mode == "append") {
+    fields[[length(fields) + 1]] <- selectizeInput(
+      ns("append_block_input"),
+      "Block input",
+      choices = c(`Select a block to populate options` = "")
+    )
+  }
+
+  # Add common fields
+  fields[[length(fields) + 1]] <- textInput(
+    ns(name_id),
+    label = "Block name",
+    placeholder = "Select block to generate default"
+  )
+
+  fields[[length(fields) + 1]] <- textInput(
+    ns(block_id_field),
+    label = "Block ID",
+    value = rand_names(board_block_ids)
+  )
+
+  # Add link ID field only for append mode
+  if (mode == "append") {
+    fields[[length(fields) + 1]] <- textInput(
+      ns("append_block_link_id"),
+      label = "Link ID",
+      value = rand_names(board_link_ids)
+    )
+  }
+
+  # Add auto-focus script
+  fields[[length(fields) + 1]] <- tags$script(HTML(sprintf("
+    $('#shiny-modal').on('shown.bs.modal', function() {
+      $('#%s')[0].selectize.focus();
+    });
+  ", ns(selection_id))))
+
+  modalDialog(
+    title = title,
+    tagList(fields),
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton(ns(confirm_id), if (mode == "append") "Append Block" else "Add Block")
+    )
+  )
 }
 
 block_registry_selectize <- function(id) {
