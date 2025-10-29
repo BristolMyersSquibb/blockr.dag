@@ -429,5 +429,5 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
     }
   }
 
-  create_block(reg_id, ..., name = name_fun(blk_nms))
+  create_block(reg_id, ..., block_name = name_fun(blk_nms))
 }
