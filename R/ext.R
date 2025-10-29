@@ -503,6 +503,7 @@ create_block_modal <- function(mode = c("append", "add"), ns,
 
   modalDialog(
     title = title,
+    size = "l",
     tagList(
       advanced_css,
       visible_fields,
@@ -555,20 +556,20 @@ block_registry_selectize <- function(id) {
   tagList(
     tags$style(HTML("
       .block-option {
-        padding: 8px 12px;
+        padding: 12px 16px;
         display: flex;
         align-items: flex-start;
-        gap: 12px;
+        gap: 14px;
       }
       .block-icon-wrapper {
         flex-shrink: 0;
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 18px;
         color: white;
       }
       .block-content {
@@ -579,17 +580,17 @@ block_registry_selectize <- function(id) {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 2px;
+        gap: 10px;
+        margin-bottom: 4px;
       }
       .block-name {
         font-weight: 600;
-        font-size: 14px;
+        font-size: 15px;
         color: #212529;
         flex: 1;
       }
       .block-desc {
-        font-size: 12px;
+        font-size: 13px;
         color: #6c757d;
         line-height: 1.4;
       }
