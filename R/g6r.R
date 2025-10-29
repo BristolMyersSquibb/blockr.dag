@@ -1,6 +1,6 @@
-g6_from_board <- function(board) {
+g6_from_board <- function(board, session) {
   stopifnot(is_board(board))
-  graph <- g6_data_from_board(board)
+  graph <- g6_data_from_board(board, session)
   g6(
     nodes = graph_nodes(graph),
     edges = graph_edges(graph),
@@ -186,7 +186,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   ns <- session$ns
 
   if (is.null(graph)) {
-    res <- g6_from_board(board)
+    res <- g6_from_board(board, session)
   } else {
     res <- g6_from_graph(graph)
   }
@@ -252,19 +252,56 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
   })
 }
 
+#' @rdname g6-from-board
+#' @param stacks Board stacks.
+#' @param colors Stacks colors. Internal.
+#' @keywords internal
+g6_combos_data_from_stacks <- function(
+  stacks,
+  colors = grDevices::hcl.colors(
+    50,
+    palette = grDevices::hcl.pals()[1]
+  )
+) {
+  lapply(seq_along(stacks), function(i) {
+    stack_id <- sprintf("combo-%s", names(stacks)[[i]])
+    if (length(stacks) == 0) {
+      stack_color <- colors[1]
+    } else {
+      stack_color <- colors[length(stacks) * 5]
+    }
+
+    list(
+      id = stack_id,
+      label = strsplit(stack_id, "combo-")[[1]][2],
+      style = list(
+        stroke = stack_color,
+        fill = stack_color,
+        fillOpacity = 0.2,
+        shadowColor = stack_color,
+        collapsedFill = stack_color,
+        collapsedStroke = stack_color,
+        iconFill = stack_color,
+        labelPlacement = "top"
+      )
+    )
+  })
+}
+
 #' Create network data from board
 #'
 #' @keywords internal
 #' @param board Board object.
+#' @param session Shiny session.
 #' @rdname g6-from-board
-g6_data_from_board <- function(board) {
+g6_data_from_board <- function(board, session) {
   # Cold start
   links <- board_links(board)
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
   edges_data <- g6_edges_from_links(links)
-  combos_data <- NULL # TBD
+  combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
   new_graph(
