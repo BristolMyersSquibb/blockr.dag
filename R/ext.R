@@ -534,25 +534,48 @@ block_registry_selectize <- function(id) {
     if (is.null(name)) name <- uid
     desc <- attr(entry, "description")
     if (is.null(desc)) desc <- ""
+    category <- attr(entry, "category")
+    if (is.null(category)) category <- "uncategorized"
 
     options_data[[length(options_data) + 1]] <- list(
       value = uid,
       label = name,
       description = desc,
-      searchtext = paste(name, desc) # Combined text for searching
+      category = category,
+      icon = blk_icon_name(category),  # Use blk_icon_name function
+      color = blk_color(category),      # Use blk_color function
+      searchtext = paste(name, desc)
     )
   }
 
   tagList(
     tags$style(HTML("
       .block-option {
-        padding: 10px 16px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .block-icon-wrapper {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: white;
+      }
+      .block-content {
+        flex: 1;
+        min-width: 0;
       }
       .block-name {
         font-weight: 600;
         font-size: 14px;
         color: #212529;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
       .block-desc {
         font-size: 12px;
@@ -561,11 +584,15 @@ block_registry_selectize <- function(id) {
       }
       .selectize-dropdown .block-option {
         border-bottom: 1px solid #f0f0f0;
-        margin-bottom: 4px;
+        margin-bottom: 0px;
         padding-bottom: 8px;
+        padding-top: 8px;
       }
       .selectize-dropdown .block-option:last-child {
         border-bottom: none;
+      }
+      .selectize-dropdown .block-option:hover {
+        background-color: #f8f9fa;
       }
     ")),
     selectizeInput(
@@ -584,10 +611,17 @@ block_registry_selectize <- function(id) {
           option: function(item, escape) {
             var name = escape(item.label);
             var desc = escape(item.description || '');
+            var icon = item.icon || 'circle';
+            var color = item.color || '#6c757d';
 
             return '<div class=\"block-option\">' +
-                     '<div class=\"block-name\">' + name + '</div>' +
-                     (desc ? '<div class=\"block-desc\">' + desc + '</div>' : '') +
+                     '<div class=\"block-icon-wrapper\" style=\"background-color: ' + color + ';\">' +
+                       '<i class=\"fa fa-' + icon + '\"></i>' +
+                     '</div>' +
+                     '<div class=\"block-content\">' +
+                       '<div class=\"block-name\">' + name + '</div>' +
+                       (desc ? '<div class=\"block-desc\">' + desc + '</div>' : '') +
+                     '</div>' +
                    '</div>';
           }
         }")
