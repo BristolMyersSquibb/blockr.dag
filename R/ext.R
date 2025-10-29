@@ -113,10 +113,8 @@ context_menu_items.dag_extension <- function(x) {
               modalDialog(
                 title = "Append new block",
                 tagList(
-                  selectInput(
-                    ns("append_block_selection"),
-                    "Select block to add",
-                    choices = c("", list_blocks())
+                  block_registry_selectize(
+                    ns("append_block_selection")
                   ),
                   selectizeInput(
                     ns("append_block_input"),
@@ -318,10 +316,8 @@ context_menu_items.dag_extension <- function(x) {
               modalDialog(
                 title = "Add new block",
                 tagList(
-                  selectInput(
-                    ns("add_block_selection"),
-                    label = "Select block to add",
-                    choices = c("", list_blocks())
+                  block_registry_selectize(
+                    ns("add_block_selection")
                   ),
                   textInput(
                     ns("add_block_name"),
@@ -416,4 +412,12 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
   }
 
   create_block(reg_id, ..., name = name_fun(blk_nms))
+}
+
+block_registry_selectize <- function(id) {
+  selectInput(
+    id,
+    label = "Select block to add",
+    choices = c("", list_blocks())
+  )
 }
