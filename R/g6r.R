@@ -116,7 +116,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType !== 'node') {
-              console.log(edge);
               graph.removeEdgeData([edge.id]);
             } else {
               Shiny.setInputValue('%s', edge);
