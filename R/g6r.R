@@ -116,7 +116,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType !== 'node') {
-              console.log(edge);
               graph.removeEdgeData([edge.id]);
             } else {
               Shiny.setInputValue('%s', edge);
@@ -254,26 +253,41 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 
 #' @rdname g6-from-board
 #' @param stacks Board stacks.
+#' @param session Shiny session
 #' @keywords internal
-g6_combos_data_from_stacks <- function(stacks) {
+g6_combos_data_from_stacks <- function(stacks, session = get_session()) {
+  # Manual colors from input
+  colors <- isolate(session$input$stack_color)
+
+  # Or take default colors from board options
+  if (!length(colors)) {
+    colors <- isolate(get_board_option_or_default(
+      "stack_colors",
+      dag_extension_options(),
+      session
+    ))
+
+    # Compute evenly spaced indices
+    idx <- round(seq(1, length(colors), length.out = length(stacks)))
+    # Select colors
+    colors <- colors[idx]
+  }
+
   lapply(seq_along(stacks), function(i) {
     stack_id <- names(stacks)[[i]]
-    stack_color <- attributes(stacks[[i]])[["color"]]
-    if (is.null(stack_color)) {
-      stack_color <- "#888888"
-    }
+    color <- colors[[i]]
 
     list(
       id = stack_id,
       label = stack_id,
       style = list(
-        stroke = stack_color,
-        fill = stack_color,
+        stroke = color,
+        fill = color,
         fillOpacity = 0.2,
-        shadowColor = stack_color,
-        collapsedFill = stack_color,
-        collapsedStroke = stack_color,
-        iconFill = stack_color,
+        shadowColor = color,
+        collapsedFill = color,
+        collapsedStroke = color,
+        iconFill = color,
         labelPlacement = "top"
       )
     )
@@ -293,7 +307,7 @@ g6_data_from_board <- function(board, session) {
   stacks <- board_stacks(board)
 
   edges_data <- g6_edges_from_links(links)
-  combos_data <- g6_combos_data_from_stacks(stacks)
+  combos_data <- g6_combos_data_from_stacks(stacks, session)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
   new_graph(
@@ -328,7 +342,7 @@ add_edges <- function(links, proxy = blockr_g6_proxy()) {
 }
 
 add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
-  combos <- g6_combos_data_from_stacks(stacks)
+  combos <- g6_combos_data_from_stacks(stacks, proxy$session)
   g6_add_combos(proxy, combos)
 
   # Add nodes to stacks if any

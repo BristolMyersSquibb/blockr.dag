@@ -352,13 +352,9 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(input$create_stack_confirm, {
           id <- input$stack_id
           if (is.null(input$new_stack_nodes)) {
-            new_stack <- new_stack(name = id, color = input$stack_color)
+            new_stack <- new_stack(name = id)
           } else {
-            new_stack <- new_stack(
-              blocks = input$new_stack_nodes,
-              name = id,
-              color = input$stack_color
-            )
+            new_stack <- new_stack(blocks = input$new_stack_nodes, name = id)
           }
 
           update(list(
@@ -412,10 +408,6 @@ context_menu_items.dag_extension <- function(x) {
           {
             blocks <- stack_blocks(
               board_stacks(board$board)[[input$edit_stack]]
-            )
-            not_in_stack <- setdiff(
-              board_block_ids(board$board),
-              blocks
             )
 
             showModal(
