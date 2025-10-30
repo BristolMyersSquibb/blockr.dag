@@ -23,7 +23,8 @@ Imports:
     blockr.dock,
     shiny,
     g6R,
-    jsonlite
+    jsonlite,
+    htmltools
 Remotes:
     BristolMyersSquibb/blockr.core,
     BristolMyersSquibb/blockr.dock,

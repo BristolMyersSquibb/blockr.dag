@@ -99,7 +99,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
     click_select(multiple = TRUE),
     brush_select(
       # Option key on mac
-      trigger = "Alt"
+      trigger = "Alt",
+      enableElements = c("node", "edge", "combo"),
+      immediately = TRUE
     ),
     collapse_expand(),
     # avoid conflict with internal function
@@ -293,4 +295,22 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 add_links <- function(links, proxy = blockr_g6_proxy()) {
   edges <- g6_edges_from_links(links)
   g6_add_edges(proxy, edges)
+}
+
+setup_remove_elements_kbd <- function(
+  key = "Backspace",
+  session = get_session()
+) {
+  input <- session$input
+  ns <- session$ns
+  observeEvent(req(input[[paste0(graph_id(), "-initialized")]]), {
+    session$sendCustomMessage(
+      "setup-remove-selected-elements",
+      # TBD: key can be a board option
+      list(
+        key = key,
+        id = graph_id(ns)
+      )
+    )
+  })
 }

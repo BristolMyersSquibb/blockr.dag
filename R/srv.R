@@ -47,6 +47,8 @@ dag_ext_srv <- function(graph) {
         # TBD: when adding new blocks call register_node_stack_link (see old
         # API).
 
+        batch_delete_observer(input, update)
+
         add_edge_observer(input, board, proxy, update)
 
         update_observer(update, board, proxy)
@@ -57,6 +59,22 @@ dag_ext_srv <- function(graph) {
       }
     )
   }
+}
+
+batch_delete_observer <- function(input, update) {
+  # Handle remove any selected element with backspace key
+  setup_remove_elements_kbd()
+
+  observeEvent(input[[paste0(graph_id(), "-batch_delete")]], {
+    browser()
+    update(
+      list(
+        blocks = list(rm = input[[paste0(graph_id(), "-selected_node")]]),
+        links = list(rm = input[[paste0(graph_id(), "-selected_edge")]]),
+        stacks = list(rm = input[[paste0(graph_id(), "-selected_combo")]])
+      )
+    )
+  })
 }
 
 update_observer <- function(update, board, proxy) {
@@ -89,7 +107,6 @@ update_observer <- function(update, board, proxy) {
 }
 
 add_edge_observer <- function(input, board, proxy, update) {
-
   ns <- proxy$session$ns
 
   observeEvent(
@@ -107,15 +124,10 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (is.na(block_arity(trg))) {
-
         opts <- list(create = TRUE)
-
       } else if (length(inputs)) {
-
         opts <- list()
-
       } else {
-
         notify(
           "No inputs are available for block {new_edg$target}.",
           type = "warning"
@@ -179,7 +191,6 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (new_edg$id %in% board_link_ids(board$board)) {
-
         notify(
           "Cannot add edge with existing ID {new_edg$id}.",
           type = "warning"

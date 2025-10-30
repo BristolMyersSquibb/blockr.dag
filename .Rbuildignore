@@ -1,3 +1,11 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.github$
+^srcjs$
+^node_modules$
+^package\.json$
+^package-lock\.json$
+^styles$
+^esbuild\.dev\.js$
+^esbuild\.prod\.js$
+^\.lintr$
