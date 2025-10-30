@@ -62,4 +62,28 @@ blk_color <- function(category) {
   )
 }
 
+#' Get block icon name
+#'
+#' Returns the FontAwesome icon name for a block category.
+#' This is aligned with blockr.ui::blk_icon() but returns just the name.
+#'
+#' @param category Block category
+#' @keywords internal
+blk_icon_name <- function(category) {
+  if (!length(category)) {
+    return("cube")
+  }
+
+  switch(
+    category,
+    data = "table",
+    file = "file",
+    parse = "gear",
+    plot = "chart-line",
+    transform = "wand-magic",
+    table = "table",
+    "cube"
+  )
+}
+
 last <- function(x) x[[length(x)]]

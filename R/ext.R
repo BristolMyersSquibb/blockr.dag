@@ -117,39 +117,11 @@ context_menu_items.dag_extension <- function(x) {
           {
             blk(NULL)
             showModal(
-              modalDialog(
-                title = "Append new block",
-                tagList(
-                  selectInput(
-                    ns("append_block_selection"),
-                    "Select block to add",
-                    choices = c("", list_blocks())
-                  ),
-                  selectizeInput(
-                    ns("append_block_input"),
-                    "Block input",
-                    choices = c(`Select a block to populate options` = "")
-                  ),
-                  textInput(
-                    ns("append_block_name"),
-                    label = "Block name",
-                    placeholder = "Select block to generate default"
-                  ),
-                  textInput(
-                    ns("append_block_block_id"),
-                    label = "Block ID",
-                    value = rand_names(board_block_ids(board$board))
-                  ),
-                  textInput(
-                    ns("append_block_link_id"),
-                    label = "Link ID",
-                    value = rand_names(board_link_ids(board$board))
-                  )
-                ),
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton(ns("append_block_confirm"), "Append Block")
-                )
+              create_block_modal(
+                mode = "append",
+                ns = ns,
+                board_block_ids = board_block_ids(board$board),
+                board_link_ids = board_link_ids(board$board)
               )
             )
           }
@@ -202,8 +174,8 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$append_block_confirm,
           {
-            blk_id <- input$append_block_block_id
-            lnk_id <- input$append_block_link_id
+            blk_id <- input$append_block_id
+            lnk_id <- input$append_link_id
 
             if (!nchar(blk_id) || blk_id %in% board_block_ids(board$board)) {
               notify(
@@ -479,29 +451,10 @@ context_menu_items.dag_extension <- function(x) {
           {
             blk(NULL)
             showModal(
-              modalDialog(
-                title = "Add new block",
-                tagList(
-                  selectInput(
-                    ns("add_block_selection"),
-                    label = "Select block to add",
-                    choices = c("", list_blocks())
-                  ),
-                  textInput(
-                    ns("add_block_name"),
-                    label = "Block name",
-                    placeholder = "Select block to generate default"
-                  ),
-                  textInput(
-                    ns("add_block_id"),
-                    label = "Block ID",
-                    value = rand_names(board_block_ids(board$board))
-                  )
-                ),
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton(ns("add_block_confirm"), "Add Block")
-                )
+              create_block_modal(
+                mode = "add",
+                ns = ns,
+                board_block_ids = board_block_ids(board$board)
               )
             )
           }
@@ -578,5 +531,5 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
     }
   }
 
-  create_block(reg_id, ..., name = name_fun(blk_nms))
+  create_block(reg_id, ..., block_name = name_fun(blk_nms))
 }
