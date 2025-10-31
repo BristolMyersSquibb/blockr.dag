@@ -45,6 +45,7 @@ serve(
       b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width")
     ),
     links = list(from = "a", to = "b", input = "data"),
+    stacks = c(stack_1 = new_stack(c("a", "b"), color = "blue"), stack_2 = new_stack()),
     extensions = new_dag_extension()
   )
 )
