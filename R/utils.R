@@ -152,3 +152,17 @@ next_color <- function(colors = character(), lum_var = TRUE) {
     fixup = TRUE
   )
 }
+
+available_stack_blocks <- function(board) {
+
+  stacks <- board_stacks(board)
+  blocks <- board_blocks(board)
+
+  blk_ids <- names(blocks)
+
+  stacked_blocks <- unlst(
+    lapply(stacks, stack_blocks)
+  )
+
+  blk_ids[!(blk_ids %in% stacked_blocks)]
+}

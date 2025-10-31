@@ -40,19 +40,27 @@ is_hex_color <- function(x) {
 #' @rdname stack
 #' @export
 stack_color <- function(x) {
+  UseMethod("stack_color")
+}
 
-  if (is_dag_stack(x)) {
-    return(attr(x, "color"))
-  }
+#' @export
+stack_color.dag_stack <- function(x) {
+  attr(x, "color")
+}
 
-  if (is_stack(x)) {
-    return(NULL)
-  }
+#' @export
+stack_color.stack <- function(x) {
+  NA_character_
+}
 
-  blockr_abort(
-    "Cannot return stack color for objects with class{?es} {class(x)}",
-    class = "stack_color_not_available"
-  )
+#' @export
+stack_color.stacks <- function(x) {
+  chr_ply(x, stack_color)
+}
+
+#' @export
+stack_color.board <- function(x) {
+  stack_color(board_stacks(x))
 }
 
 #' @param value Replacement value

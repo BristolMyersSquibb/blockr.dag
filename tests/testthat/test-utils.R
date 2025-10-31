@@ -12,4 +12,11 @@ test_that("suggest_new_colors", {
     col,
     suggest_new_colors(n = n)
   )
+
+  cur <- suggest_new_colors(n = 5)
+
+  expect_identical(
+    suggest_new_colors(cur),
+    suggest_new_colors(rev(cur))
+  )
 })

@@ -245,54 +245,42 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$create_stack,
           {
-            stacks <- board_stacks(board$board)
             blocks <- board_blocks(board$board)
 
-            blk_ids <- names(blocks)
-
-            stacked_blocks <- unlst(
-              lapply(stacks, stack_blocks)
-            )
-
-            blk_ids <- blk_ids[!(blk_ids %in% stacked_blocks)]
+            blk_ids <- available_stack_blocks(board$board)
 
             showModal(
               modalDialog(
                 title = "New stack",
                 size = "m",
-                div(
-                  class = "d-grid gap-2 mx-auto",
-                  role = "group",
-                  div(
-                    class = paste(
-                      "d-flex gap-4 align-items-center",
-                      "justify-content-around"
-                    ),
-                    selectInput(
-                      ns("new_stack_nodes"),
-                      "Select nodes (may be empty)",
-                      choices = set_names(
-                        blk_ids,
-                        chr_ply(blocks[blk_ids], block_name)
-                      ),
-                      multiple = TRUE
-                    ),
-                    shinyWidgets::colorPickr(
-                      inputId = ns("stack_color"),
-                      label = "Pick a color for the stack:",
-                      selected = suggest_new_colors(
-                        chr_ply(stacks, stack_color)
-                      ),
-                      theme = "nano",
-                      position = "right-end",
-                      useAsButton = TRUE
-                    )
+                selectInput(
+                  ns("create_stack_blocks"),
+                  "Select nodes",
+                  choices = c(
+                    `Empty stack` = "",
+                    set_names(blk_ids, chr_ply(blocks[blk_ids], block_name))
                   ),
-                  textInput(
-                    ns("stack_id"),
-                    "Stack ID",
-                    value = rand_names(board_stack_ids(board$board))
-                  )
+                  multiple = TRUE
+                ),
+                shinyWidgets::colorPickr(
+                  inputId = ns("create_stack_color"),
+                  label = "Stack color",
+                  selected = suggest_new_colors(
+                    stack_color(board$board)
+                  ),
+                  theme = "nano",
+                  position = "right-end",
+                  useAsButton = TRUE
+                ),
+                textInput(
+                  ns("create_stack_name"),
+                  "Stack name",
+                  value = new_stack_name(board$board)
+                ),
+                textInput(
+                  ns("create_stack_id"),
+                  "Stack ID",
+                  value = rand_names(board_stack_ids(board$board))
                 ),
                 footer = tagList(
                   actionButton(
@@ -307,27 +295,40 @@ context_menu_items.dag_extension <- function(x) {
           }
         )
 
-        observeEvent(input$create_stack_confirm, {
-          id <- input$stack_id
-          if (is.null(input$new_stack_nodes)) {
+        observeEvent(
+          input$create_stack_confirm,
+          {
+            stk_id <- input$create_stack_id
+
+            if (!nchar(stk_id) || stk_id %in% board_stack_ids(board$board)) {
+              notify(
+                "Please choose a valid stack ID.",
+                type = "warning",
+                session = session
+              )
+
+              return()
+            }
+
+            if (is.null(input$create_stack_blocks)) {
+              blocks <- character()
+            } else {
+              blocks <- input$new_stack_nodes
+            }
+
             new_stack <- new_dag_stack(
-              name = id,
-              color = input$stack_color
+              blocks = blocks,
+              name = input$create_stack_name,
+              color = input$create_stack_color
             )
-          } else {
-            new_stack <- new_dag_stack(
-              blocks = input$new_stack_nodes,
-              name = id,
-              color = input$stack_color
-            )
+
+            new_stack <- as_stacks(set_names(list(new_stack), stk_id))
+
+            update(list(stacks = list(add = new_stack)))
+
+            removeModal()
           }
-
-          new_stack <- as_stacks(set_names(list(new_stack), id))
-
-          update(list(stacks = list(add = new_stack)))
-
-          removeModal()
-        })
+        )
       },
       condition = function(board, target) {
         target$type == "canvas"
@@ -372,21 +373,33 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$edit_stack,
           {
-            blocks <- stack_blocks(
-              board_stacks(board$board)[[input$edit_stack]]
-            )
+            stack <- board_stacks(board$board)[[input$edit_stack]]
+            selected <- stack_blocks(stack)
 
             showModal(
               modalDialog(
                 title = "Edit stack",
                 size = "m",
                 shiny::selectInput(
-                  inputId = ns("edit_stack_nodes"),
-                  label = "Move blocks in an out the stack :",
-                  choices = board_block_ids(board$board),
-                  selected = blocks,
+                  inputId = ns("edit_stack_blocks"),
+                  label = "Stack blocks",
+                  choices = c(selected, available_stack_blocks(board$board)),
+                  selected = selected,
                   multiple = TRUE,
                   width = "100%"
+                ),
+                shinyWidgets::colorPickr(
+                  inputId = ns("edit_stack_color"),
+                  label = "Stack color",
+                  selected = stack_color(stack),
+                  theme = "nano",
+                  position = "right-end",
+                  useAsButton = TRUE
+                ),
+                textInput(
+                  ns("edit_stack_name"),
+                  "Stack name",
+                  value = stack_name(stack)
                 ),
                 footer = tagList(
                   actionButton(
@@ -401,26 +414,29 @@ context_menu_items.dag_extension <- function(x) {
           }
         )
 
-        observeEvent(input$edit_stack_confirm, {
-          id <- input$edit_stack
-          new_blocks <- input$edit_stack_nodes
+        observeEvent(
+          input$edit_stack_confirm,
+          {
+            id <- input$edit_stack
+            stack <- board_stacks(board$board)[[id]]
 
-          new_stack <- board_stacks(board$board)[[id]]
-          if (is.null(new_blocks)) {
-            new_blocks <- character(0)
+            blocks <- input$edit_stack_blocks
+
+            if (is.null(blocks)) {
+              blocks <- character(0)
+            }
+
+            stack_blocks(stack) <- blocks
+            stack_color(stack) <- input$edit_stack_color
+            stack_name(stack) <- input$edit_stack_name
+
+            stack <- as_stacks(set_names(list(stack), id))
+
+            update(list(stacks = list(mod = stack)))
+
+            removeModal()
           }
-          stack_blocks(new_stack) <- new_blocks
-
-          update(list(
-            stacks = list(
-              mod = as_stacks(set_names(
-                list(new_stack),
-                id
-              ))
-            )
-          ))
-          removeModal()
-        })
+        )
       },
       condition = function(board, target) {
         target$type == "combo"
@@ -526,4 +542,9 @@ create_block_with_name <- function(reg_id, blk_nms, ...) {
   }
 
   create_block(reg_id, ..., block_name = name_fun(blk_nms))
+}
+
+new_stack_name <- function(board) {
+  existsing <- chr_ply(board_stacks(board), stack_name)
+  last(make.unique(c(existsing, default_stack_name()), sep = " "))
 }

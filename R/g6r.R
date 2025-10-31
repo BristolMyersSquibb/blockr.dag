@@ -256,12 +256,11 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 #' @keywords internal
 g6_combos_data_from_stacks <- function(stacks) {
 
-  colors <- lapply(stacks, stack_color)
-  col_miss <- lgl_ply(colors, is.null)
+  colors <- stack_color(stacks)
 
-  colors[col_miss] <- suggest_new_colors(
-    coal(unlst(colors[!col_miss]), character()),
-    sum(col_miss)
+  colors[is.na(colors)] <- suggest_new_colors(
+    coal(unlst(colors[!is.na(colors)]), character()),
+    sum(is.na(colors))
   )
 
   map(
@@ -308,26 +307,31 @@ g6_data_from_board <- function(board) {
 
 remove_nodes <- function(nodes, proxy = blockr_g6_proxy()) {
   g6_remove_nodes(proxy, nodes)
+  invisible()
 }
 
 remove_edges <- function(edges, proxy = blockr_g6_proxy()) {
   g6_remove_edges(proxy, edges)
+  invisible()
 }
 
 remove_combos <- function(combos, proxy = blockr_g6_proxy()) {
   # No need to remove the combos data from nodes, this is done
   # automatically by g6 :)
   g6_remove_combos(proxy, combos)
+  invisible()
 }
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
   g6_add_nodes(proxy, nodes)
+  invisible()
 }
 
 add_edges <- function(links, proxy = blockr_g6_proxy()) {
   edges <- g6_edges_from_links(links)
   g6_add_edges(proxy, edges)
+  invisible()
 }
 
 add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
@@ -336,51 +340,59 @@ add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
 
   # Add nodes to stacks if any
   add_nodes_to_combos(stacks, proxy)
+
+  invisible()
 }
 
 add_nodes_to_combos <- function(stacks, proxy = blockr_g6_proxy()) {
-  lapply(seq_along(stacks), function(i) {
-    blocks <- stack_blocks(stacks[[i]])
-    if (length(blocks) == 0) {
-      return()
-    }
-    add_nodes_to_combo(stack_name(stacks[[i]]), blocks, proxy)
-  })
+
+  map(
+    add_nodes_to_combo,
+    lapply(stacks, stack_blocks),
+    names(stacks),
+    MoreArgs = list(proxy = proxy)
+  )
+
+  invisible()
 }
 
-add_nodes_to_combo <- function(id, blocks, proxy = blockr_g6_proxy()) {
-  nodes <- lapply(blocks, function(block) {
-    list(
-      id = block,
-      combo = id
-    )
-  })
+add_nodes_to_combo <- function(block_ids, stack_id, proxy = blockr_g6_proxy()) {
 
-  g6_update_nodes(proxy, nodes)
+  g6_update_nodes(
+    proxy,
+    map(list, id = block_ids, MoreArgs = list(combo = stack_id))
+  )
+
+  invisible()
 }
 
-remove_nodes_from_combo <- function(id, blocks, proxy = blockr_g6_proxy()) {
-  nodes <- lapply(blocks, function(block) {
-    list(
-      id = block,
-      combo = NULL
-    )
-  })
+remove_nodes_from_combo <- function(block_ids, proxy = blockr_g6_proxy()) {
 
-  g6_update_nodes(proxy, nodes)
+  g6_update_nodes(
+    proxy,
+    map(list, id = block_ids, MoreArgs = list(combo = NULL))
+  )
+
+  invisible()
 }
 
-update_combo_nodes <- function(stacks, board, proxy = blockr_g6_proxy()) {
-  lapply(stacks, function(stack) {
-    stack_name <- stack_name(stack)
-    current_stack_state <- stack_blocks(
-      board_stacks(board)[[stack_name]]
-    )
-    new_stack_blocks <- stack_blocks(stack)
+update_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
 
-    to_add <- setdiff(new_stack_blocks, current_stack_state)
-    to_remove <- setdiff(current_stack_state, new_stack_blocks)
-    remove_nodes_from_combo(stack_name, to_remove, proxy)
-    add_nodes_to_combo(stack_name, to_add, proxy)
-  })
+  g6_update_combos(proxy, g6_combos_data_from_stacks(stacks))
+
+  cur_stacks <- board_stacks(board)
+
+  for (id in names(stacks)) {
+
+    cur_stack_blocks <- stack_blocks(cur_stacks[[id]])
+    new_stack_blocks <- stack_blocks(stacks[[id]])
+
+    to_add <- setdiff(new_stack_blocks, cur_stack_blocks)
+    to_remove <- setdiff(cur_stack_blocks, new_stack_blocks)
+
+    remove_nodes_from_combo(to_remove, proxy)
+    add_nodes_to_combo(to_add, id, proxy)
+  }
+
+  invisible()
 }
