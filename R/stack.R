@@ -94,12 +94,26 @@ as_dag_stack.stack <- function(x, color = suggest_new_colors(), ...) {
 }
 
 #' @export
-as_dag_stack.default <- function(x, ...) {
-  as_dag_stack(as_stack(x), ...)
+as_dag_stack.list <- function(x, ...) {
+  do.call(new_dag_stack, x)
 }
 
 #' @export
 format.dag_stack <- function(x, ...) {
   res <- NextMethod()
   c(res[c(1L, 2L)], paste0("Color: \"", stack_color(x), "\""), res[-c(1L, 2L)])
+}
+
+#' @export
+as.list.dag_stack <- function(x, ...) {
+  list(
+    blocks = as.character(x),
+    name = stack_name(x),
+    color = stack_color(x)
+  )
+}
+
+#' @export
+blockr_deser.dag_stack <- function(x, data, ...) {
+  as_dag_stack(data[["payload"]])
 }
