@@ -1,6 +1,6 @@
-g6_from_board <- function(board, session) {
+g6_from_board <- function(board) {
   stopifnot(is_board(board))
-  graph <- g6_data_from_board(board, session)
+  graph <- g6_data_from_board(board)
   g6(
     nodes = graph_nodes(graph),
     edges = graph_edges(graph),
@@ -185,7 +185,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   ns <- session$ns
 
   if (is.null(graph)) {
-    res <- g6_from_board(board, session)
+    res <- g6_from_board(board)
   } else {
     res <- g6_from_graph(graph)
   }
@@ -197,7 +197,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 
   session$output[[graph_id()]] <- render_g6(res)
 
-  blockr_g6_proxy(session)
+  invisible(res)
 }
 
 #' @rdname g6-from-board
@@ -253,61 +253,50 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 
 #' @rdname g6-from-board
 #' @param stacks Board stacks.
-#' @param session Shiny session
 #' @keywords internal
-g6_combos_data_from_stacks <- function(stacks, session = get_session()) {
-  # Manual colors from input
-  colors <- isolate(session$input$stack_color)
+g6_combos_data_from_stacks <- function(stacks) {
 
-  # Or take default colors from board options
-  if (!length(colors)) {
-    colors <- isolate(get_board_option_or_default(
-      "stack_colors",
-      dag_extension_options(),
-      session
-    ))
+  colors <- lapply(stacks, stack_color)
+  col_miss <- lgl_ply(colors, is.null)
 
-    # Compute evenly spaced indices
-    idx <- round(seq(1, length(colors), length.out = length(stacks)))
-    # Select colors
-    colors <- colors[idx]
-  }
+  colors[col_miss] <- suggest_new_colors(
+    coal(unlst(colors[!col_miss]), character()),
+    sum(col_miss)
+  )
 
-  lapply(seq_along(stacks), function(i) {
-    stack_id <- names(stacks)[[i]]
-    color <- colors[[i]]
-
-    list(
-      id = stack_id,
-      label = stack_id,
-      style = list(
-        stroke = color,
-        fill = color,
+  map(
+    list,
+    id = names(stacks),
+    label = chr_ply(stacks, stack_name),
+    style = map(
+      list,
+      stroke = colors,
+      fill = colors,
+      shadowColor = colors,
+      collapsedFill = colors,
+      collapsedStroke = colors,
+      iconFill = colors,
+      MoreArgs = list(
         fillOpacity = 0.2,
-        shadowColor = color,
-        collapsedFill = color,
-        collapsedStroke = color,
-        iconFill = color,
         labelPlacement = "top"
       )
     )
-  })
+  )
 }
 
 #' Create network data from board
 #'
 #' @keywords internal
 #' @param board Board object.
-#' @param session Shiny session.
 #' @rdname g6-from-board
-g6_data_from_board <- function(board, session) {
+g6_data_from_board <- function(board) {
   # Cold start
   links <- board_links(board)
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
   edges_data <- g6_edges_from_links(links)
-  combos_data <- g6_combos_data_from_stacks(stacks, session)
+  combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
   new_graph(
@@ -342,7 +331,7 @@ add_edges <- function(links, proxy = blockr_g6_proxy()) {
 }
 
 add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
-  combos <- g6_combos_data_from_stacks(stacks, proxy$session)
+  combos <- g6_combos_data_from_stacks(stacks)
   g6_add_combos(proxy, combos)
 
   # Add nodes to stacks if any

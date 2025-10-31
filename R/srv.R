@@ -35,7 +35,7 @@ dag_ext_srv <- function(graph) {
           update = update
         )
 
-        proxy <- init_g6(
+        g6_graph <- init_g6(
           board = isolate(board$board),
           graph = graph,
           path = ctx_path,
@@ -43,13 +43,51 @@ dag_ext_srv <- function(graph) {
           session = session
         )
 
+        proxy <- blockr_g6_proxy(session)
+
+        update_observer(update, board, proxy)
+
+        observeEvent(
+          TRUE,
+          {
+            stacks <- board_stacks(board$board)
+            has_col <- lgl_ply(stacks, is_dag_stack)
+
+            if (any(!has_col)) {
+
+              cmbs <- g6_graph[["x"]][["data"]][["combos"]]
+
+              cmbs <- set_names(
+                chr_xtr(lst_xtr(cmbs, "style"), "fill"),
+                chr_xtr(cmbs, "id")
+              )
+
+              log_debug(
+                "converting stack{?s} {names(stacks)[!has_col]} to ",
+                "type 'dag_stack'"
+              )
+
+              stack_upd <- Map(
+                as_dag_stack,
+                stacks[!has_col],
+                cmbs[names(stacks)[!has_col]]
+              )
+
+              update(list(stacks = list(mod = as_stacks(stack_upd))))
+
+            } else {
+
+              log_debug("no conversions to type 'dag_stack' required")
+            }
+          },
+          once = TRUE
+        )
+
         # TBD: when adding new node, register node validation (see old API).
         # TBD: when adding new blocks call register_node_stack_link (see old
         # API).
 
         add_edge_observer(input, board, proxy, update)
-
-        update_observer(update, board, proxy)
 
         reactive(
           input[[paste0(graph_id(), "-state")]]

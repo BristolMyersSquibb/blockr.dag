@@ -14,16 +14,7 @@ new_dag_extension <- function(graph = NULL, ...) {
     dag_ext_ui,
     name = "DAG",
     class = "dag_extension",
-    options = dag_extension_options(),
     ...
-  )
-}
-
-#' @rdname dag
-#' @export
-dag_extension_options <- function() {
-  new_board_options(
-    new_stack_colors_option(category = "Board options")
   )
 }
 
@@ -254,12 +245,16 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$create_stack,
           {
-            blk_ids <- board_block_ids(board$board)
-            stacks_nodes <- unlist(
-              lapply(board_stacks(board$board), stack_blocks),
-              use.names = FALSE
+            stacks <- board_stacks(board$board)
+            blocks <- board_blocks(board$board)
+
+            blk_ids <- names(blocks)
+
+            stacked_blocks <- unlst(
+              lapply(stacks, stack_blocks)
             )
-            blk_ids <- blk_ids[!(blk_ids %in% stacks_nodes)]
+
+            blk_ids <- blk_ids[!(blk_ids %in% stacked_blocks)]
 
             showModal(
               modalDialog(
@@ -275,27 +270,18 @@ context_menu_items.dag_extension <- function(x) {
                     ),
                     selectInput(
                       ns("new_stack_nodes"),
-                      "Select nodes (leaving NULL creates an empty stack)",
+                      "Select nodes (may be empty)",
                       choices = set_names(
                         blk_ids,
-                        chr_ply(blk_ids, function(id) {
-                          paste(
-                            attr(board_blocks(board$board)[[id]], "name"),
-                            id
-                          )
-                        })
+                        chr_ply(blocks[blk_ids], block_name)
                       ),
                       multiple = TRUE
                     ),
                     shinyWidgets::colorPickr(
                       inputId = ns("stack_color"),
                       label = "Pick a color for the stack:",
-                      hue = FALSE,
-                      preview = FALSE,
-                      swatches = get_board_option_or_default(
-                        "stack_colors",
-                        board_options(board$board),
-                        session
+                      selected = suggest_new_colors(
+                        chr_ply(stacks, stack_color)
                       ),
                       theme = "nano",
                       position = "right-end",
@@ -324,14 +310,22 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(input$create_stack_confirm, {
           id <- input$stack_id
           if (is.null(input$new_stack_nodes)) {
-            new_stack <- new_stack(name = id)
+            new_stack <- new_dag_stack(
+              name = id,
+              color = input$stack_color
+            )
           } else {
-            new_stack <- new_stack(blocks = input$new_stack_nodes, name = id)
+            new_stack <- new_dag_stack(
+              blocks = input$new_stack_nodes,
+              name = id,
+              color = input$stack_color
+            )
           }
 
-          update(list(
-            stacks = list(add = as_stacks(set_names(list(new_stack), id)))
-          ))
+          new_stack <- as_stacks(set_names(list(new_stack), id))
+
+          update(list(stacks = list(add = new_stack)))
+
           removeModal()
         })
       },

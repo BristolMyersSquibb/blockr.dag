@@ -2,16 +2,13 @@
 % Please edit documentation in R/stack.R
 \name{new_dag_stack}
 \alias{new_dag_stack}
-\alias{default_stack_color}
 \alias{is_dag_stack}
 \alias{stack_color}
 \alias{stack_color<-}
 \alias{as_dag_stack}
 \title{DAG stack}
 \usage{
-new_dag_stack(..., color = default_stack_color())
-
-default_stack_color()
+new_dag_stack(..., color = suggest_new_colors())
 
 is_dag_stack(x)
 
@@ -19,13 +16,17 @@ stack_color(x)
 
 stack_color(x) <- value
 
-as_dag_stack(x)
+as_dag_stack(x, ...)
 }
 \arguments{
-\item{...}{Forwarded to \code{\link[=new_stack]{new_stack()}}}
+\item{...}{Forwarded to \code{\link[blockr.core:new_stack]{blockr.core::new_stack()}}}
 
 \item{color}{String-valued color}
+
+\item{x}{object}
+
+\item{value}{Replacement value}
 }
 \description{
-Extends \code{\link[=new_stack]{new_stack()}} by adding a color attribute.
+Extends \code{\link[blockr.core:new_stack]{blockr.core::new_stack()}} by adding a color attribute.
 }

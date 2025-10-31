@@ -11,9 +11,9 @@ g6_edges_from_links(links)
 
 g6_nodes_from_blocks(blocks, stacks)
 
-g6_combos_data_from_stacks(stacks, session = get_session())
+g6_combos_data_from_stacks(stacks)
 
-g6_data_from_board(board, session)
+g6_data_from_board(board)
 }
 \arguments{
 \item{links}{Board links.}
@@ -21,8 +21,6 @@ g6_data_from_board(board, session)
 \item{blocks}{Board blocks.}
 
 \item{stacks}{Board stacks.}
-
-\item{session}{Shiny session.}
 
 \item{board}{Board object.}
 }

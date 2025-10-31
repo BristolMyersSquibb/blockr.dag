@@ -1,22 +1,17 @@
 #' DAG stack
 #'
-#' Extends [new_stack()] by adding a color attribute.
+#' Extends [blockr.core::new_stack()] by adding a color attribute.
 #'
-#' @param ... Forwarded to [new_stack()]
+#' @param ... Forwarded to [blockr.core::new_stack()]
 #' @param color String-valued color
 #'
 #' @rdname stack
 #' @export
-new_dag_stack <- function(..., color = default_stack_color()) {
+new_dag_stack <- function(..., color = suggest_new_colors()) {
   new_stack(..., color = color, class = "dag_stack")
 }
 
-#' @rdname stack
-#' @export
-default_stack_color <- function() {
-  "#A71B4B"
-}
-
+#' @param x object
 #' @rdname stack
 #' @export
 is_dag_stack <- function(x) {
@@ -51,7 +46,7 @@ stack_color <- function(x) {
   }
 
   if (is_stack(x)) {
-    return(default_stack_color())
+    return(NULL)
   }
 
   blockr_abort(
@@ -60,6 +55,7 @@ stack_color <- function(x) {
   )
 }
 
+#' @param value Replacement value
 #' @rdname stack
 #' @export
 `stack_color<-` <- function(x, value) {
@@ -70,19 +66,19 @@ stack_color <- function(x) {
 
 #' @rdname stack
 #' @export
-as_dag_stack <- function(x) {
+as_dag_stack <- function(x, ...) {
   UseMethod("as_dag_stack")
 }
 
 #' @export
-as_dag_stack.dag_stack <- function(x) {
+as_dag_stack.dag_stack <- function(x, ...) {
   x
 }
 
 #' @export
-as_dag_stack.stack <- function(x) {
+as_dag_stack.stack <- function(x, color = suggest_new_colors(), ...) {
 
-  attr(x, "color") <- default_stack_color()
+  attr(x, "color") <- color
 
   class(x) <- c("dag_stack", class(x))
 
@@ -90,18 +86,8 @@ as_dag_stack.stack <- function(x) {
 }
 
 #' @export
-as_dag_stack.default <- function(x) {
-  as_dag_stack(as_stack(x))
-}
-
-#' @export
-as_stack.dag_stack <- function(x) {
-
-  attr(x, "color") <- NULL
-
-  class(x) <- setdiff(class(x), "dag_stack")
-
-  validate_stack(x)
+as_dag_stack.default <- function(x, ...) {
+  as_dag_stack(as_stack(x), ...)
 }
 
 #' @export

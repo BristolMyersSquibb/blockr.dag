@@ -2,12 +2,9 @@
 % Please edit documentation in R/ext.R
 \name{new_dag_extension}
 \alias{new_dag_extension}
-\alias{dag_extension_options}
 \title{DAG extension}
 \usage{
 new_dag_extension(graph = NULL, ...)
-
-dag_extension_options()
 }
 \arguments{
 \item{graph}{A \code{graph} object (or \code{NULL})}
