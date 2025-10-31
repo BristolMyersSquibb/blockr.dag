@@ -66,7 +66,6 @@ batch_delete_observer <- function(input, update) {
   setup_remove_elements_kbd()
 
   observeEvent(input[[paste0(graph_id(), "-batch_delete")]], {
-    browser()
     update(
       list(
         blocks = list(rm = input[[paste0(graph_id(), "-selected_node")]]),

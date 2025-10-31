@@ -101,7 +101,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
       # Option key on mac
       trigger = "Alt",
       enableElements = c("node", "edge", "combo"),
-      immediately = TRUE
+      immediately = TRUE,
+      outputId = graph_id(ns)
     ),
     collapse_expand(),
     # avoid conflict with internal function
