@@ -40,6 +40,6 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(comb, "value"),
-    "remove_stack"
+    c("remove_stack", "edit_stack")
   )
 })

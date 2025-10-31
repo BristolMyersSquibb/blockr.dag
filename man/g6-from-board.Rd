@@ -3,12 +3,15 @@
 \name{g6_edges_from_links}
 \alias{g6_edges_from_links}
 \alias{g6_nodes_from_blocks}
+\alias{g6_combos_data_from_stacks}
 \alias{g6_data_from_board}
 \title{Create network data from board}
 \usage{
 g6_edges_from_links(links)
 
 g6_nodes_from_blocks(blocks, stacks)
+
+g6_combos_data_from_stacks(stacks)
 
 g6_data_from_board(board)
 }

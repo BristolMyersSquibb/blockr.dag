@@ -35,7 +35,7 @@ dag_ext_srv <- function(graph) {
           update = update
         )
 
-        proxy <- init_g6(
+        g6_graph <- init_g6(
           board = isolate(board$board),
           graph = graph,
           path = ctx_path,
@@ -43,13 +43,51 @@ dag_ext_srv <- function(graph) {
           session = session
         )
 
+        proxy <- blockr_g6_proxy(session)
+
+        update_observer(update, board, proxy)
+
+        observeEvent(
+          TRUE,
+          {
+            stacks <- board_stacks(board$board)
+            has_col <- lgl_ply(stacks, is_dag_stack)
+
+            if (any(!has_col)) {
+
+              cmbs <- g6_graph[["x"]][["data"]][["combos"]]
+
+              cmbs <- set_names(
+                chr_xtr(lst_xtr(cmbs, "style"), "fill"),
+                chr_xtr(cmbs, "id")
+              )
+
+              log_debug(
+                "converting stack{?s} {names(stacks)[!has_col]} to ",
+                "type 'dag_stack'"
+              )
+
+              stack_upd <- Map(
+                as_dag_stack,
+                stacks[!has_col],
+                cmbs[names(stacks)[!has_col]]
+              )
+
+              update(list(stacks = list(mod = as_stacks(stack_upd))))
+
+            } else {
+
+              log_debug("no conversions to type 'dag_stack' required")
+            }
+          },
+          once = TRUE
+        )
+
         # TBD: when adding new node, register node validation (see old API).
         # TBD: when adding new blocks call register_node_stack_link (see old
         # API).
 
         add_edge_observer(input, board, proxy, update)
-
-        update_observer(update, board, proxy)
 
         reactive(
           input[[paste0(graph_id(), "-state")]]
@@ -82,14 +120,21 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$add)) {
-        add_links(upd$links$add, proxy)
+        add_edges(upd$links$add, proxy)
+      }
+
+      if (length(upd$stacks$add)) {
+        add_combos(upd$stacks$add, proxy)
+      }
+
+      if (length(upd$stacks$mod)) {
+        update_combos(upd$stacks$mod, board$board, proxy)
       }
     }
   )
 }
 
 add_edge_observer <- function(input, board, proxy, update) {
-
   ns <- proxy$session$ns
 
   observeEvent(
@@ -107,15 +152,10 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (is.na(block_arity(trg))) {
-
         opts <- list(create = TRUE)
-
       } else if (length(inputs)) {
-
         opts <- list()
-
       } else {
-
         notify(
           "No inputs are available for block {new_edg$target}.",
           type = "warning"
@@ -179,7 +219,6 @@ add_edge_observer <- function(input, board, proxy, update) {
       )
 
       if (new_edg$id %in% board_link_ids(board$board)) {
-
         notify(
           "Cannot add edge with existing ID {new_edg$id}.",
           type = "warning"

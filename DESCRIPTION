@@ -23,11 +23,14 @@ Imports:
     blockr.dock,
     shiny,
     g6R,
-    jsonlite
+    jsonlite,
+    shinyWidgets,
+    methods
 Remotes:
     BristolMyersSquibb/blockr.core,
     BristolMyersSquibb/blockr.dock,
     cynkra/dockViewR
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    colorspace
 Config/testthat/edition: 3
