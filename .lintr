@@ -1,0 +1,3 @@
+exclusions: list(
+  "R/blockr.dag-dependencies.R"
+  )

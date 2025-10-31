@@ -1,6 +1,6 @@
 dag_ext_ui <- function(id, board) {
   ns <- shiny::NS(id)
-  tagList(
+  add_blockr.dag_deps(
     g6_output(graph_id(ns), height = "100vh")
   )
 }
