@@ -29,6 +29,8 @@ set_g6_options <- function(graph, ...) {
         labelBackgroundRadius = 4,
         labelFontFamily = "Arial",
         labelPadding = c(0, 4),
+        labelPlacement = "bottom",
+        labelOffsetY = 8,
         labelText = JS(
           "(d) => {
             return d.label
@@ -228,15 +230,26 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     info <- get_block_metadata(current)
     blk_color <- blk_color(info$category)
 
+    # Get icon name, fallback to question-square if not available
+    icon_name <- info$icon
+    if (is.null(icon_name) || !nchar(icon_name)) {
+      icon_name <- "question-square"
+    }
+
+    # Create data URI for the icon
+    icon_uri <- blk_icon_data_uri(icon_name, blk_color)
+
     tmp <- list(
       id = names(blocks)[[i]],
+      type = "image",
       label = paste(
         block_name(current),
         "\n id:",
         names(blocks)[[i]]
       ),
       style = list(
-        fill = blk_color
+        src = icon_uri,
+        size = 48
       )
     )
 

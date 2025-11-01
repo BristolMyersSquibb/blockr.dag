@@ -118,6 +118,59 @@ blk_color <- function(category) {
 
 last <- function(x) x[[length(x)]]
 
+#' Create SVG data URI for node icon
+#'
+#' Creates an SVG with a colored circle background and white icon,
+#' then converts it to a data URI for use in g6 image nodes.
+#'
+#' @param icon_name Bootstrap icon name
+#' @param color Hex color for background
+#' @param size Size of the SVG in pixels (default: 48)
+#' @return Character string with data URI
+#' @keywords internal
+blk_icon_data_uri <- function(icon_name, color, size = 48) {
+
+  if (!pkg_avail("bsicons")) {
+    return("")
+  }
+
+  # Get the icon SVG
+  icon_svg <- as.character(bsicons::bs_icon(icon_name))
+
+  # Extract the path element - bsicons returns <path ...></path>
+  # Match from <path to </path>
+  path_match <- regexpr('<path[^>]*>.*?</path>', icon_svg, perl = TRUE)
+  if (path_match == -1) {
+    return("")
+  }
+  icon_path <- regmatches(icon_svg, path_match)
+
+  # Create a complete SVG with colored rounded square background and centered icon
+  # Icon is scaled to about 60% of the square size
+  icon_size <- size * 0.6
+  icon_offset <- (size - icon_size) / 2
+
+  # Rounded corner radius (about 15% of size for nice rounded corners)
+  corner_radius <- size * 0.15
+
+  svg <- sprintf(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">
+      <rect x="0" y="0" width="%d" height="%d" rx="%f" ry="%f" fill="%s"/>
+      <g transform="translate(%f, %f) scale(%f)" fill="white">
+        %s
+      </g>
+    </svg>',
+    size, size, size, size,
+    size, size, corner_radius, corner_radius, color,
+    icon_offset, icon_offset, icon_size / 16,  # bsicons are 16x16 by default
+    icon_path
+  )
+
+  # Convert to base64 data URI
+  svg_base64 <- jsonlite::base64_enc(charToRaw(svg))
+  sprintf("data:image/svg+xml;base64,%s", svg_base64)
+}
+
 suggest_new_colors <- function(colors = character(), n = 1) {
 
   color_fun <- blockr_option("stack_color", next_color)
