@@ -112,8 +112,9 @@ css_block_selectize <- function() {
     .selectize-dropdown .block-option:last-child {
       border-bottom: none;
     }
-    .selectize-dropdown .block-option:hover {
-      background-color: #f8f9fa;
+    .selectize-dropdown .block-option:hover,
+    .selectize-dropdown .block-option.active {
+      background-color: #e9ecef;
     }
     "
   ))

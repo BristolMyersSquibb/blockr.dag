@@ -5,7 +5,7 @@
 
 library(blockr.core)
 library(blockr.dock)
-library(blockr.dag)
+pkgload::load_all(".")
 
 serve(
   new_dock_board(
