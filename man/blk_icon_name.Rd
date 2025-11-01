@@ -7,10 +7,12 @@
 blk_icon_name(category)
 }
 \arguments{
-\item{category}{Block category}
+\item{category}{Block category (old or new format)}
+}
+\value{
+Character string with FontAwesome icon name
 }
 \description{
 Returns the FontAwesome icon name for a block category.
-This is aligned with blockr.ui::blk_icon() but returns just the name.
 }
 \keyword{internal}
