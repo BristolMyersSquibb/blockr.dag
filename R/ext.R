@@ -246,11 +246,12 @@ context_menu_items.dag_extension <- function(x) {
           input$create_stack,
           {
             showModal(
-              create_stack_modal(
+              stack_modal(
                 ns = ns,
                 board_block_ids = board_block_ids(board$board),
-                board_stack_ids = board_stack_ids(board$board),
-                board_blocks = board_blocks(board$board)
+                board_blocks = board_blocks(board$board),
+                mode = "create",
+                board_stack_ids = board_stack_ids(board$board)
               )
             )
           }
@@ -345,41 +346,15 @@ context_menu_items.dag_extension <- function(x) {
           input$edit_stack,
           {
             stack <- board_stacks(board$board)[[input$edit_stack]]
-            selected <- stack_blocks(stack)
 
             showModal(
-              modalDialog(
-                title = "Edit stack",
-                size = "m",
-                shiny::selectInput(
-                  inputId = ns("edit_stack_blocks"),
-                  label = "Stack blocks",
-                  choices = c(selected, available_stack_blocks(board$board)),
-                  selected = selected,
-                  multiple = TRUE,
-                  width = "100%"
-                ),
-                shinyWidgets::colorPickr(
-                  inputId = ns("edit_stack_color"),
-                  label = "Stack color",
-                  selected = stack_color(stack),
-                  theme = "nano",
-                  position = "right-end",
-                  useAsButton = TRUE
-                ),
-                textInput(
-                  ns("edit_stack_name"),
-                  "Stack name",
-                  value = stack_name(stack)
-                ),
-                footer = tagList(
-                  actionButton(
-                    ns("edit_stack_confirm"),
-                    "Confirm",
-                    icon = icon("object-group")
-                  ),
-                  modalButton("Dismiss")
-                )
+              stack_modal(
+                ns = ns,
+                board_block_ids = board_block_ids(board$board),
+                board_blocks = board_blocks(board$board),
+                mode = "edit",
+                stack = stack,
+                stack_id = input$edit_stack
               )
             )
           }

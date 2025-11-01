@@ -347,16 +347,16 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
       selectizeInput(
         id,
         label = "Select block to add",
-      choices = NULL,
-      options = list(
-        options = options_data,
-        valueField = "value",
-        labelField = "label",
-        searchField = c("label", "description", "searchtext"),
-        placeholder = "Type to search",
-        openOnFocus = FALSE,
-        render = I(
-          "{
+        choices = NULL,
+        options = list(
+          options = options_data,
+          valueField = "value",
+          labelField = "label",
+          searchField = c("label", "description", "searchtext"),
+          placeholder = "Type to search blocks...",
+          openOnFocus = FALSE,
+          render = I(
+            "{
           item: function(item, escape) {
             // Comfortable card-style layout for selected item
             var name = escape(item.label);
@@ -427,26 +427,32 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
                    '</div>';
           }
         }"
+          )
         )
-      )
       )
     )
   )
 }
 
-create_stack_modal <- function(
+stack_modal <- function(
   ns,
   board_block_ids,
-  board_stack_ids,
-  board_blocks
+  board_blocks,
+  mode = c("create", "edit"),
+  stack = NULL,
+  stack_id = NULL,
+  board_stack_ids = NULL
 ) {
-  title <- "Create new stack"
-  button_label <- "Create Stack"
+  mode <- match.arg(mode)
 
-  selection_id <- "stack_block_selection"
-  name_id <- "stack_name"
+  # Mode-specific values
+  title <- if (mode == "create") "Create new stack" else "Edit stack"
+  button_label <- if (mode == "create") "Create Stack" else "Update Stack"
+
+  selection_id <- if (mode == "create") "stack_block_selection" else "edit_stack_blocks"
+  name_id <- if (mode == "create") "stack_name" else "edit_stack_name"
   stack_id_field <- "stack_id"
-  confirm_id <- "stack_confirm"
+  confirm_id <- if (mode == "create") "stack_confirm" else "edit_stack_confirm"
 
   # CSS for advanced options toggle and compact modal styling
   advanced_css <- tags$style(HTML(sprintf(
@@ -530,65 +536,85 @@ create_stack_modal <- function(
     board_blocks_selectize(
       id = ns(selection_id),
       board_blocks = board_blocks,
-      board_block_ids = board_block_ids
+      board_block_ids = board_block_ids,
+      selected = if (mode == "edit") stack_blocks(stack) else NULL
     )
   )
 
   # Add stack name field (visible)
   visible_fields[[length(visible_fields) + 1]] <- textInput(
     ns(name_id),
-    label = "Stack name (can be changed after creation)",
-    placeholder = "Enter stack name"
+    label = if (mode == "create") "Stack name (can be changed after creation)" else "Stack name",
+    placeholder = if (mode == "create") "Enter stack name" else NULL,
+    value = if (mode == "edit") stack_name(stack) else NULL
   )
 
-  # Advanced options toggle button
-  toggle_button <- div(
-    class = "stack-advanced-toggle text-muted",
-    id = ns("stack-advanced-toggle"),
-    onclick = sprintf(
-      "
-      const section = document.getElementById('%s');
-      const chevron = document.querySelector('#%s .stack-chevron');
-      section.classList.toggle('expanded');
-      chevron.classList.toggle('rotated');
-      ",
-      ns("stack-advanced-options"),
-      ns("stack-advanced-toggle")
-    ),
-    tags$span(class = "stack-chevron", "\u203A"),
-    "Show advanced options"
-  )
+  # For edit mode, add color picker to visible fields
+  if (mode == "edit") {
+    visible_fields[[length(visible_fields) + 1]] <- shinyWidgets::colorPickr(
+      inputId = ns("edit_stack_color"),
+      label = "Stack color",
+      selected = stack_color(stack),
+      theme = "nano",
+      position = "right-end",
+      useAsButton = TRUE
+    )
+  }
 
-  # Advanced options (collapsible)
-  advanced_fields <- list()
+  # Advanced options (only for create mode)
+  toggle_button <- NULL
+  advanced_section <- NULL
 
-  # Add color picker field
-  advanced_fields[[length(advanced_fields) + 1]] <- shinyWidgets::colorPickr(
-    inputId = ns("stack_color"),
-    label = "Stack color",
-    selected = suggest_new_colors(
-      chr_ply(board_blocks, function(b) {
-        meta <- get_block_metadata(b)
-        blk_color(meta$category)
-      })
-    ),
-    theme = "nano",
-    position = "right-end",
-    useAsButton = TRUE
-  )
+  if (mode == "create") {
+    # Advanced options toggle button
+    toggle_button <- div(
+      class = "stack-advanced-toggle text-muted",
+      id = ns("stack-advanced-toggle"),
+      onclick = sprintf(
+        "
+        const section = document.getElementById('%s');
+        const chevron = document.querySelector('#%s .stack-chevron');
+        section.classList.toggle('expanded');
+        chevron.classList.toggle('rotated');
+        ",
+        ns("stack-advanced-options"),
+        ns("stack-advanced-toggle")
+      ),
+      tags$span(class = "stack-chevron", "\u203A"),
+      "Show advanced options"
+    )
 
-  # Add Stack ID field
-  advanced_fields[[length(advanced_fields) + 1]] <- textInput(
-    ns(stack_id_field),
-    label = "Stack ID",
-    value = rand_names(board_stack_ids)
-  )
+    # Advanced options (collapsible)
+    advanced_fields <- list()
 
-  # Collapsible advanced options section
-  advanced_section <- div(
-    id = ns("stack-advanced-options"),
-    tagList(advanced_fields)
-  )
+    # Add color picker field
+    advanced_fields[[length(advanced_fields) + 1]] <- shinyWidgets::colorPickr(
+      inputId = ns("stack_color"),
+      label = "Stack color",
+      selected = suggest_new_colors(
+        chr_ply(board_blocks, function(b) {
+          meta <- get_block_metadata(b)
+          blk_color(meta$category)
+        })
+      ),
+      theme = "nano",
+      position = "right-end",
+      useAsButton = TRUE
+    )
+
+    # Add Stack ID field
+    advanced_fields[[length(advanced_fields) + 1]] <- textInput(
+      ns(stack_id_field),
+      label = "Stack ID",
+      value = rand_names(board_stack_ids)
+    )
+
+    # Collapsible advanced options section
+    advanced_section <- div(
+      id = ns("stack-advanced-options"),
+      tagList(advanced_fields)
+    )
+  }
 
   # Button section (right-aligned at bottom)
   button_section <- div(
@@ -652,10 +678,10 @@ board_blocks_selectize <- function(
       if (is.null(category)) {
         category <- "uncategorized"
       }
-      # Use icon and color from block data if available, otherwise derive from category
+      # Use icon from block data if available, otherwise use default
       icon <- block$icon
       if (is.null(icon)) {
-        icon <- blk_icon(block_id, category)
+        icon <- "question-square"
       }
       color <- block$color
       if (is.null(color)) {
@@ -678,12 +704,15 @@ board_blocks_selectize <- function(
       if (is.null(category)) {
         category <- "uncategorized"
       }
-      icon <- blk_icon(block_id, category)
+      icon <- metadata$icon
+      if (is.null(icon)) {
+        icon <- "question-square"
+      }
       color <- blk_color(category)
     }
 
-    # Generate SVG string for the icon using bsicons with fallback
-    icon_svg <- blk_icon_svg(icon, category)
+    # Generate SVG string for the icon using bsicons
+    icon_svg <- as.character(bsicons::bs_icon(icon))
 
     options_data[[length(options_data) + 1]] <- list(
       value = block_id,
