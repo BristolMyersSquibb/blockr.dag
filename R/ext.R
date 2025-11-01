@@ -245,62 +245,26 @@ context_menu_items.dag_extension <- function(x) {
         observeEvent(
           input$create_stack,
           {
-            blocks <- board_blocks(board$board)
-
-            blk_ids <- available_stack_blocks(board$board)
-
             showModal(
-              modalDialog(
-                title = "New stack",
-                size = "m",
-                selectInput(
-                  ns("create_stack_blocks"),
-                  "Select nodes",
-                  choices = c(
-                    `Empty stack` = "",
-                    set_names(blk_ids, chr_ply(blocks[blk_ids], block_name))
-                  ),
-                  multiple = TRUE
-                ),
-                shinyWidgets::colorPickr(
-                  inputId = ns("create_stack_color"),
-                  label = "Stack color",
-                  selected = suggest_new_colors(
-                    stack_color(board$board)
-                  ),
-                  theme = "nano",
-                  position = "right-end",
-                  useAsButton = TRUE
-                ),
-                textInput(
-                  ns("create_stack_name"),
-                  "Stack name",
-                  value = new_stack_name(board$board)
-                ),
-                textInput(
-                  ns("create_stack_id"),
-                  "Stack ID",
-                  value = rand_names(board_stack_ids(board$board))
-                ),
-                footer = tagList(
-                  actionButton(
-                    ns("create_stack_confirm"),
-                    "Confirm",
-                    icon = icon("object-group")
-                  ),
-                  modalButton("Dismiss")
-                )
+              create_stack_modal(
+                ns = ns,
+                board_block_ids = board_block_ids(board$board),
+                board_stack_ids = board_stack_ids(board$board),
+                board_blocks = board_blocks(board$board)
               )
             )
           }
         )
 
         observeEvent(
-          input$create_stack_confirm,
+          input$stack_confirm,
           {
-            stk_id <- input$create_stack_id
+            stack_id <- input$stack_id
+            stack_name <- input$stack_name
+            stack_color <- input$stack_color
+            selected_blocks <- input$stack_block_selection
 
-            if (!nchar(stk_id) || stk_id %in% board_stack_ids(board$board)) {
+            if (!nchar(stack_id) || stack_id %in% board_stack_ids(board$board)) {
               notify(
                 "Please choose a valid stack ID.",
                 type = "warning",
@@ -310,21 +274,28 @@ context_menu_items.dag_extension <- function(x) {
               return()
             }
 
-            if (is.null(input$create_stack_blocks)) {
-              blocks <- character()
+            # Get blocks - use selected blocks if any, otherwise empty character vector
+            block_ids <- if (length(selected_blocks) > 0 && !is.null(selected_blocks) && any(nchar(selected_blocks) > 0)) {
+              selected_blocks[nchar(selected_blocks) > 0]
             } else {
-              blocks <- input$new_stack_nodes
+              character()
             }
 
-            new_stack <- new_dag_stack(
-              blocks = blocks,
-              name = input$create_stack_name,
-              color = input$create_stack_color
+            # Create stack name - use input if provided, otherwise generate from ID
+            if (is.null(stack_name) || !nchar(stack_name)) {
+              stack_name <- id_to_sentence_case(stack_id)
+            }
+
+            # Create the stack
+            new_stk <- new_stack(
+              blocks = block_ids,
+              name = stack_name,
+              color = stack_color
             )
 
-            new_stack <- as_stacks(set_names(list(new_stack), stk_id))
+            new_stk <- as_stacks(set_names(list(new_stk), stack_id))
 
-            update(list(stacks = list(add = new_stack)))
+            update(list(stacks = list(add = new_stk)))
 
             removeModal()
           }
