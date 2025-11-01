@@ -1,6 +1,12 @@
 dag_ext_ui <- function(id, board) {
-  ns <- shiny::NS(id)
   tagList(
-    g6_output(graph_id(ns), height = "100vh")
+    g6_output(graph_id(NS(id)), height = "100vh"),
+    htmltools::htmlDependency(
+      name = "rm-selection",
+      version = pkg_version(),
+      src = c(file = "assets"),
+      script = file.path("js", "rm-sel.js"),
+      package = pkg_name()
+    )
   )
 }
