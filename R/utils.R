@@ -130,15 +130,15 @@ blk_icon_name <- function(category) {
   category <- remap_category(category)
 
   switch(category,
-    input = "folder-open",
+    input = "folder2-open",
     transform = "shuffle",
     structured = "diagram-3",
-    plot = "chart-simple",
+    plot = "bar-chart-line",
     table = "table",
-    model = "brain",
-    output = "file-export",
+    model = "lightbulb",
+    output = "box-arrow-up",
     utility = "wrench",
-    "shapes" # uncategorized
+    "question-circle" # uncategorized
   )
 }
 

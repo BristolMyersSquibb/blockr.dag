@@ -199,13 +199,30 @@ block_registry_selectize <- function(id) {
     package <- attr(entry, "package")
     if (is.null(package)) package <- ""
 
+    # Get block-specific icon name and generate SVG with fallback
+    icon_name <- blk_icon(uid, category)
+    icon_svg <- tryCatch(
+      as.character(bsicons::bs_icon(icon_name)),
+      error = function(e) {
+        # Fallback to category icon
+        category_icon <- blk_icon_name(category)
+        tryCatch(
+          as.character(bsicons::bs_icon(category_icon)),
+          error = function(e2) {
+            # Final fallback to default icon
+            as.character(bsicons::bs_icon("question-circle"))
+          }
+        )
+      }
+    )
+
     options_data[[length(options_data) + 1]] <- list(
       value = uid,
       label = name,
       description = desc,
       category = category,
       package = package,
-      icon = blk_icon_name(category), # Use blk_icon_name function
+      icon = icon_svg, # Use BS icon SVG string
       color = blk_color(category), # Use blk_color function
       searchtext = paste(name, desc, package)
     )
@@ -299,12 +316,15 @@ block_registry_selectize <- function(id) {
             var name = escape(item.label);
             var desc = escape(item.description || '');
             var pkg = escape(item.package || '');
-            var icon = item.icon || 'circle';
+            var iconSvg = item.icon || '<svg></svg>';
             var color = item.color || '#6c757d';
+
+            // Style the SVG icon
+            var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 20px; height: 20px; fill: white;\"');
 
             var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
                               'style=\"background-color: ' + color + ';\">' +
-                              '<i class=\"fa fa-' + icon + '\"></i></div>';
+                              styledSvg + '</div>';
             var pkgBadge = pkg ?
                            '<div class=\"badge-two-tone\">' + pkg + '</div>' :
                            '';
