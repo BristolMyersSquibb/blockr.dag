@@ -199,22 +199,9 @@ block_registry_selectize <- function(id) {
     package <- attr(entry, "package")
     if (is.null(package)) package <- ""
 
-    # Get block-specific icon name and generate SVG with fallback
-    icon_name <- blk_icon(uid, category)
-    icon_svg <- tryCatch(
-      as.character(bsicons::bs_icon(icon_name)),
-      error = function(e) {
-        # Fallback to category icon
-        category_icon <- blk_icon_name(category)
-        tryCatch(
-          as.character(bsicons::bs_icon(category_icon)),
-          error = function(e2) {
-            # Final fallback to default icon
-            as.character(bsicons::bs_icon("question-circle"))
-          }
-        )
-      }
-    )
+    # Get block icon from registry (defaults to "question-square" in core)
+    icon_name <- attr(entry, "icon")
+    icon_svg <- as.character(bsicons::bs_icon(icon_name))
 
     options_data[[length(options_data) + 1]] <- list(
       value = uid,

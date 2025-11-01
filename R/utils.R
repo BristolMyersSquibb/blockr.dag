@@ -114,34 +114,6 @@ blk_color <- function(category) {
   )
 }
 
-#' Get block icon name
-#'
-#' Returns the FontAwesome icon name for a block category.
-#'
-#' @param category Block category (old or new format)
-#' @return Character string with FontAwesome icon name
-#' @keywords internal
-blk_icon_name <- function(category) {
-  if (!length(category)) {
-    return("shapes")
-  }
-
-  # Remap old categories to new ones
-  category <- remap_category(category)
-
-  switch(category,
-    input = "folder2-open",
-    transform = "shuffle",
-    structured = "diagram-3",
-    plot = "bar-chart-line",
-    table = "table",
-    model = "lightbulb",
-    output = "box-arrow-up",
-    utility = "wrench",
-    "question-circle" # uncategorized
-  )
-}
-
 last <- function(x) x[[length(x)]]
 
 suggest_new_colors <- function(colors = character(), n = 1) {
