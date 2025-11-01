@@ -41,9 +41,13 @@ function stylePrimaryMenuItems() {
         });
 
         // Only add the icon if it's not already there (check for ➕)
-        if (!text.includes('➕')) {
-          item.innerHTML = '<span style="color: #198754; font-size: 1.3em; margin-right: 8px; vertical-align: middle;">➕</span>' +
-                          '<span style="vertical-align: middle;">' + text + '</span>';
+        // Use CSS ::before pseudo-element instead of modifying innerHTML to avoid breaking G6's click handlers
+        if (!item.querySelector('.menu-icon-prefix')) {
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'menu-icon-prefix';
+          iconSpan.style.cssText = 'color: #198754; font-size: 1.3em; margin-right: 8px; vertical-align: middle;';
+          iconSpan.textContent = '➕';
+          item.insertBefore(iconSpan, item.firstChild);
         }
       }
     });
