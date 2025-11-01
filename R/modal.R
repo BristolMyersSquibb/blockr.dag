@@ -407,16 +407,13 @@ block_registry_selectize <- function(id) {
                            '<div class=\"block-desc\">' + desc + '</div>' :
                            '';
 
-            // Card layout: icon on left, content (title, desc) stacked on right, badge at top right
-            return '<div style=\"display: flex; align-items: flex-start; gap: 16px; padding: 12px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;\">' +
-                   iconWrapper +
-                   '<div style=\"flex: 1; min-width: 0;\">' +
-                   '<div style=\"display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 4px;\">' +
-                   '<div class=\"block-name\">' + name + '</div>' +
-                   pkgBadge +
+            // Compact inline layout: just show name and icon
+            return '<div style=\"display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;\">' +
+                   '<div style=\"background-color: ' + color + '; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
+                   styledSvg.replace('width: 20px; height: 20px', 'width: 14px; height: 14px') +
                    '</div>' +
-                   descHtml +
-                   '</div>' +
+                   '<div style=\"font-weight: 500; font-size: 14px;\">' + name + '</div>' +
+                   (pkg ? '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' + pkg + '</div>' : '') +
                    '</div>';
           },
           option: function(item, escape) {
@@ -793,38 +790,20 @@ board_blocks_selectize <- function(
           render = I(
             "{
           item: function(item, escape) {
-            // item is the full option object when rendering selected items
+            // Compact inline layout: just show name and icon
             var name = escape(item.label || item.block_name || '');
-            var blockId = escape(item.block_id || '');
             var pkg = escape(item.package || '');
-            var icon = item.icon || 'box';
             var color = item.color || '#6c757d';
 
-            // Build icon wrapper with gray background padding and inline SVG
             var iconSvg = item.icon_svg || '';
-            // Style the SVG: set width, height, and color
             var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 14px; height: 14px; fill: white;\"');
 
-            var iconWrapper = '<span style=\"background-color: #f8f9fa; display: inline-flex; align-items: center; justify-content: center; padding: 6px; border-radius: 8px; margin-right: 10px;\">' +
-                              '<span style=\"background-color: ' + color + '; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px;\">' +
-                              styledSvg + '</span>' +
-                              '</span>';
-
-            // Title with type and ID next to it
-            var titleWithId = '<div style=\"display: flex; align-items: center; flex: 1;\">' +
-                             '<span style=\"font-weight: bold; font-size: 0.9em; color: #212529;\">' + name + '</span>' +
-                             (blockId ? '<span style=\"font-size: 0.75em; color: #6c757d; margin-left: 6px;\">type: ' + name + ' &middot; ID: ' + blockId + '</span>' : '') +
-                             '</div>';
-
-            // Build package badge (positioned to the right)
-            var pkgBadge = pkg ?
-                           '<span style=\"display: inline-block; padding: 0.125rem 0.375rem; font-size: 0.625rem; border-radius: 0.25rem; background-color: rgba(148, 163, 184, 0.1); color: rgba(100, 116, 139, 0.9); border: 1px solid rgba(100, 116, 139, 0.1); white-space: nowrap; margin-right: 8px;\">' + pkg + '</span>' :
-                           '';
-
-            return '<div style=\"display: flex; align-items: center; width: 100%; padding: 4px 8px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; margin: 4px 0;\">' +
-                   iconWrapper +
-                   titleWithId +
-                   pkgBadge +
+            return '<div style=\"display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;\">' +
+                   '<div style=\"background-color: ' + color + '; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
+                   styledSvg.replace('width: 14px; height: 14px', 'width: 14px; height: 14px') +
+                   '</div>' +
+                   '<div style=\"font-weight: 500; font-size: 14px;\">' + name + '</div>' +
+                   (pkg ? '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' + pkg + '</div>' : '') +
                    '</div>';
           },
           option: function(item, escape) {
