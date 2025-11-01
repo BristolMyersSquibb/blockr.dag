@@ -36,7 +36,25 @@ set_g6_options <- function(graph, ...) {
             return d.label
           }"
         )
-      )
+      ),
+      palette = list(
+        type = "group",
+        field = "cluster"
+      ),
+      state = JS("{
+        selected: {
+          keyShape: {
+            stroke: '#2D3748',
+            lineWidth: 3
+          }
+        },
+        active: {
+          keyShape: {
+            stroke: '#6B7280',
+            lineWidth: 2
+          }
+        }
+      }")
     ),
     combo = list(
       animation = FALSE,
@@ -171,7 +189,23 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
               }
             );
             const items = await response.json();
-            return items;
+
+            // Separate primary actions from others and put them at top
+            // This reduces mouse travel distance after right-click
+            const primaryItems = [];
+            const otherItems = [];
+
+            items.forEach(item => {
+              // Match by name since value property doesn't exist
+              if (item.name && (item.name.includes('Add block') || item.name.includes('Append block'))) {
+                primaryItems.push(item);
+              } else {
+                otherItems.push(item);
+              }
+            });
+
+            // Primary actions first, then separator, then other items
+            return [...primaryItems, ...otherItems];
           }",
           path
         )
