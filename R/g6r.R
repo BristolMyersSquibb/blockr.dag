@@ -72,7 +72,7 @@ set_g6_layout <- function(graph) {
     layout = antv_dagre_layout(
       begin = c(150, 150),
       nodesep = 50,
-      ranksep = 75,
+      ranksep = 50,
       sortByCombo = TRUE
     )
   )
@@ -243,11 +243,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     tmp <- list(
       id = names(blocks)[[i]],
       type = "image",
-      label = paste(
-        block_name(current),
-        "\n id:",
-        names(blocks)[[i]]
-      ),
+      label = block_name(current),
       style = list(
         src = icon_uri,
         size = 48
