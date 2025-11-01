@@ -53,8 +53,9 @@ set_g6_options <- function(graph, ...) {
     edge = list(
       animation = FALSE,
       style = list(
+        stroke = "#D1D5DB",
+        lineWidth = 1,
         endArrow = TRUE,
-        lineDash = c(5, 5),
         labelText = JS(
           "(d) => {
             return d.label
