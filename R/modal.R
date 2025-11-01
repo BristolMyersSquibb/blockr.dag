@@ -307,7 +307,10 @@ block_registry_selectize <- function(id) {
             var color = item.color || '#6c757d';
 
             // Style the SVG icon
-            var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 20px; height: 20px; fill: white;\"');
+            var styledSvg = iconSvg.replace(
+              '<svg',
+              '<svg style=\"width: 20px; height: 20px; fill: white;\"'
+            );
 
             var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
                               'style=\"background-color: ' + color + ';\">' +
