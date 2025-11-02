@@ -22,7 +22,6 @@ Imports:
     blockr.core (>= 0.1.1),
     blockr.dock,
     shiny,
-    bsicons,
     g6R,
     jsonlite,
     shinyWidgets,
