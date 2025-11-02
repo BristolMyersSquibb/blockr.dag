@@ -181,39 +181,24 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   )
 }
 
-block_registry_selectize <- function(id) {
-  # Get all available blocks with metadata
-  blocks <- available_blocks()
-  block_ids <- list_blocks()
+block_registry_selectize <- function(id, blocks = list_blocks()) {
 
-  # Build options list for selectize
-  options_data <- list()
-  for (uid in block_ids) {
-    entry <- blocks[[uid]]
-    name <- attr(entry, "name")
-    if (is.null(name)) name <- uid
-    desc <- attr(entry, "description")
-    if (is.null(desc)) desc <- ""
-    category <- attr(entry, "category")
-    if (is.null(category)) category <- "uncategorized"
-    package <- attr(entry, "package")
-    if (is.null(package)) package <- ""
-
-    # Get block icon from registry (defaults to "question-square" in core)
-    icon_name <- attr(entry, "icon")
-    icon_svg <- as.character(bsicons::bs_icon(icon_name))
-
-    options_data[[length(options_data) + 1]] <- list(
-      value = uid,
-      label = name,
-      description = desc,
-      category = category,
-      package = package,
-      icon = icon_svg, # Use BS icon SVG string
-      color = blk_color(category), # Use blk_color function
-      searchtext = paste(name, desc, package)
-    )
-  }
+  options_data <- apply(
+    block_metadata(blocks),
+    1L,
+    function(blk) {
+      list(
+        value = blk$id,
+        label = blk$name,
+        description = blk$description,
+        category = blk$category,
+        package = blk$package,
+        icon = blk$icon,
+        color = blk_color(blk$category),
+        searchtext = paste(blk$name, blk$description, blk$package)
+      )
+    }
+  )
 
   tagList(
     tags$style(HTML("
