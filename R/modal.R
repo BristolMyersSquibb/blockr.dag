@@ -1,34 +1,3 @@
-#' Generate BS icon SVG string with fallback
-#'
-#' Generates an SVG string for a BS icon with graceful fallback to category
-#' icon and then default icon if the requested icon doesn't exist.
-#'
-#' @param icon_name Character, the BS icon name to generate
-#' @param category Character, category for fallback icon
-#' @return Character, SVG string
-#' @keywords internal
-blk_icon_svg <- function(icon_name, category = NULL) {
-  tryCatch(
-    as.character(bsicons::bs_icon(icon_name)),
-    error = function(e) {
-      # Fallback to category icon
-      if (!is.null(category)) {
-        category_icon <- blk_icon_name(category)
-        tryCatch(
-          as.character(bsicons::bs_icon(category_icon)),
-          error = function(e2) {
-            # Final fallback to default icon
-            as.character(bsicons::bs_icon("question-circle"))
-          }
-        )
-      } else {
-        # No category, use default
-        as.character(bsicons::bs_icon("question-circle"))
-      }
-    }
-  )
-}
-
 #' Shared CSS for block selectize components
 #'
 #' Provides standardized CSS styling for selectize components used in
@@ -661,56 +630,25 @@ board_blocks_selectize <- function(
   for (block_id in board_block_ids) {
     block <- board_blocks[[block_id]]
 
-    # Check if it's a simple data structure (list with id/name/package) or a block object
-    if (is.list(block) && !is_block(block) && "id" %in% names(block)) {
-      # Simple data structure for UI testing
-      name <- block$name
-      if (is.null(name) || nchar(name) == 0) {
-        name <- block_id
-      }
-      pkg <- block$package
-      if (is.null(pkg)) {
-        pkg <- ""
-      }
-      category <- block$category
-      if (is.null(category)) {
-        category <- "uncategorized"
-      }
-      # Use icon from block data if available, otherwise use default
-      icon <- block$icon
-      if (is.null(icon)) {
-        icon <- "question-square"
-      }
-      color <- block$color
-      if (is.null(color)) {
-        color <- blk_color(category)
-      }
-    } else {
-      # Actual block object
-      name <- block_name(block)
-      if (is.null(name) || nchar(name) == 0) {
-        name <- block_id
-      }
-
-      # Get block metadata including package, category, icon, and color
-      metadata <- get_block_metadata(block)
-      pkg <- metadata$package
-      if (is.null(pkg)) {
-        pkg <- ""
-      }
-      category <- metadata$category
-      if (is.null(category)) {
-        category <- "uncategorized"
-      }
-      icon <- metadata$icon
-      if (is.null(icon)) {
-        icon <- "question-square"
-      }
-      color <- blk_color(category)
+    # Get block name
+    name <- block_name(block)
+    if (is.null(name) || nchar(name) == 0) {
+      name <- block_id
     }
 
-    # Generate SVG string for the icon using bsicons
-    icon_svg <- as.character(bsicons::bs_icon(icon))
+    # Get block metadata from blockr.core registry
+    # This includes icon as SVG string, with fallback handled by blockr.core
+    metadata <- get_block_metadata(block)
+    pkg <- metadata$package
+    if (is.null(pkg)) {
+      pkg <- ""
+    }
+    category <- metadata$category
+    if (is.null(category)) {
+      category <- "uncategorized"
+    }
+    icon <- metadata$icon
+    color <- blk_color(category)
 
     options_data[[length(options_data) + 1]] <- list(
       value = block_id,
@@ -721,7 +659,6 @@ board_blocks_selectize <- function(
       package = pkg,
       category = category,
       icon = icon,
-      icon_svg = icon_svg,
       color = color,
       searchtext = paste(name, block_id, pkg)
     )
@@ -771,8 +708,8 @@ board_blocks_selectize <- function(
             var pkg = escape(item.package || '');
             var color = item.color || '#6c757d';
 
-            var iconSvg = item.icon_svg || '';
-            var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 14px; height: 14px; fill: white;\"');
+            var iconSvg = item.icon || '';
+            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 14px; height: 14px; fill: white;\" ');
 
             return '<div style=\"display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;\">' +
                    '<div style=\"background-color: ' + color + '; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
@@ -786,13 +723,12 @@ board_blocks_selectize <- function(
             var name = escape(item.block_name || '');
             var blockId = escape(item.block_id || '');
             var pkg = escape(item.package || '');
-            var icon = item.icon || 'box';
             var color = item.color || '#6c757d';
 
-            // Same icon wrapper as item render (but without outer padding wrapper)
-            var iconSvg = item.icon_svg || '';
+            // Icon already contains SVG string from blockr.core
+            var iconSvg = item.icon || '';
             // Style the SVG: set width, height, and color
-            var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 14px; height: 14px; fill: white;\"');
+            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 14px; height: 14px; fill: white;\" ');
 
             var iconWrapper = '<span style=\"background-color: ' + color + '; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; margin-right: 8px; padding: 4px;\">' +
                               styledSvg + '</span>';

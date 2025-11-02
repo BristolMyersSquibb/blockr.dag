@@ -29,7 +29,8 @@ get_block_metadata <- function(x) {
         category = attr(info, "category"),
         name = attr(info, "name"),
         description = attr(info, "description"),
-        package = attr(info, "package")
+        package = attr(info, "package"),
+        icon = attr(info, "icon")
       )
 
       return(res)
@@ -40,7 +41,8 @@ get_block_metadata <- function(x) {
     category = "Uncategorized",
     name = block_name(x),
     description = "No description available",
-    package = "local"
+    package = "local",
+    icon = NULL
   )
 }
 
