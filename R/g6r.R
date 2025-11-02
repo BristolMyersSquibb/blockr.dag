@@ -99,7 +99,10 @@ set_g6_behaviors <- function(graph, ..., ns) {
     click_select(multiple = TRUE),
     brush_select(
       # Option key on mac
-      trigger = "Alt"
+      trigger = "Alt",
+      enableElements = c("node", "edge", "combo"),
+      immediately = TRUE,
+      outputId = graph_id(ns)
     ),
     collapse_expand(),
     # avoid conflict with internal function
@@ -203,16 +206,14 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 #' @rdname g6-from-board
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
-  unname(lapply(seq_along(links), function(i) {
-    link <- links[[i]]
-    list(
-      id = names(links)[[i]],
-      type = "line",
-      source = link$from,
-      target = link$to,
-      label = link$input
-    )
-  }))
+  map(
+    list,
+    id = names(links),
+    source = links$from,
+    target = links$to,
+    label = links$input,
+    MoreArgs = list(type = "line")
+  )
 }
 
 #' @rdname g6-from-board
@@ -220,35 +221,33 @@ g6_edges_from_links <- function(links) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_nodes_from_blocks <- function(blocks, stacks) {
-  blocks_in_stacks <- lapply(stacks, stack_blocks)
 
-  lapply(seq_along(blocks), function(i) {
-    current <- blocks[[i]]
+  stack_blocks <- lapply(stacks, stack_blocks)
+  stack_blocks <- set_names(
+    rep(names(stack_blocks), lengths(stack_blocks)),
+    do.call("c", stack_blocks)
+  )
 
-    info <- get_block_metadata(current)
-    blk_color <- blk_color(info$category)
-
-    tmp <- list(
-      id = names(blocks)[[i]],
-      label = paste(
-        block_name(current),
-        "\n id:",
-        names(blocks)[[i]]
-      ),
-      style = list(
-        fill = blk_color
+  map(
+    list,
+    id = names(blocks),
+    label = chr_ply(blocks, block_name),
+    style = map(
+      list,
+      fill = chr_ply(
+        chr_ply(
+          chr_ply(blocks, registry_id_from_block),
+          block_metadata,
+          "category"
+        ),
+        blk_color
       )
+    ),
+    combo = lapply(
+      stack_blocks[names(blocks)],
+      function(x) if (is.na(x)) list() else x
     )
-
-    # Find in which stack the node is
-    tmp$combo <- unlist(lapply(seq_along(blocks_in_stacks), function(i) {
-      stack <- blocks_in_stacks[[i]]
-      if (tmp$id %in% stack) {
-        names(blocks_in_stacks)[[i]]
-      }
-    }))
-    tmp
-  })
+  )
 }
 
 #' @rdname g6-from-board
@@ -395,4 +394,22 @@ update_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
   }
 
   invisible()
+}
+
+setup_remove_elements_kbd <- function(
+  key = "Backspace",
+  session = get_session()
+) {
+  input <- session$input
+  ns <- session$ns
+  observeEvent(req(input[[paste0(graph_id(), "-initialized")]]), {
+    session$sendCustomMessage(
+      "setup-remove-selected-elements",
+      # TBD: key can be a board option
+      list(
+        key = key,
+        id = graph_id(ns)
+      )
+    )
+  })
 }

@@ -290,14 +290,14 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
     1L,
     function(blk) {
       list(
-        value = blk$id,
-        label = blk$name,
-        description = blk$description,
-        category = blk$category,
-        package = blk$package,
-        icon = blk$icon,
-        color = blk_color(blk$category),
-        searchtext = paste(blk$name, blk$description, blk$package)
+        value = unname(blk["id"]),
+        label = unname(blk["name"]),
+        description = unname(blk["description"]),
+        category = unname(blk["category"]),
+        package = unname(blk["package"]),
+        icon = unname(blk["icon"]),
+        color = blk_color(blk["category"]),
+        searchtext = paste(blk["name"], blk["description"], blk["package"])
       )
     }
   )
@@ -797,4 +797,8 @@ board_blocks_selectize <- function(
       )))
     }
   )
+}
+
+get_block_metadata <- function(...) {
+  stop("use registry_id_from_block()/block_metadata() from core.")
 }
