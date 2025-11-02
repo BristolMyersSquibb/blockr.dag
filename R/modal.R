@@ -181,35 +181,24 @@ create_block_modal <- function(mode = c("append", "add"), ns,
   )
 }
 
-block_registry_selectize <- function(id) {
-  # Get all available blocks with metadata
-  blocks <- available_blocks()
-  block_ids <- list_blocks()
+block_registry_selectize <- function(id, blocks = list_blocks()) {
 
-  # Build options list for selectize
-  options_data <- list()
-  for (uid in block_ids) {
-    entry <- blocks[[uid]]
-    name <- attr(entry, "name")
-    if (is.null(name)) name <- uid
-    desc <- attr(entry, "description")
-    if (is.null(desc)) desc <- ""
-    category <- attr(entry, "category")
-    if (is.null(category)) category <- "uncategorized"
-    package <- attr(entry, "package")
-    if (is.null(package)) package <- ""
-
-    options_data[[length(options_data) + 1]] <- list(
-      value = uid,
-      label = name,
-      description = desc,
-      category = category,
-      package = package,
-      icon = blk_icon_name(category), # Use blk_icon_name function
-      color = blk_color(category), # Use blk_color function
-      searchtext = paste(name, desc, package)
-    )
-  }
+  options_data <- apply(
+    block_metadata(blocks),
+    1L,
+    function(blk) {
+      list(
+        value = unname(blk["id"]),
+        label = unname(blk["name"]),
+        description = unname(blk["description"]),
+        category = unname(blk["category"]),
+        package = unname(blk["package"]),
+        icon = unname(blk["icon"]),
+        color = blk_color(blk["category"]),
+        searchtext = paste(blk["name"], blk["description"], blk["package"])
+      )
+    }
+  )
 
   tagList(
     tags$style(HTML("
@@ -299,12 +288,18 @@ block_registry_selectize <- function(id) {
             var name = escape(item.label);
             var desc = escape(item.description || '');
             var pkg = escape(item.package || '');
-            var icon = item.icon || 'circle';
+            var iconSvg = item.icon || '<svg></svg>';
             var color = item.color || '#6c757d';
+
+            // Style the SVG icon
+            var styledSvg = iconSvg.replace(
+              '<svg',
+              '<svg style=\"width: 20px; height: 20px; fill: white;\"'
+            );
 
             var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
                               'style=\"background-color: ' + color + ';\">' +
-                              '<i class=\"fa fa-' + icon + '\"></i></div>';
+                              styledSvg + '</div>';
             var pkgBadge = pkg ?
                            '<div class=\"badge-two-tone\">' + pkg + '</div>' :
                            '';
