@@ -336,11 +336,19 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
 
             // Get SVG and style it (larger size for comfortable layout)
             var iconSvg = item.icon || '';
-            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 20px; height: 20px; fill: white;\" ');
+            var styledSvg = iconSvg.replace(
+              '<svg ',
+              '<svg style=\"width: 20px; height: 20px; fill: white;\" '
+            );
 
             // Icon wrapper (40px for comfortable size)
-            var iconWrapper = '<div class=\"block-icon-wrapper\" style=\"background-color: ' + color + '; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
-                              styledSvg + '</div>';
+            var iconWrapper =
+              '<div class=\"block-icon-wrapper\" ' +
+              'style=\"background-color: ' + color + '; ' +
+              'width: 40px; height: 40px; border-radius: 8px; ' +
+              'display: flex; align-items: center; ' +
+              'justify-content: center; flex-shrink: 0;\">' +
+              styledSvg + '</div>';
 
             // Package badge
             var pkgBadge = pkg ?
@@ -353,13 +361,25 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
                            '';
 
             // Compact inline layout: just show name and icon
-            return '<div style=\"display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;\">' +
-                   '<div style=\"background-color: ' + color + '; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
-                   styledSvg.replace('width: 20px; height: 20px', 'width: 14px; height: 14px') +
-                   '</div>' +
-                   '<div style=\"font-weight: 500; font-size: 14px;\">' + name + '</div>' +
-                   (pkg ? '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' + pkg + '</div>' : '') +
-                   '</div>';
+            var containerStyle =
+              'display: inline-flex; align-items: center; gap: 8px; ' +
+              'padding: 4px 8px; background-color: #f8f9fa; ' +
+              'border-radius: 6px; border: 1px solid #e9ecef;';
+            var iconStyle =
+              'background-color: ' + color + '; width: 24px; ' +
+              'height: 24px; border-radius: 4px; display: flex; ' +
+              'align-items: center; justify-content: center; flex-shrink: 0;';
+            var smallSvg = styledSvg.replace(
+              'width: 20px; height: 20px',
+              'width: 14px; height: 14px'
+            );
+            var pkgBadgeHtml = pkg ?
+              '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
+              pkg + '</div>' : '';
+            return '<div style=\"' + containerStyle + '\">' +
+                   '<div style=\"' + iconStyle + '\">' + smallSvg + '</div>' +
+                   '<div style=\"font-weight: 500; font-size: 14px;\">' +
+                   name + '</div>' + pkgBadgeHtml + '</div>';
           },
           option: function(item, escape) {
             var name = escape(item.label);
@@ -374,24 +394,22 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
               '<svg style=\"width: 20px; height: 20px; fill: white;\" '
             );
 
+            var iconWrapperStyle = 'background-color: ' + color + ';';
             var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
-                              'style=\"background-color: ' + color + ';\">' +
+                              'style=\"' + iconWrapperStyle + '\">' +
                               styledSvg + '</div>';
             var pkgBadge = pkg ?
-                           '<div class=\"badge-two-tone\">' + pkg + '</div>' :
-                           '';
+                           '<div class=\"badge-two-tone\">' + pkg +
+                           '</div>' : '';
             var descHtml = desc ?
-                           '<div class=\"block-desc\">' + desc + '</div>' :
-                           '';
+                           '<div class=\"block-desc\">' + desc +
+                           '</div>' : '';
             return '<div class=\"block-option\">' + iconWrapper +
                      '<div class=\"block-content\">' +
                        '<div class=\"block-header\">' +
-                         '<div class=\"block-name\">' + name + '</div>' +
-                         pkgBadge +
-                       '</div>' +
-                       descHtml +
-                     '</div>' +
-                   '</div>';
+                         '<div class=\"block-name\">' + name +
+                         '</div>' + pkgBadge + '</div>' +
+                       descHtml + '</div>' + '</div>';
           }
         }"
           )
@@ -709,15 +727,28 @@ board_blocks_selectize <- function(
             var color = item.color || '#6c757d';
 
             var iconSvg = item.icon || '';
-            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 14px; height: 14px; fill: white;\" ');
+            var styledSvg = iconSvg.replace(
+              '<svg ',
+              '<svg style=\"width: 14px; height: 14px; fill: white;\" '
+            );
 
-            return '<div style=\"display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;\">' +
-                   '<div style=\"background-color: ' + color + '; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
-                   styledSvg.replace('width: 14px; height: 14px', 'width: 14px; height: 14px') +
-                   '</div>' +
-                   '<div style=\"font-weight: 500; font-size: 14px;\">' + name + '</div>' +
-                   (pkg ? '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' + pkg + '</div>' : '') +
-                   '</div>';
+            var containerStyle =
+              'display: inline-flex; align-items: center; gap: 8px; ' +
+              'padding: 4px 8px; background-color: #f8f9fa; ' +
+              'border-radius: 6px; border: 1px solid #e9ecef;';
+            var iconBoxStyle =
+              'background-color: ' + color + '; width: 24px; ' +
+              'height: 24px; border-radius: 4px; display: flex; ' +
+              'align-items: center; justify-content: center; ' +
+              'flex-shrink: 0;';
+            var pkgHtml = pkg ?
+              '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
+              pkg + '</div>' : '';
+            return '<div style=\"' + containerStyle + '\">' +
+                   '<div style=\"' + iconBoxStyle + '\">' +
+                   styledSvg + '</div>' +
+                   '<div style=\"font-weight: 500; font-size: 14px;\">' +
+                   name + '</div>' + pkgHtml + '</div>';
           },
           option: function(item, escape) {
             var name = escape(item.block_name || '');
@@ -728,28 +759,51 @@ board_blocks_selectize <- function(
             // Icon already contains SVG string from blockr.core
             var iconSvg = item.icon || '';
             // Style the SVG: set width, height, and color
-            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 14px; height: 14px; fill: white;\" ');
+            var styledSvg = iconSvg.replace(
+              '<svg ',
+              '<svg style=\"width: 14px; height: 14px; fill: white;\" '
+            );
 
-            var iconWrapper = '<span style=\"background-color: ' + color + '; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; margin-right: 8px; padding: 4px;\">' +
+            var iconWrapperStyle =
+              'background-color: ' + color + '; ' +
+              'display: inline-flex; align-items: center; ' +
+              'justify-content: center; width: 28px; height: 28px; ' +
+              'border-radius: 6px; margin-right: 8px; padding: 4px;';
+            var iconWrapper = '<span style=\"' + iconWrapperStyle + '\">' +
                               styledSvg + '</span>';
 
             // Title with type and ID next to it (same as item)
-            var titleWithId = '<div style=\"display: flex; align-items: center; flex: 1;\">' +
-                             '<span style=\"font-weight: bold; font-size: 0.9em; color: #212529;\">' + name + '</span>' +
-                             (blockId ? '<span style=\"font-size: 0.75em; color: #6c757d; margin-left: 6px;\">type: ' + name + ' &middot; ID: ' + blockId + '</span>' : '') +
-                             '</div>';
+            var nameSpan =
+              '<span style=\"font-weight: bold; font-size: 0.9em; ' +
+              'color: #212529;\">' + name + '</span>';
+            var idSpan = blockId ?
+              '<span style=\"font-size: 0.75em; color: #6c757d; ' +
+              'margin-left: 6px;\">type: ' + name + ' &middot; ID: ' +
+              blockId + '</span>' : '';
+            var titleWithId =
+              '<div style=\"display: flex; align-items: center; ' +
+              'flex: 1;\">' + nameSpan + idSpan + '</div>';
 
             // Package badge (same as item)
+            var badgeStyle =
+              'display: inline-block; padding: 0.125rem 0.375rem; ' +
+              'font-size: 0.625rem; border-radius: 0.25rem; ' +
+              'background-color: rgba(148, 163, 184, 0.1); ' +
+              'color: rgba(100, 116, 139, 0.9); ' +
+              'border: 1px solid rgba(100, 116, 139, 0.1); ' +
+              'white-space: nowrap; margin-left: 6px;';
             var pkgBadge = pkg ?
-                           '<span style=\"display: inline-block; padding: 0.125rem 0.375rem; font-size: 0.625rem; border-radius: 0.25rem; background-color: rgba(148, 163, 184, 0.1); color: rgba(100, 116, 139, 0.9); border: 1px solid rgba(100, 116, 139, 0.1); white-space: nowrap; margin-left: 6px;\">' + escape(pkg) + '</span>' :
-                           '';
+                           '<span style=\"' + badgeStyle + '\">' +
+                           escape(pkg) + '</span>' : '';
 
-            // Same container style as item (but no remove button) - with margin for spacing
-            return '<div style=\"display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; margin: 4px 12px;\">' +
-                   iconWrapper +
-                   titleWithId +
-                   pkgBadge +
-                   '</div>';
+            // Same container style as item (no remove button) - with margin
+            var containerStyle =
+              'display: flex; align-items: center; ' +
+              'justify-content: space-between; padding: 10px 16px; ' +
+              'background-color: #f8f9fa; border-radius: 8px; ' +
+              'border: 1px solid #e9ecef; margin: 4px 12px;';
+            return '<div style=\"' + containerStyle + '\">' +
+                   iconWrapper + titleWithId + pkgBadge + '</div>';
           }
         }"
           )
