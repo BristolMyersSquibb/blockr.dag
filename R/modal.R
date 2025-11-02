@@ -366,8 +366,8 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
             var color = item.color || '#6c757d';
 
             // Get SVG and style it (larger size for comfortable layout)
-            var iconSvg = item.icon_svg || '';
-            var styledSvg = iconSvg.replace('<svg', '<svg style=\"width: 20px; height: 20px; fill: white;\"');
+            var iconSvg = item.icon || '';
+            var styledSvg = iconSvg.replace('<svg ', '<svg style=\"width: 20px; height: 20px; fill: white;\" ');
 
             // Icon wrapper (40px for comfortable size)
             var iconWrapper = '<div class=\"block-icon-wrapper\" style=\"background-color: ' + color + '; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;\">' +
@@ -399,10 +399,10 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
             var color = item.color || '#6c757d';
 
             // Get SVG and style it (larger size for comfortable layout)
-            var iconSvg = item.icon_svg || '';
+            var iconSvg = item.icon || '';
             var styledSvg = iconSvg.replace(
-              '<svg',
-              '<svg style=\"width: 20px; height: 20px; fill: white;\"'
+              '<svg ',
+              '<svg style=\"width: 20px; height: 20px; fill: white;\" '
             );
 
             var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
