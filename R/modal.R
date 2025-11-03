@@ -89,6 +89,84 @@ css_block_selectize <- function() {
   ))
 }
 
+#' Shared JavaScript rendering functions for block selectize
+#'
+#' @return JavaScript string with item and option render functions
+#' @keywords internal
+js_blk_selectize_render <- function() {
+  I(
+    "{
+      item: function(item, escape) {
+        var name = escape(item.label);
+        var pkg = escape(item.package || '');
+        var color = item.color || '#6c757d';
+
+        var iconSvg = item.icon || '';
+        var styledSvg = iconSvg.replace(
+          '<svg ',
+          '<svg style=\"width: 14px; height: 14px; fill: white;\" '
+        );
+
+        var containerStyle =
+          'display: inline-flex; align-items: center; gap: 8px; ' +
+          'padding: 4px 8px; background-color: #f8f9fa; ' +
+          'border-radius: 6px; border: 1px solid #e9ecef;';
+        var iconStyle =
+          'background-color: ' + color + '; width: 24px; ' +
+          'height: 24px; border-radius: 4px; display: flex; ' +
+          'align-items: center; justify-content: center; flex-shrink: 0;';
+        var pkgBadgeHtml = pkg ?
+          '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
+          pkg + '</div>' : '';
+        return '<div style=\"' + containerStyle + '\">' +
+               '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
+               '<div style=\"font-weight: 500; font-size: 14px;\">' +
+               name + '</div>' + pkgBadgeHtml + '</div>';
+      },
+      option: function(item, escape) {
+        var name = escape(item.label);
+        var desc = escape(item.description || '');
+        var pkg = escape(item.package || '');
+        var color = item.color || '#6c757d';
+
+        var iconSvg = item.icon || '';
+        var styledSvg = iconSvg.replace(
+          '<svg ',
+          '<svg style=\"width: 20px; height: 20px; fill: white;\" '
+        );
+
+        var iconWrapperStyle = 'background-color: ' + color + ';';
+        var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
+                          'style=\"' + iconWrapperStyle + '\">' +
+                          styledSvg + '</div>';
+
+        var pkgBadge = pkg ?
+                       '<div class=\"badge-two-tone\">' + pkg +
+                       '</div>' : '';
+
+        // For board blocks, show type/ID info as description
+        // For registry blocks, show the description field
+        var descHtml = '';
+        if (item.block_type) {
+          var blockType = escape(item.block_type);
+          var blockId = escape(item.block_id || '');
+          descHtml = '<div class=\"block-desc\">type: ' + blockType +
+                     (blockId ? ' &middot; ID: ' + blockId : '') + '</div>';
+        } else if (desc) {
+          descHtml = '<div class=\"block-desc\">' + desc + '</div>';
+        }
+
+        return '<div class=\"block-option\">' + iconWrapper +
+                 '<div class=\"block-content\">' +
+                   '<div class=\"block-header\">' +
+                     '<div class=\"block-name\">' + name +
+                     '</div>' + pkgBadge + '</div>' +
+                   descHtml + '</div>' + '</div>';
+      }
+    }"
+  )
+}
+
 create_block_modal <- function(
   mode = c("append", "add"),
   ns,
@@ -325,94 +403,7 @@ registry_select <- function(id, blocks = list_blocks()) {
           searchField = c("label", "description", "searchtext"),
           placeholder = "Type to search blocks...",
           openOnFocus = FALSE,
-          render = I(
-            "{
-          item: function(item, escape) {
-            // Comfortable card-style layout for selected item
-            var name = escape(item.label);
-            var desc = escape(item.description || '');
-            var pkg = escape(item.package || '');
-            var color = item.color || '#6c757d';
-
-            // Get SVG and style it (larger size for comfortable layout)
-            var iconSvg = item.icon || '';
-            var styledSvg = iconSvg.replace(
-              '<svg ',
-              '<svg style=\"width: 20px; height: 20px; fill: white;\" '
-            );
-
-            // Icon wrapper (40px for comfortable size)
-            var iconWrapper =
-              '<div class=\"block-icon-wrapper\" ' +
-              'style=\"background-color: ' + color + '; ' +
-              'width: 40px; height: 40px; border-radius: 8px; ' +
-              'display: flex; align-items: center; ' +
-              'justify-content: center; flex-shrink: 0;\">' +
-              styledSvg + '</div>';
-
-            // Package badge
-            var pkgBadge = pkg ?
-                           '<div class=\"badge-two-tone\">' + pkg + '</div>' :
-                           '';
-
-            // Description
-            var descHtml = desc ?
-                           '<div class=\"block-desc\">' + desc + '</div>' :
-                           '';
-
-            // Compact inline layout: just show name and icon
-            var containerStyle =
-              'display: inline-flex; align-items: center; gap: 8px; ' +
-              'padding: 4px 8px; background-color: #f8f9fa; ' +
-              'border-radius: 6px; border: 1px solid #e9ecef;';
-            var iconStyle =
-              'background-color: ' + color + '; width: 24px; ' +
-              'height: 24px; border-radius: 4px; display: flex; ' +
-              'align-items: center; justify-content: center; flex-shrink: 0;';
-            var smallSvg = styledSvg.replace(
-              'width: 20px; height: 20px',
-              'width: 14px; height: 14px'
-            );
-            var pkgBadgeHtml = pkg ?
-              '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
-              pkg + '</div>' : '';
-            return '<div style=\"' + containerStyle + '\">' +
-                   '<div style=\"' + iconStyle + '\">' + smallSvg + '</div>' +
-                   '<div style=\"font-weight: 500; font-size: 14px;\">' +
-                   name + '</div>' + pkgBadgeHtml + '</div>';
-          },
-          option: function(item, escape) {
-            var name = escape(item.label);
-            var desc = escape(item.description || '');
-            var pkg = escape(item.package || '');
-            var color = item.color || '#6c757d';
-
-            // Get SVG and style it (larger size for comfortable layout)
-            var iconSvg = item.icon || '';
-            var styledSvg = iconSvg.replace(
-              '<svg ',
-              '<svg style=\"width: 20px; height: 20px; fill: white;\" '
-            );
-
-            var iconWrapperStyle = 'background-color: ' + color + ';';
-            var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
-                              'style=\"' + iconWrapperStyle + '\">' +
-                              styledSvg + '</div>';
-            var pkgBadge = pkg ?
-                           '<div class=\"badge-two-tone\">' + pkg +
-                           '</div>' : '';
-            var descHtml = desc ?
-                           '<div class=\"block-desc\">' + desc +
-                           '</div>' : '';
-            return '<div class=\"block-option\">' + iconWrapper +
-                     '<div class=\"block-content\">' +
-                       '<div class=\"block-header\">' +
-                         '<div class=\"block-name\">' + name +
-                         '</div>' + pkgBadge + '</div>' +
-                       descHtml + '</div>' + '</div>';
-          }
-        }"
-          )
+          render = js_blk_selectize_render()
         )
       )
     )
@@ -661,7 +652,7 @@ board_select <- function(
     function(i) {
       block_id <- board_block_ids[[i]]
       block <- board_blocks[[block_id]]
-      metadata <- all_metadata[, i]
+      metadata <- all_metadata[i, ]
 
       # Get user-defined block name (instance-specific)
       name <- block_name(block)
@@ -670,23 +661,23 @@ board_select <- function(
       }
 
       # Extract metadata fields
-      pkg <- metadata["package"]
+      pkg <- metadata$package
       if (is.null(pkg) || is.na(pkg)) {
         pkg <- ""
       }
-      category <- metadata["category"]
+      category <- metadata$category
       if (is.null(category) || is.na(category)) {
         category <- "uncategorized"
       }
-      icon <- metadata["icon"]
+      icon <- metadata$icon
       color <- blk_color(category)
 
       list(
         value = block_id,
         label = name,
-        description = sprintf("ID: %s", block_id),
         block_id = block_id,
         block_name = name,
+        block_type = metadata$name,
         package = pkg,
         category = category,
         icon = icon,
@@ -732,95 +723,7 @@ board_select <- function(
           placeholder = "Type to search blocks...",
           openOnFocus = FALSE,
           plugins = list("remove_button", "drag_drop"),
-          render = I(
-            "{
-          item: function(item, escape) {
-            // Compact inline layout: just show name and icon
-            var name = escape(item.label || item.block_name || '');
-            var pkg = escape(item.package || '');
-            var color = item.color || '#6c757d';
-
-            var iconSvg = item.icon || '';
-            var styledSvg = iconSvg.replace(
-              '<svg ',
-              '<svg style=\"width: 14px; height: 14px; fill: white;\" '
-            );
-
-            var containerStyle =
-              'display: inline-flex; align-items: center; gap: 8px; ' +
-              'padding: 4px 8px; background-color: #f8f9fa; ' +
-              'border-radius: 6px; border: 1px solid #e9ecef;';
-            var iconBoxStyle =
-              'background-color: ' + color + '; width: 24px; ' +
-              'height: 24px; border-radius: 4px; display: flex; ' +
-              'align-items: center; justify-content: center; ' +
-              'flex-shrink: 0;';
-            var pkgHtml = pkg ?
-              '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
-              pkg + '</div>' : '';
-            return '<div style=\"' + containerStyle + '\">' +
-                   '<div style=\"' + iconBoxStyle + '\">' +
-                   styledSvg + '</div>' +
-                   '<div style=\"font-weight: 500; font-size: 14px;\">' +
-                   name + '</div>' + pkgHtml + '</div>';
-          },
-          option: function(item, escape) {
-            var name = escape(item.block_name || '');
-            var blockId = escape(item.block_id || '');
-            var pkg = escape(item.package || '');
-            var color = item.color || '#6c757d';
-
-            // Icon already contains SVG string from blockr.core
-            var iconSvg = item.icon || '';
-            // Style the SVG: set width, height, and color
-            var styledSvg = iconSvg.replace(
-              '<svg ',
-              '<svg style=\"width: 14px; height: 14px; fill: white;\" '
-            );
-
-            var iconWrapperStyle =
-              'background-color: ' + color + '; ' +
-              'display: inline-flex; align-items: center; ' +
-              'justify-content: center; width: 28px; height: 28px; ' +
-              'border-radius: 6px; margin-right: 8px; padding: 4px;';
-            var iconWrapper = '<span style=\"' + iconWrapperStyle + '\">' +
-                              styledSvg + '</span>';
-
-            // Title with type and ID next to it (same as item)
-            var nameSpan =
-              '<span style=\"font-weight: bold; font-size: 0.9em; ' +
-              'color: #212529;\">' + name + '</span>';
-            var idSpan = blockId ?
-              '<span style=\"font-size: 0.75em; color: #6c757d; ' +
-              'margin-left: 6px;\">type: ' + name + ' &middot; ID: ' +
-              blockId + '</span>' : '';
-            var titleWithId =
-              '<div style=\"display: flex; align-items: center; ' +
-              'flex: 1;\">' + nameSpan + idSpan + '</div>';
-
-            // Package badge (same as item)
-            var badgeStyle =
-              'display: inline-block; padding: 0.125rem 0.375rem; ' +
-              'font-size: 0.625rem; border-radius: 0.25rem; ' +
-              'background-color: rgba(148, 163, 184, 0.1); ' +
-              'color: rgba(100, 116, 139, 0.9); ' +
-              'border: 1px solid rgba(100, 116, 139, 0.1); ' +
-              'white-space: nowrap; margin-left: 6px;';
-            var pkgBadge = pkg ?
-                           '<span style=\"' + badgeStyle + '\">' +
-                           escape(pkg) + '</span>' : '';
-
-            // Same container style as item (no remove button) - with margin
-            var containerStyle =
-              'display: flex; align-items: center; ' +
-              'justify-content: space-between; padding: 10px 16px; ' +
-              'background-color: #f8f9fa; border-radius: 8px; ' +
-              'border: 1px solid #e9ecef; margin: 4px 12px;';
-            return '<div style=\"' + containerStyle + '\">' +
-                   iconWrapper + titleWithId + pkgBadge + '</div>';
-          }
-        }"
-          )
+          render = js_blk_selectize_render()
         )
         if (!is.null(selected) && length(selected) > 0) {
           # Preselect items - items should be an array of values
