@@ -266,7 +266,8 @@ context_menu_items.dag_extension <- function(x) {
             stack_color <- input$stack_color
             selected_blocks <- input$stack_block_selection
 
-            if (!nchar(stack_id) || stack_id %in% board_stack_ids(board$board)) {
+            if (!nchar(stack_id) ||
+                stack_id %in% board_stack_ids(board$board)) {
               notify(
                 "Please choose a valid stack ID.",
                 type = "warning",
@@ -287,7 +288,8 @@ context_menu_items.dag_extension <- function(x) {
               character()
             }
 
-            # Create stack name - use input if provided, otherwise generate from ID
+            # Create stack name - use input if provided, otherwise
+            # generate from ID
             if (is.null(stack_name) || !nchar(stack_name)) {
               stack_name <- id_to_sentence_case(stack_id)
             }
