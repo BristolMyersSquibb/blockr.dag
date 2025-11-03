@@ -1,3 +1,86 @@
+#' Shared CSS for modal advanced options and compact styling
+#'
+#' @param advanced_id The namespaced ID for the advanced options container
+#' @return HTML style tag with modal CSS
+#' @keywords internal
+css_modal_advanced <- function(advanced_id) {
+  tags$style(HTML(sprintf(
+    "
+    #%s {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    #%s.expanded {
+      max-height: 500px;
+      overflow: visible;
+      transition: max-height 0.5s ease-in;
+    }
+    .modal-advanced-toggle {
+      cursor: pointer;
+      user-select: none;
+      padding: 8px 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+    .modal-chevron {
+      transition: transform 0.2s;
+      display: inline-block;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .modal-chevron.rotated {
+      transform: rotate(90deg);
+    }
+    /* Compact modal styling */
+    #shiny-modal .modal-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    #shiny-modal .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    #shiny-modal .modal-body {
+      padding: 20px;
+    }
+    #shiny-modal .modal-body .form-group {
+      width: 100%%;
+      margin-bottom: 16px;
+    }
+    #shiny-modal .modal-body .selectize-input,
+    #shiny-modal .modal-body input[type='text'] {
+      width: 100%%;
+    }
+    #shiny-modal .modal-body .shiny-input-container {
+      width: 100%%;
+    }
+    #shiny-modal .modal-body .control-label {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-bottom: 4px;
+      font-weight: normal;
+    }
+    #shiny-modal .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #e2e8f0;
+      gap: 8px;
+    }
+    #shiny-modal .modal-footer .btn {
+      font-size: 0.875rem;
+      padding: 0.375rem 0.75rem;
+    }
+  ",
+    advanced_id,
+    advanced_id
+  )))
+}
+
 #' Shared CSS for block selectize components
 #'
 #' @return HTML style tag with block selectize CSS
@@ -169,79 +252,6 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
   block_id_field <- paste0(mode, "_block_id")
   confirm_id <- paste0(mode, "_block_confirm")
 
-  # CSS for advanced options toggle and compact modal styling
-  advanced_css <- tags$style(HTML(sprintf("
-    #%s {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-    }
-    #%s.expanded {
-      max-height: 500px;
-      overflow: visible;
-      transition: max-height 0.5s ease-in;
-    }
-    .block-advanced-toggle {
-      cursor: pointer;
-      user-select: none;
-      padding: 8px 0;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #6c757d;
-      font-size: 0.875rem;
-    }
-    .block-chevron {
-      transition: transform 0.2s;
-      display: inline-block;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .block-chevron.rotated {
-      transform: rotate(90deg);
-    }
-    /* Compact modal styling */
-    #shiny-modal .modal-header {
-      padding: 12px 20px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    #shiny-modal .modal-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    #shiny-modal .modal-body {
-      padding: 20px;
-    }
-    #shiny-modal .modal-body .form-group {
-      width: 100%%;
-      margin-bottom: 16px;
-    }
-    #shiny-modal .modal-body .selectize-input,
-    #shiny-modal .modal-body input[type='text'] {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .shiny-input-container {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .control-label {
-      font-size: 0.875rem;
-      color: #6c757d;
-      margin-bottom: 4px;
-      font-weight: normal;
-    }
-    #shiny-modal .modal-footer {
-      padding: 12px 20px;
-      border-top: 1px solid #e2e8f0;
-      gap: 8px;
-    }
-    #shiny-modal .modal-footer .btn {
-      font-size: 0.875rem;
-      padding: 0.375rem 0.75rem;
-    }
-  ", ns("advanced-options"), ns("advanced-options"))))
-
   # Always visible fields
   visible_fields <- list(
     block_registry_selectize(ns(selection_id))
@@ -256,19 +266,19 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
 
   # Advanced options toggle button
   toggle_button <- div(
-    class = "block-advanced-toggle text-muted",
-    id = ns("advanced-toggle"),
+    class = "modal-advanced-toggle text-muted",
+    id = ns("block-advanced-toggle"),
     onclick = sprintf(
       "
       const section = document.getElementById('%s');
-      const chevron = document.querySelector('#%s .block-chevron');
+      const chevron = document.querySelector('#%s .modal-chevron');
       section.classList.toggle('expanded');
       chevron.classList.toggle('rotated');
       ",
-      ns("advanced-options"),
-      ns("advanced-toggle")
+      ns("block-advanced-options"),
+      ns("block-advanced-toggle")
     ),
-    tags$span(class = "block-chevron", "\u203A"),
+    tags$span(class = "modal-chevron", "\u203A"),
     "Show advanced options"
   )
 
@@ -302,7 +312,7 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
 
   # Collapsible advanced options section
   advanced_section <- div(
-    id = ns("advanced-options"),
+    id = ns("block-advanced-options"),
     tagList(advanced_fields)
   )
 
@@ -329,7 +339,7 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
     easyClose = TRUE,
     footer = NULL,
     tagList(
-      advanced_css,
+      css_modal_advanced(ns("block-advanced-options")),
       visible_fields,
       toggle_button,
       advanced_section,
@@ -403,83 +413,6 @@ stack_modal <- function(
   stack_id_field <- "stack_id"
   confirm_id <- if (mode == "create") "stack_confirm" else "edit_stack_confirm"
 
-  # CSS for advanced options toggle and compact modal styling
-  advanced_css <- tags$style(HTML(sprintf(
-    "
-    #%s {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-    }
-    #%s.expanded {
-      max-height: 500px;
-      overflow: visible;
-      transition: max-height 0.5s ease-in;
-    }
-    .stack-advanced-toggle {
-      cursor: pointer;
-      user-select: none;
-      padding: 8px 0;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #6c757d;
-      font-size: 0.875rem;
-    }
-    .stack-chevron {
-      transition: transform 0.2s;
-      display: inline-block;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .stack-chevron.rotated {
-      transform: rotate(90deg);
-    }
-    /* Compact modal styling */
-    #shiny-modal .modal-header {
-      padding: 12px 20px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    #shiny-modal .modal-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    #shiny-modal .modal-body {
-      padding: 20px;
-    }
-    #shiny-modal .modal-body .form-group {
-      width: 100%%;
-      margin-bottom: 16px;
-    }
-    #shiny-modal .modal-body .selectize-input,
-    #shiny-modal .modal-body input[type='text'] {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .shiny-input-container {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .control-label {
-      font-size: 0.875rem;
-      color: #6c757d;
-      margin-bottom: 4px;
-      font-weight: normal;
-    }
-    #shiny-modal .modal-footer {
-      padding: 12px 20px;
-      border-top: 1px solid #e2e8f0;
-      gap: 8px;
-    }
-    #shiny-modal .modal-footer .btn {
-      font-size: 0.875rem;
-      padding: 0.375rem 0.75rem;
-    }
-  ",
-    ns("stack-advanced-options"),
-    ns("stack-advanced-options")
-  )))
-
   # Always visible fields
   visible_fields <- list(
     board_select(
@@ -521,19 +454,19 @@ stack_modal <- function(
   if (mode == "create") {
     # Advanced options toggle button
     toggle_button <- div(
-      class = "stack-advanced-toggle text-muted",
+      class = "modal-advanced-toggle text-muted",
       id = ns("stack-advanced-toggle"),
       onclick = sprintf(
         "
         const section = document.getElementById('%s');
-        const chevron = document.querySelector('#%s .stack-chevron');
+        const chevron = document.querySelector('#%s .modal-chevron');
         section.classList.toggle('expanded');
         chevron.classList.toggle('rotated');
         ",
         ns("stack-advanced-options"),
         ns("stack-advanced-toggle")
       ),
-      tags$span(class = "stack-chevron", "\u203A"),
+      tags$span(class = "modal-chevron", "\u203A"),
       "Show advanced options"
     )
 
@@ -592,7 +525,7 @@ stack_modal <- function(
     easyClose = TRUE,
     footer = NULL,
     tagList(
-      advanced_css,
+      css_modal_advanced(ns("stack-advanced-options")),
       visible_fields,
       toggle_button,
       advanced_section,
