@@ -251,7 +251,8 @@ context_menu_items.dag_extension <- function(x) {
                 board_block_ids = board_block_ids(board$board),
                 board_blocks = board_blocks(board$board),
                 mode = "create",
-                board_stack_ids = board_stack_ids(board$board)
+                board_stack_ids = board_stack_ids(board$board),
+                board_stacks = board_stacks(board$board)
               )
             )
           }

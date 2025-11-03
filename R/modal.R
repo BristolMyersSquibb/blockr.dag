@@ -426,7 +426,8 @@ stack_modal <- function(
   mode = c("create", "edit"),
   stack = NULL,
   stack_id = NULL,
-  board_stack_ids = NULL
+  board_stack_ids = NULL,
+  board_stacks = NULL
 ) {
   mode <- match.arg(mode)
 
@@ -577,10 +578,7 @@ stack_modal <- function(
       inputId = ns("stack_color"),
       label = "Stack color",
       selected = suggest_new_colors(
-        chr_ply(board_blocks, function(b) {
-          meta <- get_block_metadata(b)
-          blk_color(meta$category)
-        })
+        stack_color(board_stacks)
       ),
       theme = "nano",
       position = "right-end",
@@ -643,44 +641,52 @@ board_blocks_selectize <- function(
   board_block_ids,
   selected = NULL
 ) {
+  # Get all registry IDs for batch metadata lookup
+  registry_ids <- chr_ply(board_blocks, registry_id_from_block)
+
+  # Get all metadata in one batch call for efficiency
+  all_metadata <- block_metadata(registry_ids)
+
   # Build options list for selectize from board blocks
-  options_data <- list()
-  for (block_id in board_block_ids) {
-    block <- board_blocks[[block_id]]
+  options_data <- lapply(
+    seq_along(board_block_ids),
+    function(i) {
+      block_id <- board_block_ids[[i]]
+      block <- board_blocks[[block_id]]
+      metadata <- all_metadata[, i]
 
-    # Get block name
-    name <- block_name(block)
-    if (is.null(name) || nchar(name) == 0) {
-      name <- block_id
-    }
+      # Get user-defined block name (instance-specific)
+      name <- block_name(block)
+      if (is.null(name) || nchar(name) == 0) {
+        name <- block_id
+      }
 
-    # Get block metadata from blockr.core registry
-    # This includes icon as SVG string, with fallback handled by blockr.core
-    metadata <- get_block_metadata(block)
-    pkg <- metadata$package
-    if (is.null(pkg)) {
-      pkg <- ""
-    }
-    category <- metadata$category
-    if (is.null(category)) {
-      category <- "uncategorized"
-    }
-    icon <- metadata$icon
-    color <- blk_color(category)
+      # Extract metadata fields
+      pkg <- metadata["package"]
+      if (is.null(pkg) || is.na(pkg)) {
+        pkg <- ""
+      }
+      category <- metadata["category"]
+      if (is.null(category) || is.na(category)) {
+        category <- "uncategorized"
+      }
+      icon <- metadata["icon"]
+      color <- blk_color(category)
 
-    options_data[[length(options_data) + 1]] <- list(
-      value = block_id,
-      label = name,
-      description = sprintf("ID: %s", block_id),
-      block_id = block_id,
-      block_name = name,
-      package = pkg,
-      category = category,
-      icon = icon,
-      color = color,
-      searchtext = paste(name, block_id, pkg)
-    )
-  }
+      list(
+        value = block_id,
+        label = name,
+        description = sprintf("ID: %s", block_id),
+        block_id = block_id,
+        block_name = name,
+        package = pkg,
+        category = category,
+        icon = icon,
+        color = color,
+        searchtext = paste(name, block_id, pkg)
+      )
+    }
+  )
 
   tagList(
     css_block_selectize(),
