@@ -1,3 +1,159 @@
+#' Shared CSS for block selectize components
+#'
+#' @return HTML style tag with block selectize CSS
+#' @keywords internal
+css_block_selectize <- function() {
+  tags$style(HTML(
+    "
+    .selectize-dropdown-content {
+      max-height: 450px !important;
+      padding: 8px 0;
+    }
+    .block-option {
+      padding: 16px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 4px 8px;
+      border-radius: 6px;
+      transition: background-color 0.15s ease;
+    }
+    .block-icon-wrapper {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+    }
+    .block-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .block-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .block-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #212529;
+      flex: 1;
+    }
+    .block-desc {
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.4;
+    }
+    .badge-two-tone {
+      display: inline-block;
+      padding: 0.125rem 0.375rem;
+      font-size: 0.625rem;
+      border-radius: 0.25rem;
+      background-color: rgba(148, 163, 184, 0.1);
+      color: rgba(100, 116, 139, 0.9);
+      border: 1px solid rgba(100, 116, 139, 0.1);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .selectize-dropdown .block-option {
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .selectize-dropdown .block-option:last-child {
+      border-bottom: none;
+    }
+    .selectize-dropdown .block-option:hover,
+    .selectize-dropdown .block-option.active {
+      background-color: #e9ecef;
+    }
+    "
+  ))
+}
+
+#' Shared JavaScript rendering functions for block selectize
+#'
+#' @return JavaScript string with item and option render functions
+#' @keywords internal
+js_blk_selectize_render <- function() {
+  I(
+    "{
+      item: function(item, escape) {
+        var name = escape(item.label);
+        var pkg = escape(item.package || '');
+        var color = item.color || '#6c757d';
+
+        var iconSvg = item.icon || '';
+        var styledSvg = iconSvg.replace(
+          '<svg ',
+          '<svg style=\"width: 14px; height: 14px; fill: white;\" '
+        );
+
+        var containerStyle =
+          'display: inline-flex; align-items: center; gap: 8px; ' +
+          'padding: 4px 8px; background-color: #f8f9fa; ' +
+          'border-radius: 6px; border: 1px solid #e9ecef;';
+        var iconStyle =
+          'background-color: ' + color + '; width: 24px; ' +
+          'height: 24px; border-radius: 4px; display: flex; ' +
+          'align-items: center; justify-content: center; flex-shrink: 0;';
+        var pkgBadgeHtml = pkg ?
+          '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
+          pkg + '</div>' : '';
+        return '<div style=\"' + containerStyle + '\">' +
+               '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
+               '<div style=\"font-weight: 500; font-size: 14px;\">' +
+               name + '</div>' + pkgBadgeHtml + '</div>';
+      },
+      option: function(item, escape) {
+        var name = escape(item.label);
+        var desc = escape(item.description || '');
+        var pkg = escape(item.package || '');
+        var color = item.color || '#6c757d';
+
+        var iconSvg = item.icon || '';
+        var styledSvg = iconSvg.replace(
+          '<svg ',
+          '<svg style=\"width: 20px; height: 20px; fill: white;\" '
+        );
+
+        var iconWrapperStyle = 'background-color: ' + color + ';';
+        var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
+                          'style=\"' + iconWrapperStyle + '\">' +
+                          styledSvg + '</div>';
+
+        var pkgBadge = pkg ?
+                       '<div class=\"badge-two-tone\">' + pkg +
+                       '</div>' : '';
+
+        // For board blocks, show type/ID info as description
+        // For registry blocks, show the description field
+        var descHtml = '';
+        if (item.block_type) {
+          var blockType = escape(item.block_type);
+          var blockId = escape(item.block_id || '');
+          descHtml = '<div class=\"block-desc\">type: ' + blockType +
+                     (blockId ? ' &middot; ID: ' + blockId : '') + '</div>';
+        } else if (desc) {
+          descHtml = '<div class=\"block-desc\">' + desc + '</div>';
+        }
+
+        return '<div class=\"block-option\">' + iconWrapper +
+                 '<div class=\"block-content\">' +
+                   '<div class=\"block-header\">' +
+                     '<div class=\"block-name\">' + name +
+                     '</div>' + pkgBadge + '</div>' +
+                   descHtml + '</div>' + '</div>';
+      }
+    }"
+  )
+}
+
 create_block_modal <- function(mode = c("append", "add"), ns,
                                board_block_ids, board_link_ids = NULL) {
   mode <- match.arg(mode)
@@ -201,74 +357,7 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
   )
 
   tagList(
-    tags$style(HTML("
-      .selectize-dropdown-content {
-        max-height: 450px !important;
-        padding: 8px 0;
-      }
-      .block-option {
-        padding: 16px 24px;
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        margin: 4px 8px;
-        border-radius: 6px;
-        transition: background-color 0.15s ease;
-      }
-      .block-icon-wrapper {
-        flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        color: white;
-      }
-      .block-content {
-        flex: 1;
-        min-width: 0;
-      }
-      .block-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 4px;
-      }
-      .block-name {
-        font-weight: 600;
-        font-size: 15px;
-        color: #212529;
-        flex: 1;
-      }
-      .block-desc {
-        font-size: 13px;
-        color: #6c757d;
-        line-height: 1.4;
-      }
-      .badge-two-tone {
-        display: inline-block;
-        padding: 0.125rem 0.375rem;
-        font-size: 0.625rem;
-        border-radius: 0.25rem;
-        background-color: rgba(148, 163, 184, 0.1);
-        color: rgba(100, 116, 139, 0.9);
-        border: 1px solid rgba(100, 116, 139, 0.1);
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
-      .selectize-dropdown .block-option {
-        border-bottom: 1px solid #f0f0f0;
-      }
-      .selectize-dropdown .block-option:last-child {
-        border-bottom: none;
-      }
-      .selectize-dropdown .block-option:hover {
-        background-color: #f8f9fa;
-      }
-    ")),
+    css_block_selectize(),
     selectizeInput(
       id,
       label = "Select block to add",
@@ -280,43 +369,7 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
         searchField = c("label", "description", "searchtext"),
         placeholder = "Type to search",
         openOnFocus = FALSE,
-        render = I("{
-          item: function(item, escape) {
-            return '<div>' + escape(item.label) + '</div>';
-          },
-          option: function(item, escape) {
-            var name = escape(item.label);
-            var desc = escape(item.description || '');
-            var pkg = escape(item.package || '');
-            var iconSvg = item.icon || '<svg></svg>';
-            var color = item.color || '#6c757d';
-
-            // Style the SVG icon
-            var styledSvg = iconSvg.replace(
-              '<svg',
-              '<svg style=\"width: 20px; height: 20px; fill: white;\"'
-            );
-
-            var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
-                              'style=\"background-color: ' + color + ';\">' +
-                              styledSvg + '</div>';
-            var pkgBadge = pkg ?
-                           '<div class=\"badge-two-tone\">' + pkg + '</div>' :
-                           '';
-            var descHtml = desc ?
-                           '<div class=\"block-desc\">' + desc + '</div>' :
-                           '';
-            return '<div class=\"block-option\">' + iconWrapper +
-                     '<div class=\"block-content\">' +
-                       '<div class=\"block-header\">' +
-                         '<div class=\"block-name\">' + name + '</div>' +
-                         pkgBadge +
-                       '</div>' +
-                       descHtml +
-                     '</div>' +
-                   '</div>';
-          }
-        }")
+        render = js_blk_selectize_render()
       )
     )
   )
