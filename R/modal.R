@@ -185,7 +185,7 @@ create_block_modal <- function(
 
   # Always visible fields
   visible_fields <- list(
-    block_registry_selectize(ns(selection_id))
+    registry_select(ns(selection_id))
   )
 
   # Add block name field (visible)
@@ -283,7 +283,7 @@ create_block_modal <- function(
   )
 }
 
-block_registry_selectize <- function(id, blocks = list_blocks()) {
+registry_select <- function(id, blocks = list_blocks()) {
 
   options_data <- apply(
     block_metadata(blocks),
@@ -519,7 +519,7 @@ stack_modal <- function(
 
   # Always visible fields
   visible_fields <- list(
-    board_blocks_selectize(
+    board_select(
       id = ns(selection_id),
       board_blocks = board_blocks,
       board_block_ids = board_block_ids,
@@ -635,7 +635,7 @@ stack_modal <- function(
   )
 }
 
-board_blocks_selectize <- function(
+board_select <- function(
   id,
   board_blocks,
   board_block_ids,
