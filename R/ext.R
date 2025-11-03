@@ -276,11 +276,11 @@ context_menu_items.dag_extension <- function(x) {
               return()
             }
 
-            # Get blocks - use selected blocks if any,
-            # otherwise empty character vector
+            # Get blocks - use selected blocks if any, otherwise empty
+            # character vector
             has_blocks <- length(selected_blocks) > 0 &&
-                          !is.null(selected_blocks) &&
-                          any(nchar(selected_blocks) > 0)
+              !is.null(selected_blocks) &&
+              any(nchar(selected_blocks) > 0)
             block_ids <- if (has_blocks) {
               selected_blocks[nchar(selected_blocks) > 0]
             } else {

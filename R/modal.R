@@ -435,7 +435,11 @@ stack_modal <- function(
   title <- if (mode == "create") "Create new stack" else "Edit stack"
   button_label <- if (mode == "create") "Create Stack" else "Update Stack"
 
-  selection_id <- if (mode == "create") "stack_block_selection" else "edit_stack_blocks"
+  selection_id <- if (mode == "create") {
+    "stack_block_selection"
+  } else {
+    "edit_stack_blocks"
+  }
   name_id <- if (mode == "create") "stack_name" else "edit_stack_name"
   stack_id_field <- "stack_id"
   confirm_id <- if (mode == "create") "stack_confirm" else "edit_stack_confirm"
@@ -530,7 +534,11 @@ stack_modal <- function(
   # Add stack name field (visible)
   visible_fields[[length(visible_fields) + 1]] <- textInput(
     ns(name_id),
-    label = if (mode == "create") "Stack name (can be changed after creation)" else "Stack name",
+    label = if (mode == "create") {
+      "Stack name (can be changed after creation)"
+    } else {
+      "Stack name"
+    },
     placeholder = if (mode == "create") "Enter stack name" else NULL,
     value = if (mode == "edit") stack_name(stack) else NULL
   )
