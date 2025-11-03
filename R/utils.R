@@ -113,3 +113,5 @@ available_stack_blocks <- function(board) {
 
   blk_ids[!(blk_ids %in% stacked_blocks)]
 }
+
+filter_null <- function(x) Filter(Negate(is.null), x)

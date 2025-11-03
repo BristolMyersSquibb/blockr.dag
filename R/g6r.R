@@ -222,13 +222,13 @@ g6_edges_from_links <- function(links) {
 #' @keywords internal
 g6_nodes_from_blocks <- function(blocks, stacks) {
 
-  stack_blocks <- lapply(stacks, stack_blocks)
-  stack_blocks <- set_names(
-    rep(names(stack_blocks), lengths(stack_blocks)),
-    do.call("c", stack_blocks)
+  stk_blks <- lapply(stacks, stack_blocks)
+  stk_blks <- set_names(
+    as.list(rep(names(stk_blks), lengths(stk_blks))),
+    do.call("c", stk_blks)
   )
 
-  map(
+  res <- map(
     list,
     id = names(blocks),
     label = chr_ply(blocks, block_name),
@@ -243,11 +243,10 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
         blk_color
       )
     ),
-    combo = lapply(
-      stack_blocks[names(blocks)],
-      function(x) if (is.na(x)) list() else x
-    )
+    combo = stk_blks[names(blocks)]
   )
+
+  lapply(res, filter_null)
 }
 
 #' @rdname g6-from-board
