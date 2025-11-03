@@ -267,7 +267,7 @@ context_menu_items.dag_extension <- function(x) {
             selected_blocks <- input$stack_block_selection
 
             if (!nchar(stack_id) ||
-                stack_id %in% board_stack_ids(board$board)) {
+                  stack_id %in% board_stack_ids(board$board)) {
               notify(
                 "Please choose a valid stack ID.",
                 type = "warning",
