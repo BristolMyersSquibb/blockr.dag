@@ -154,9 +154,11 @@ js_blk_selectize_render <- function() {
   )
 }
 
-create_block_modal <- function(mode = c("append", "add"), ns,
-                               board_block_ids, board_link_ids = NULL) {
+create_block_modal <- function(mode = c("append", "add"), ns, board) {
   mode <- match.arg(mode)
+
+  board_block_ids <- board_block_ids(board)
+  board_link_ids <- board_link_ids(board)
 
   title <- if (mode == "append") "Append new block" else "Add new block"
   button_label <- if (mode == "append") "Append Block" else "Add Block"

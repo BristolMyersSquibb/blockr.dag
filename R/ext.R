@@ -111,8 +111,7 @@ context_menu_items.dag_extension <- function(x) {
               create_block_modal(
                 mode = "append",
                 ns = ns,
-                board_block_ids = board_block_ids(board$board),
-                board_link_ids = board_link_ids(board$board)
+                board = board$board
               )
             )
           }
@@ -464,7 +463,7 @@ context_menu_items.dag_extension <- function(x) {
               create_block_modal(
                 mode = "add",
                 ns = ns,
-                board_block_ids = board_block_ids(board$board)
+                board = board$board
               )
             )
           }
