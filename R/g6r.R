@@ -29,6 +29,8 @@ set_g6_options <- function(graph, ...) {
         labelBackgroundRadius = 4,
         labelFontFamily = "Arial",
         labelPadding = c(0, 4),
+        labelPlacement = "bottom",
+        labelOffsetY = 8,
         labelText = JS(
           "(d) => {
             return d.label
@@ -52,7 +54,7 @@ set_g6_options <- function(graph, ...) {
       animation = FALSE,
       style = list(
         endArrow = TRUE,
-        lineDash = c(5, 5),
+        stroke = "#D1D5DB",
         labelText = JS(
           "(d) => {
             return d.label
@@ -69,7 +71,7 @@ set_g6_layout <- function(graph) {
     layout = antv_dagre_layout(
       begin = c(150, 150),
       nodesep = 50,
-      ranksep = 75,
+      ranksep = 50,
       sortByCombo = TRUE
     )
   )
@@ -228,20 +230,30 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     do.call("c", stk_blks)
   )
 
+  # Get metadata for all blocks (category and icon)
+  registry_ids <- chr_ply(blocks, registry_id_from_block)
+  all_metadata <- block_metadata(registry_ids)
+
+  # Create icon data URIs for each block
+  icon_uris <- chr_ply(
+    seq_along(blocks),
+    function(i) {
+      category <- all_metadata[i, "category"]
+      icon_svg <- all_metadata[i, "icon"]
+      color <- blk_color(category)
+      blk_icon_data_uri(icon_svg, color, size = 48)
+    }
+  )
+
   res <- map(
     list,
     id = names(blocks),
     label = chr_ply(blocks, block_name),
+    type = rep("image", length(blocks)),
     style = map(
       list,
-      fill = chr_ply(
-        chr_ply(
-          chr_ply(blocks, registry_id_from_block),
-          block_metadata,
-          "category"
-        ),
-        blk_color
-      )
+      src = icon_uris,
+      MoreArgs = list(size = 48)
     ),
     combo = stk_blks[names(blocks)]
   )
