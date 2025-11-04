@@ -115,3 +115,51 @@ available_stack_blocks <- function(board) {
 }
 
 filter_null <- function(x) Filter(Negate(is.null), x)
+
+#' Create icon data URI for g6 image nodes
+#'
+#' Generates an SVG data URI with a colored rounded square background and white
+#' icon for use in g6 DAG visualization.
+#'
+#' @param icon_svg Character string containing the SVG icon markup
+#' @param color Hex color code for the background
+#' @param size Numeric size in pixels (default: 48)
+#' @return Character string containing a data URI
+#' @keywords internal
+blk_icon_data_uri <- function(icon_svg, color, size = 48) {
+
+  stopifnot(is_string(icon_svg), is_string(color), is.numeric(size))
+
+  # Extract the path/content from the icon SVG
+  # Icon SVG is typically: <svg ...><path d="..."/></svg>
+  # We want just the inner content
+  icon_content <- sub("^<svg[^>]*>", "", icon_svg)
+  icon_content <- sub("</svg>$", "", icon_content)
+
+  # Create outer SVG with colored rounded rectangle and white icon
+  icon_size <- size * 0.6  # Icon takes 60% of total size
+  icon_offset <- size * 0.2  # Center the icon
+  corner_radius <- size * 0.15  # 15% corner radius
+
+  svg <- sprintf(
+    "
+<svg xmlns=\"http://www.w3.org/2000/svg\"
+     width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">
+  <rect width=\"%d\" height=\"%d\" rx=\"%g\" ry=\"%g\" fill=\"%s\"/>
+  <g transform=\"translate(%g, %g)\" fill=\"white\">
+    <svg width=\"%g\" height=\"%g\" viewBox=\"0 0 16 16\">%s</svg>
+  </g>
+</svg>
+    ",
+    size, size, size, size,
+    size, size, corner_radius, corner_radius, color,
+    icon_offset, icon_offset,
+    icon_size, icon_size, icon_content
+  )
+
+  # Convert to base64 data URI
+  sprintf(
+    "data:image/svg+xml;base64,%s",
+    jsonlite::base64_enc(charToRaw(svg))
+  )
+}
