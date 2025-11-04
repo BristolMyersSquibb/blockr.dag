@@ -121,7 +121,14 @@ set_g6_behaviors <- function(graph, ..., ns) {
             if (targetType !== 'node') {
               graph.removeEdgeData([edge.id]);
             } else {
-              Shiny.setInputValue('%s', edge);
+              Shiny.setInputValue(
+                '%s',
+                {
+                  id: edge.id,
+                  source: edge.source.replace(/^node-/, ''),
+                  target: edge.target.replace(/^node-/, '')
+                }
+              );
             }
           }",
           graph_id(ns),
@@ -154,6 +161,17 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
       getItems = JS(
         sprintf(
           "async (e) => {
+            var body;
+            if (e.targetType === 'canvas') {
+              body = {
+                type: e.targetType
+              };
+            } else {
+              body = {
+                id: e.target.id.replace(/^(node|edge|combo)-/, ''),
+                type: e.targetType
+              };
+            }
             const response = await fetch(
               '%s',
               {
@@ -162,12 +180,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(
-                  {
-                    id: e.target.id,
-                    type: e.targetType
-                  }
-                )
+                body: JSON.stringify(body)
               }
             );
             const items = await response.json();

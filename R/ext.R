@@ -49,7 +49,7 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''));
           }",
           ns("remove_node")
         )
@@ -70,7 +70,7 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^edge-/, ''));
             const graphId = `${target.closest('.g6').id}`;
             const graph = HTMLWidgets.find(`#${graphId}`).getWidget();
             graph.removeEdgeData([current.id]);
@@ -94,7 +94,11 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', current.id, {priority: 'event'});
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^node-/, ''),
+              {priority: 'event'}
+            );
           }",
           ns("append_block")
         )
@@ -340,7 +344,7 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^combo-/, ''));
           }",
           ns("remove_stack")
         )
@@ -363,7 +367,11 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id, {priority: 'event'});
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^combo-/, ''),
+              {priority: 'event'}
+            );
           }",
           ns("edit_stack")
         )
