@@ -142,12 +142,15 @@ blk_icon_data_uri <- function(icon_svg, color, size = 48) {
   corner_radius <- size * 0.15  # 15% corner radius
 
   svg <- sprintf(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">
-  <rect width="%d" height="%d" rx="%g" ry="%g" fill="%s"/>
-  <g transform="translate(%g, %g)" fill="white">
-    <svg width="%g" height="%g" viewBox="0 0 16 16">%s</svg>
+    "
+<svg xmlns=\"http://www.w3.org/2000/svg\"
+     width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">
+  <rect width=\"%d\" height=\"%d\" rx=\"%g\" ry=\"%g\" fill=\"%s\"/>
+  <g transform=\"translate(%g, %g)\" fill=\"white\">
+    <svg width=\"%g\" height=\"%g\" viewBox=\"0 0 16 16\">%s</svg>
   </g>
-</svg>',
+</svg>
+    ",
     size, size, size, size,
     size, size, corner_radius, corner_radius, color,
     icon_offset, icon_offset,
