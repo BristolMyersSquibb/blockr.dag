@@ -136,24 +136,38 @@ blk_icon_data_uri <- function(icon_svg, color, size = 48) {
   icon_content <- sub("^<svg[^>]*>", "", icon_svg)
   icon_content <- sub("</svg>$", "", icon_content)
 
-  # Create outer SVG with colored rounded rectangle and white icon
+  # Create outer SVG with colored rounded rectangle and icon
   icon_size <- size * 0.6  # Icon takes 60% of total size
   icon_offset <- size * 0.2  # Center the icon
   corner_radius <- size * 0.15  # 15% corner radius
+
+  # Get icon style setting: "light" or "solid"
+  style <- blockr_option("icon_style", "light")
+
+  # Configure based on style
+  if (style == "light") {
+    # Light: translucent background, solid colored icon
+    bg_opacity <- "0.3"
+    icon_fill <- color
+  } else {
+    # Solid: solid background, white icon
+    bg_opacity <- "1"
+    icon_fill <- "white"
+  }
 
   svg <- sprintf(
     "
 <svg xmlns=\"http://www.w3.org/2000/svg\"
      width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">
-  <rect width=\"%d\" height=\"%d\" rx=\"%g\" ry=\"%g\" fill=\"%s\"/>
-  <g transform=\"translate(%g, %g)\" fill=\"white\">
+  <rect width=\"%d\" height=\"%d\" rx=\"%g\" ry=\"%g\" fill=\"%s\" fill-opacity=\"%s\"/>
+  <g transform=\"translate(%g, %g)\" fill=\"%s\">
     <svg width=\"%g\" height=\"%g\" viewBox=\"0 0 16 16\">%s</svg>
   </g>
 </svg>
     ",
     size, size, size, size,
-    size, size, corner_radius, corner_radius, color,
-    icon_offset, icon_offset,
+    size, size, corner_radius, corner_radius, color, bg_opacity,
+    icon_offset, icon_offset, icon_fill,
     icon_size, icon_size, icon_content
   )
 
