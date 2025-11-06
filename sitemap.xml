@@ -3,12 +3,13 @@
 <url><loc>/LICENSE.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
-<url><loc>/reference/blk_color.html</loc></url>
 <url><loc>/reference/ctx.html</loc></url>
 <url><loc>/reference/dag.html</loc></url>
-<url><loc>/reference/g6-from-board.html</loc></url>
+<url><loc>/reference/g6r.html</loc></url>
 <url><loc>/reference/graph.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/meta.html</loc></url>
+<url><loc>/reference/modal.html</loc></url>
 <url><loc>/reference/stack.html</loc></url>
 </urlset>
 
