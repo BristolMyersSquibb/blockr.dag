@@ -205,7 +205,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   invisible(res)
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
   map(
@@ -218,7 +218,7 @@ g6_edges_from_links <- function(links) {
   )
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param blocks Board blocks.
 #' @param stacks Board stacks.
 #' @keywords internal
@@ -230,21 +230,6 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     do.call("c", stk_blks)
   )
 
-  # Get metadata for all blocks (category and icon)
-  registry_ids <- chr_ply(blocks, registry_id_from_block)
-  all_metadata <- block_metadata(registry_ids)
-
-  # Create icon data URIs for each block
-  icon_uris <- chr_ply(
-    seq_along(blocks),
-    function(i) {
-      category <- all_metadata[i, "category"]
-      icon_svg <- all_metadata[i, "icon"]
-      color <- blk_color(category)
-      blk_icon_data_uri(icon_svg, color, size = 48)
-    }
-  )
-
   res <- map(
     list,
     id = names(blocks),
@@ -252,7 +237,12 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     type = rep("image", length(blocks)),
     style = map(
       list,
-      src = icon_uris,
+      src = map(
+        blk_icon_data_uri,
+        lapply(blocks, blk_icon),
+        lapply(chr_ply(blocks, blk_category), blk_color),
+        MoreArgs = list(size = 48)
+      ),
       MoreArgs = list(size = 48)
     ),
     combo = stk_blks[names(blocks)]
@@ -261,7 +251,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
   lapply(res, filter_null)
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_combos_data_from_stacks <- function(stacks) {
@@ -297,7 +287,7 @@ g6_combos_data_from_stacks <- function(stacks) {
 #'
 #' @keywords internal
 #' @param board Board object.
-#' @rdname g6-from-board
+#' @rdname g6r
 g6_data_from_board <- function(board) {
   # Cold start
   links <- board_links(board)
