@@ -29,6 +29,8 @@ set_g6_options <- function(graph, ...) {
         labelBackgroundRadius = 4,
         labelFontFamily = "Arial",
         labelPadding = c(0, 4),
+        labelPlacement = "bottom",
+        labelOffsetY = 8,
         labelText = JS(
           "(d) => {
             return d.label
@@ -52,7 +54,7 @@ set_g6_options <- function(graph, ...) {
       animation = FALSE,
       style = list(
         endArrow = TRUE,
-        lineDash = c(5, 5),
+        stroke = "#D1D5DB",
         labelText = JS(
           "(d) => {
             return d.label
@@ -69,7 +71,7 @@ set_g6_layout <- function(graph) {
     layout = antv_dagre_layout(
       begin = c(150, 150),
       nodesep = 50,
-      ranksep = 75,
+      ranksep = 50,
       sortByCombo = TRUE
     )
   )
@@ -203,7 +205,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   invisible(res)
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
   map(
@@ -216,7 +218,7 @@ g6_edges_from_links <- function(links) {
   )
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param blocks Board blocks.
 #' @param stacks Board stacks.
 #' @keywords internal
@@ -232,16 +234,16 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     list,
     id = names(blocks),
     label = chr_ply(blocks, block_name),
+    type = rep("image", length(blocks)),
     style = map(
       list,
-      fill = chr_ply(
-        chr_ply(
-          chr_ply(blocks, registry_id_from_block),
-          block_metadata,
-          "category"
-        ),
-        blk_color
-      )
+      src = map(
+        blk_icon_data_uri,
+        lapply(blocks, blk_icon),
+        lapply(chr_ply(blocks, blk_category), blk_color),
+        MoreArgs = list(size = 48)
+      ),
+      MoreArgs = list(size = 48)
     ),
     combo = stk_blks[names(blocks)]
   )
@@ -249,7 +251,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
   lapply(res, filter_null)
 }
 
-#' @rdname g6-from-board
+#' @rdname g6r
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_combos_data_from_stacks <- function(stacks) {
@@ -285,7 +287,7 @@ g6_combos_data_from_stacks <- function(stacks) {
 #'
 #' @keywords internal
 #' @param board Board object.
-#' @rdname g6-from-board
+#' @rdname g6r
 g6_data_from_board <- function(board) {
   # Cold start
   links <- board_links(board)

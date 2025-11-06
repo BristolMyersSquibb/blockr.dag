@@ -8,31 +8,6 @@ graph_id <- function(ns = NULL) {
   ns(res)
 }
 
-#' Get block color
-#'
-#' Returns the color hex code for a block category using the Okabe-Ito
-#' colorblind-friendly palette.
-#'
-#' @param category Block category (old or new format)
-#' @return Character string with hex color code
-#' @keywords internal
-blk_color <- function(category) {
-  # Okabe-Ito colorblind-friendly palette
-  # See: https://jfly.uni-koeln.de/color/
-  switch(
-    category,
-    input = "#0072B2", # Blue
-    transform = "#009E73", # Bluish green
-    structured = "#56B4E9", # Sky blue
-    plot = "#E69F00", # Orange
-    table = "#CC79A7", # Reddish purple/pink
-    model = "#F0E442", # Yellow (includes AI/ML)
-    output = "#D55E00", # Vermilion
-    utility = "#CCCCCC", # Light gray
-    "#999999" # Medium gray (uncategorized)
-  )
-}
-
 last <- function(x) x[[length(x)]]
 
 suggest_new_colors <- function(colors = character(), n = 1) {

@@ -2,6 +2,7 @@
 #'
 #' @param advanced_id The namespaced ID for the advanced options container
 #' @return HTML style tag with modal CSS
+#' @rdname modal
 #' @keywords internal
 css_modal_advanced <- function(advanced_id) {
   tags$style(HTML(sprintf(
@@ -81,9 +82,7 @@ css_modal_advanced <- function(advanced_id) {
   )))
 }
 
-#' Shared CSS for block selectize components
-#'
-#' @return HTML style tag with block selectize CSS
+#' @rdname modal
 #' @keywords internal
 css_block_selectize <- function() {
   tags$style(HTML(
@@ -159,9 +158,7 @@ css_block_selectize <- function() {
   ))
 }
 
-#' Shared JavaScript rendering functions for block selectize
-#'
-#' @return JavaScript string with item and option render functions
+#' @rdname modal
 #' @keywords internal
 js_blk_selectize_render <- function() {
   I(
@@ -417,8 +414,7 @@ stack_modal <- function(
   visible_fields <- list(
     board_select(
       id = ns(selection_id),
-      board_blocks = board_blocks,
-      board_block_ids = board_block_ids,
+      blocks = board_blocks,
       selected = if (mode == "edit") stack_blocks(stack) else NULL
     )
   )
@@ -535,58 +531,42 @@ stack_modal <- function(
   )
 }
 
-board_select <- function(
-  id,
-  board_blocks,
-  board_block_ids,
-  selected = NULL
-) {
-  # Get all registry IDs for batch metadata lookup
-  registry_ids <- chr_ply(board_blocks, registry_id_from_block)
+board_select <- function(id, blocks, selected = NULL) {
 
-  # Get all metadata in one batch call for efficiency
-  all_metadata <- block_metadata(registry_ids)
+  meta <- blks_metadata(blocks)
 
-  # Build options list for selectize from board blocks
-  options_data <- lapply(
-    seq_along(board_block_ids),
-    function(i) {
-      block_id <- board_block_ids[[i]]
-      block <- board_blocks[[block_id]]
-      metadata <- all_metadata[i, ]
+  bid <- names(blocks)
+  bnm <- chr_ply(blocks, block_name)
 
-      # Get user-defined block name (instance-specific)
-      name <- block_name(block)
-      if (is.null(name) || nchar(name) == 0) {
-        name <- block_id
-      }
-
-      # Extract metadata fields
-      pkg <- metadata$package
-      if (is.null(pkg) || is.na(pkg)) {
-        pkg <- ""
-      }
-      category <- metadata$category
-      if (is.null(category) || is.na(category)) {
-        category <- "uncategorized"
-      }
-      icon <- metadata$icon
-      color <- blk_color(category)
-
-      list(
-        value = block_id,
-        label = name,
-        block_id = block_id,
-        block_name = name,
-        block_type = metadata$name,
-        package = pkg,
-        category = category,
-        icon = icon,
-        color = color,
-        searchtext = paste(name, block_id, pkg)
-      )
-    }
+  options_data <- map(
+    list,
+    value = bid,
+    label = bnm,
+    block_id = bid,
+    block_name = bnm,
+    block_type = meta$name,
+    package = meta$package,
+    category = meta$category,
+    icon = meta$icon,
+    color = meta$color,
+    searchtext = paste(bnm, bid, meta$package)
   )
+
+  options <- list(
+    options = options_data,
+    valueField = "value",
+    labelField = "label",
+    searchField = c("label", "description", "searchtext"),
+    placeholder = "Type to search blocks...",
+    openOnFocus = FALSE,
+    plugins = list("remove_button", "drag_drop"),
+    render = js_blk_selectize_render()
+  )
+
+  if (!is.null(selected) && length(selected) > 0) {
+    # Preselect items - items should be an array of values
+    options$items <- as.list(selected)
+  }
 
   tagList(
     css_block_selectize(),
@@ -615,23 +595,7 @@ board_select <- function(
       choices = NULL,
       selected = selected,
       multiple = TRUE,
-      options = {
-        opts <- list(
-          options = options_data,
-          valueField = "value",
-          labelField = "label",
-          searchField = c("label", "description", "searchtext"),
-          placeholder = "Type to search blocks...",
-          openOnFocus = FALSE,
-          plugins = list("remove_button", "drag_drop"),
-          render = js_blk_selectize_render()
-        )
-        if (!is.null(selected) && length(selected) > 0) {
-          # Preselect items - items should be an array of values
-          opts$items <- as.list(selected)
-        }
-        opts
-      }
+      options = options
     ),
     if (!is.null(selected) && length(selected) > 0) {
       tags$script(HTML(sprintf(
@@ -669,8 +633,4 @@ board_select <- function(
       )))
     }
   )
-}
-
-get_block_metadata <- function(...) {
-  stop("use registry_id_from_block()/block_metadata() from core.")
 }
