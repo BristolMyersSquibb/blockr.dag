@@ -1,5 +1,5 @@
 dag_ext_srv <- function(graph) {
-  function(id, board, update, ...) {
+  function(id, board, update, dock, ...) {
     moduleServer(
       id,
       function(input, output, session) {
@@ -90,6 +90,15 @@ dag_ext_srv <- function(graph) {
         batch_delete_observer(input, update)
 
         add_edge_observer(input, board, proxy, update)
+
+        observeEvent(
+          input[[paste0(graph_id(), "-selected_node")]],
+          show_panel(
+            input[[paste0(graph_id(), "-selected_node")]],
+            board$board,
+            dock
+          )
+        )
 
         reactive(
           input[[paste0(graph_id(), "-state")]]
