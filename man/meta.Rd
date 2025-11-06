@@ -21,7 +21,7 @@ blk_icon_data_uri(icon_svg, color, size = 48)
 \arguments{
 \item{category}{Block category (old or new format)}
 
-\item{blocks}{Blocks passed as \code{blocks} object}
+\item{blocks}{Blocks passed as \code{blocks} or \code{block} object}
 
 \item{block}{Single \code{block} object}
 

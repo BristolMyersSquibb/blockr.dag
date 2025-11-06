@@ -24,7 +24,7 @@ blk_color <- function(category) {
   )
 }
 
-#' @param blocks Blocks passed as `blocks` object
+#' @param blocks Blocks passed as `blocks` or `block` object
 #' @rdname meta
 #' @keywords internal
 blks_metadata <- function(blocks) {
@@ -33,9 +33,13 @@ blks_metadata <- function(blocks) {
     gsub("_", " ", class(x)[1L])
   }
 
-  stopifnot(is_blocks(blocks))
-
-  id <- lapply(blocks, registry_id_from_block)
+  if (is_block(blocks)) {
+    id <- registry_id_from_block(blocks)
+  } else if (is_blocks(blocks)) {
+    id <- lapply(blocks, registry_id_from_block)
+  } else {
+    block_abort("Unsupported input type for `blocks`.")
+  }
 
   if (any(lengths(id) == 0L)) {
 
@@ -48,12 +52,14 @@ blks_metadata <- function(blocks) {
       category = cat,
       icon = default_icon(cat),
       package = "local",
-      color = blk_color(cat),
-      row.names = names(blocks)[lengths(id) == 0L]
+      color = blk_color(cat)
     )
 
-  } else {
+    if (is_blocks(blocks)) {
+      rownames(res) <- names(blocks)[lengths(id) == 0L]
+    }
 
+  } else {
     res <- NULL
   }
 
@@ -62,10 +68,15 @@ blks_metadata <- function(blocks) {
     reg <- block_metadata(id[lengths(id) > 0L])
     reg <- cbind(reg, color = blk_color(reg$category))
 
-    rownames(reg) <- names(blocks)[lengths(id) > 0L]
+    if (is_blocks(blocks)) {
+      rownames(reg) <- names(blocks)[lengths(id) > 0L]
+    }
 
     res <- rbind(res, reg)
-    res <- res[names(blocks), ]
+
+    if (is_blocks(blocks)) {
+      res <- res[names(blocks), ]
+    }
   }
 
   res
