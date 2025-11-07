@@ -31,36 +31,19 @@ set_g6_options <- function(graph, ...) {
         labelFontFamily = "Arial",
         labelPadding = c(0, 4),
         labelPlacement = "bottom",
-        labelOffsetY = 8,
-        labelText = JS(
-          "(d) => {
-            return d.label
-          }"
-        )
+        labelOffsetY = 8
       )
     ),
     combo = list(
       animation = FALSE,
       badge = TRUE,
-      type = "rect",
-      style = list(
-        labelText = JS(
-          "(d) => {
-            return `Stack: ${d.label}`
-          }"
-        )
-      )
+      type = "rect"
     ),
     edge = list(
       animation = FALSE,
       style = list(
         endArrow = TRUE,
-        stroke = "#D1D5DB",
-        labelText = JS(
-          "(d) => {
-            return d.label
-          }"
-        )
+        stroke = "#D1D5DB"
       )
     )
   )
