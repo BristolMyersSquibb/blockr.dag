@@ -209,13 +209,16 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 #' @rdname g6r
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
-  map(
-    list,
-    id = names(links),
-    source = links$from,
-    target = links$to,
-    style = map(list, labelText = links$input),
-    MoreArgs = list(type = "line")
+  do.call(
+    g6_edges,
+    map(
+      g6_edge,
+      id = names(links),
+      source = links$from,
+      target = links$to,
+      style = map(list, labelText = links$input),
+      MoreArgs = list(type = "line")
+    )
   )
 }
 
@@ -231,25 +234,26 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     do.call("c", stk_blks)
   )
 
-  res <- map(
-    list,
-    id = names(blocks),
-    type = rep("image", length(blocks)),
-    style = map(
-      list,
-      src = map(
-        blk_icon_data_uri,
-        lapply(blocks, blk_icon),
-        lapply(chr_ply(blocks, blk_category), blk_color),
+  do.call(
+    g6_nodes,
+    map(
+      g6_node,
+      id = names(blocks),
+      type = rep("image", length(blocks)),
+      style = map(
+        list,
+        src = map(
+          blk_icon_data_uri,
+          lapply(blocks, blk_icon),
+          lapply(chr_ply(blocks, blk_category), blk_color),
+          MoreArgs = list(size = 48)
+        ),
+        labelText = chr_ply(blocks, block_name),
         MoreArgs = list(size = 48)
       ),
-      labelText = chr_ply(blocks, block_name),
-      MoreArgs = list(size = 48)
-    ),
-    combo = stk_blks[names(blocks)]
+      combo = stk_blks[names(blocks)]
+    )
   )
-
-  lapply(res, filter_null)
 }
 
 #' @rdname g6r
@@ -264,21 +268,24 @@ g6_combos_data_from_stacks <- function(stacks) {
     sum(is.na(colors))
   )
 
-  map(
-    list,
-    id = names(stacks),
-    style = map(
-      list,
-      stroke = colors,
-      fill = colors,
-      shadowColor = colors,
-      collapsedFill = colors,
-      collapsedStroke = colors,
-      iconFill = colors,
-      labelText = chr_ply(stacks, stack_name),
-      MoreArgs = list(
-        fillOpacity = 0.2,
-        labelPlacement = "top"
+  do.call(
+    g6_combos,
+    map(
+      g6_combo,
+      id = names(stacks),
+      style = map(
+        list,
+        stroke = colors,
+        fill = colors,
+        shadowColor = colors,
+        collapsedFill = colors,
+        collapsedStroke = colors,
+        iconFill = colors,
+        labelText = chr_ply(stacks, stack_name),
+        MoreArgs = list(
+          fillOpacity = 0.2,
+          labelPlacement = "top"
+        )
       )
     )
   )
