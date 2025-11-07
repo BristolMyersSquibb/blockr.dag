@@ -169,17 +169,26 @@ add_edge_observer <- function(input, board, proxy, update) {
       new_edg <- input$added_edge
 
       trg <- board_blocks(board$board)[[new_edg$target]]
+      cur <- lnks[lnks$to == new_edg$target]$input
 
       lnks <- board_links(board$board)
-
-      inputs <- setdiff(
-        block_inputs(trg),
-        lnks[lnks$to == new_edg$target]$input
-      )
+      inps <- setdiff(block_inputs(trg), cur)
 
       if (is.na(block_arity(trg))) {
+
+        num <- suppressWarnings(as.integer(cur))
+        nna <- is.na(num)
+
+        if (all(nna)) {
+          inps <- c(inps, "1")
+        } else {
+          num <- num[!nna]
+          inps <- c(inps, as.character(min(setdiff(seq_len(max(num)), num))))
+        }
+
         opts <- list(create = TRUE)
-      } else if (length(inputs)) {
+
+      } else if (length(inps)) {
         opts <- list()
       } else {
         notify(
@@ -199,7 +208,7 @@ add_edge_observer <- function(input, board, proxy, update) {
             selectizeInput(
               ns("added_edge_input"),
               "Block input",
-              choices = inputs,
+              choices = inps,
               options = opts
             ),
             textInput(

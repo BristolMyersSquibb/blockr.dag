@@ -133,6 +133,7 @@ context_menu_items.dag_extension <- function(x) {
 
             if (is.na(arity)) {
               opts <- list(create = TRUE)
+              choices <- c(choices, "1")
             } else if (identical(arity, 0L)) {
               notify(
                 "No inputs are available for the selected block.",
