@@ -390,7 +390,7 @@ link_modal <- function(ns, board, block_id) {
 
   stopifnot(is_string(block_id), block_id %in% names(board_blocks))
 
-
+  invisible()
 }
 
 stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
@@ -401,6 +401,17 @@ stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
   board_blocks <- board_blocks(board)
   board_stack_ids <- board_stack_ids(board)
   board_stacks <- board_stacks(board)
+
+  avail <- available_stack_blocks(board)
+
+  if (mode == "edit") {
+    sel <- stack_blocks(stack)
+    avail <- c(avail, sel)
+  } else {
+    sel <- NULL
+  }
+
+  board_blocks <- board_blocks[avail]
 
   # Mode-specific values
   title <- if (mode == "create") "Create new stack" else "Edit stack"
@@ -420,7 +431,7 @@ stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
     board_select(
       id = ns(selection_id),
       blocks = board_blocks,
-      selected = if (mode == "edit") stack_blocks(stack) else NULL
+      selected = sel
     )
   )
 
