@@ -383,16 +383,21 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
     )
   )
 }
-stack_modal <- function(
-  ns,
-  board,
-  mode = c("create", "edit"),
-  stack = NULL,
-  stack_id = NULL
-) {
+
+link_modal <- function(ns, board, block_id) {
+
+  board_blocks <- board_blocks(board)
+
+  stopifnot(is_string(block_id), block_id %in% names(board_blocks))
+
+
+}
+
+stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
+                        stack_id = NULL) {
+
   mode <- match.arg(mode)
 
-  board_block_ids <- board_block_ids(board)
   board_blocks <- board_blocks(board)
   board_stack_ids <- board_stack_ids(board)
   board_stacks <- board_stacks(board)

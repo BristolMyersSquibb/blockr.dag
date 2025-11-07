@@ -22,26 +22,28 @@ new_dag_extension <- function(graph = NULL, ...) {
 context_menu_items.dag_extension <- function(x) {
   list(
     new_context_menu_entry(
-      name = "Create edge",
-      js = "(value, target, current) => {
-        if (current.id === undefined) return;
-        const graphId = `${target.closest('.g6').id}`;
-        const graph = HTMLWidgets.find(`#${graphId}`).getWidget();
-        graph.updateBehavior({
-          key: 'create-edge', // Specify the behavior to update
-          enable: true,
-        });
-        // Select node
-        graph.setElementState(current.id, 'selected');
-        // Disable drag node as it is incompatible with edge creation
-        graph.updateBehavior({ key: 'drag-element', enable: false });
-        graph.updateBehavior({ key: 'drag-element-force', enable: false });
-      }",
-      action = NULL, # handled by the 'create-edge' behavior
+      name = "Create link",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            if (current.id === undefined) return;
+            Shiny.setInputValue('%s', current.id);
+          }",
+          ns("add_link")
+        )
+      },
+      action = function(input, output, session, board, update) {
+        observeEvent(
+          input$add_link,
+          {
+
+          }
+        )
+      },
       condition = function(board, target) {
         target$type == "node"
       },
-      id = "create_edge"
+      id = "create_link"
     ),
     new_context_menu_entry(
       name = "Remove block",
