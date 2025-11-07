@@ -1,6 +1,7 @@
 g6_from_board <- function(board) {
   stopifnot(is_board(board))
   graph <- g6_data_from_board(board)
+
   g6(
     nodes = graph_nodes(graph),
     edges = graph_edges(graph),
@@ -213,7 +214,7 @@ g6_edges_from_links <- function(links) {
     id = names(links),
     source = links$from,
     target = links$to,
-    label = links$input,
+    style = map(list, labelText = links$input),
     MoreArgs = list(type = "line")
   )
 }
@@ -233,7 +234,6 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
   res <- map(
     list,
     id = names(blocks),
-    label = chr_ply(blocks, block_name),
     type = rep("image", length(blocks)),
     style = map(
       list,
@@ -243,6 +243,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
         lapply(chr_ply(blocks, blk_category), blk_color),
         MoreArgs = list(size = 48)
       ),
+      labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
     combo = stk_blks[names(blocks)]
@@ -266,7 +267,6 @@ g6_combos_data_from_stacks <- function(stacks) {
   map(
     list,
     id = names(stacks),
-    label = chr_ply(stacks, stack_name),
     style = map(
       list,
       stroke = colors,
@@ -275,6 +275,7 @@ g6_combos_data_from_stacks <- function(stacks) {
       collapsedFill = colors,
       collapsedStroke = colors,
       iconFill = colors,
+      labelText = chr_ply(stacks, stack_name),
       MoreArgs = list(
         fillOpacity = 0.2,
         labelPlacement = "top"
