@@ -33,10 +33,62 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
+
         observeEvent(
           input$add_link,
-          {
+          showModal(link_modal(session$ns, board$board, input$add_link))
+        )
 
+        observeEvent(
+          input$create_link,
+          {
+            req(input$create_link)
+
+            res <- block_input_select(
+              board_blocks(board$board)[[input$create_link]],
+              mode = "update",
+              session = session,
+              inputId = "add_link_input"
+            )
+
+            if (is.null(res)) {
+              notify(
+                "No inputs are available for the selected block.",
+                type = "warning"
+              )
+              return()
+            }
+          }
+        )
+
+        observeEvent(
+          input$add_link_confirm,
+          {
+            lnk_id <- input$add_link_id
+
+            if (!nchar(lnk_id) || lnk_id %in% board_link_ids(board$board)) {
+              notify(
+                "Please choose a valid link ID.",
+                type = "warning",
+                session = session
+              )
+
+              return()
+            }
+
+            new_lnk <- new_link(
+              from = input$add_link,
+              to = input$create_link,
+              input = input$add_link_input
+            )
+
+            new_lnk <- as_links(set_names(list(new_lnk), lnk_id))
+
+            update(
+              list(links = list(add = new_lnk))
+            )
+
+            removeModal()
           }
         )
       },
@@ -129,30 +181,20 @@ context_menu_items.dag_extension <- function(x) {
               chr_ply(board_blocks(board$board), block_name)
             )
 
-            choices <- block_inputs(new_blk)
+            res <- block_input_select(
+              new_blk,
+              mode = "update",
+              session = session,
+              inputId = "append_block_input"
+            )
 
-            arity <- block_arity(new_blk)
-
-            if (is.na(arity)) {
-              opts <- list(create = TRUE)
-              choices <- c(choices, "1")
-            } else if (identical(arity, 0L)) {
+            if (is.null(res)) {
               notify(
                 "No inputs are available for the selected block.",
                 type = "warning"
               )
-
               return()
-            } else {
-              opts <- list()
             }
-
-            updateSelectizeInput(
-              session,
-              "append_block_input",
-              choices = choices,
-              options = opts
-            )
 
             updateTextInput(
               session,
@@ -242,19 +284,12 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-        ns <- session$ns
 
         observeEvent(
           input$create_stack,
-          {
-            showModal(
-              stack_modal(
-                ns = ns,
-                board = board$board,
-                mode = "create"
-              )
-            )
-          }
+          showModal(
+            stack_modal(ns = session$ns, board = board$board, mode = "create")
+          )
         )
 
         observeEvent(

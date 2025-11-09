@@ -93,7 +93,7 @@ dag_ext_srv <- function(graph) {
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
-          show_panel(
+          blockr.dock::show_panel(
             input[[paste0(graph_id(), "-selected_node")]],
             board$board,
             dock
@@ -166,37 +166,24 @@ add_edge_observer <- function(input, board, proxy, update) {
   observeEvent(
     input$added_edge,
     {
-      new_edg <- input$added_edge
+      new <- input$added_edge
+      lnk <- board_links(board$board)
 
-      trg <- board_blocks(board$board)[[new_edg$target]]
-      cur <- lnks[lnks$to == new_edg$target]$input
+      inp_sel <- block_input_select(
+        board_blocks(board$board)[[new$target]],
+        new,
+        lnk,
+        inputId = ns("added_edge_input"),
+        label = "Block input"
+      )
 
-      lnks <- board_links(board$board)
-      inps <- setdiff(block_inputs(trg), cur)
-
-      if (is.na(block_arity(trg))) {
-
-        num <- suppressWarnings(as.integer(cur))
-        nna <- is.na(num)
-
-        if (all(nna)) {
-          inps <- c(inps, "1")
-        } else {
-          num <- num[!nna]
-          inps <- c(inps, as.character(min(setdiff(seq_len(max(num)), num))))
-        }
-
-        opts <- list(create = TRUE)
-
-      } else if (length(inps)) {
-        opts <- list()
-      } else {
+      if (is.null(inp_sel)) {
         notify(
-          "No inputs are available for block {new_edg$target}.",
+          "No inputs are available for block {new$target}.",
           type = "warning"
         )
 
-        remove_edges(new_edg$id, proxy)
+        remove_edges(new$id, proxy)
 
         return()
       }
@@ -205,16 +192,11 @@ add_edge_observer <- function(input, board, proxy, update) {
         modalDialog(
           title = "Target input",
           tagList(
-            selectizeInput(
-              ns("added_edge_input"),
-              "Block input",
-              choices = inps,
-              options = opts
-            ),
+            inp_sel,
             textInput(
               ns("added_edge_id"),
               label = "Link ID",
-              value = rand_names(board_link_ids(board$board))
+              value = rand_names(names(lnk))
             )
           ),
           footer = tagList(

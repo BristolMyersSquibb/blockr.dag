@@ -10,7 +10,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(node, "value"),
-    c("create_edge", "remove_block", "append_block")
+    c("create_link", "remove_block", "append_block")
   )
 
   edge <- build_context_menu(ctx, target = list(type = "edge"))
