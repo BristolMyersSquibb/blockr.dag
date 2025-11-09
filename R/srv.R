@@ -93,7 +93,7 @@ dag_ext_srv <- function(graph) {
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
-          show_panel(
+          blockr.dock::show_panel(
             input[[paste0(graph_id(), "-selected_node")]],
             board$board,
             dock
@@ -161,122 +161,40 @@ update_observer <- function(update, board, proxy) {
 }
 
 add_edge_observer <- function(input, board, proxy, update) {
-  ns <- proxy$session$ns
-
   observeEvent(
     input$added_edge,
     {
-      new_edg <- input$added_edge
+      new <- input$added_edge
 
-      trg <- board_blocks(board$board)[[new_edg$target]]
-      cur <- lnks[lnks$to == new_edg$target]$input
+      blocks <- board_blocks(board$board)
 
-      lnks <- board_links(board$board)
-      inps <- setdiff(block_inputs(trg), cur)
+      inps <- block_input_select(
+        blocks[[new$target]],
+        new$target,
+        board_links(board$board),
+        mode = "inputs"
+      )
 
-      if (is.na(block_arity(trg))) {
-
-        num <- suppressWarnings(as.integer(cur))
-        nna <- is.na(num)
-
-        if (all(nna)) {
-          inps <- c(inps, "1")
-        } else {
-          num <- num[!nna]
-          inps <- c(inps, as.character(min(setdiff(seq_len(max(num)), num))))
-        }
-
-        opts <- list(create = TRUE)
-
-      } else if (length(inps)) {
-        opts <- list()
-      } else {
+      if (length(inps) == 0L) {
         notify(
-          "No inputs are available for block {new_edg$target}.",
+          "No inputs are available for block {new$target}.",
           type = "warning"
         )
 
-        remove_edges(new_edg$id, proxy)
+        remove_edges(new$id, proxy)
 
         return()
       }
 
-      showModal(
-        modalDialog(
-          title = "Target input",
-          tagList(
-            selectizeInput(
-              ns("added_edge_input"),
-              "Block input",
-              choices = inps,
-              options = opts
-            ),
-            textInput(
-              ns("added_edge_id"),
-              label = "Link ID",
-              value = rand_names(board_link_ids(board$board))
-            )
-          ),
-          footer = tagList(
-            actionButton(
-              ns("added_edge_cancel"),
-              "Cancel"
-            ),
-            actionButton(
-              ns("added_edge_confirm"),
-              "Select input"
-            )
-          )
-        )
-      )
-    }
-  )
-
-  observeEvent(
-    input$added_edge_confirm,
-    {
-      remove_edges(input$added_edge$id, proxy)
-      removeModal()
-    }
-  )
-
-  observeEvent(
-    input$added_edge_confirm,
-    {
-      new_edg <- input$added_edge
-
-      req(
-        new_edg$source,
-        new_edg$target,
-        new_edg$id,
-        input$added_edge_input,
-        input$added_edge_id
-      )
-
-      if (new_edg$id %in% board_link_ids(board$board)) {
-        notify(
-          "Cannot add edge with existing ID {new_edg$id}.",
-          type = "warning"
-        )
-
-        return()
-      }
-
-      remove_edges(new_edg$id, proxy)
+      remove_edges(new$id, proxy)
 
       new_lnk <- new_link(
-        from = new_edg$source,
-        to = new_edg$target,
-        input = input$added_edge_input
+        from = new$source,
+        to = new$target,
+        input = inps[1L]
       )
 
-      new_lnk <- as_links(set_names(list(new_lnk), input$added_edge_id))
-
-      update(list(links = list(add = new_lnk)))
-
-      removeModal()
+      update(list(links = list(add = as_links(new_lnk))))
     }
   )
-
-  invisible()
 }

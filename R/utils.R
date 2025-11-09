@@ -90,3 +90,5 @@ available_stack_blocks <- function(board) {
 }
 
 filter_null <- function(x) Filter(Negate(is.null), x)
+
+has_length <- function(x) length(x) > 0L

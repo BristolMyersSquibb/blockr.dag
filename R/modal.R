@@ -5,157 +5,159 @@
 #' @rdname modal
 #' @keywords internal
 css_modal_advanced <- function(advanced_id) {
-  tags$style(HTML(sprintf(
-    "
-    #%s {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-    }
-    #%s.expanded {
-      max-height: 500px;
-      overflow: visible;
-      transition: max-height 0.5s ease-in;
-    }
-    .modal-advanced-toggle {
-      cursor: pointer;
-      user-select: none;
-      padding: 8px 0;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #6c757d;
-      font-size: 0.875rem;
-    }
-    .modal-chevron {
-      transition: transform 0.2s;
-      display: inline-block;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .modal-chevron.rotated {
-      transform: rotate(90deg);
-    }
-    /* Compact modal styling */
-    #shiny-modal .modal-header {
-      padding: 12px 20px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    #shiny-modal .modal-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    #shiny-modal .modal-body {
-      padding: 20px;
-    }
-    #shiny-modal .modal-body .form-group {
-      width: 100%%;
-      margin-bottom: 16px;
-    }
-    #shiny-modal .modal-body .selectize-input,
-    #shiny-modal .modal-body input[type='text'] {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .shiny-input-container {
-      width: 100%%;
-    }
-    #shiny-modal .modal-body .control-label {
-      font-size: 0.875rem;
-      color: #6c757d;
-      margin-bottom: 4px;
-      font-weight: normal;
-    }
-    #shiny-modal .modal-footer {
-      padding: 12px 20px;
-      border-top: 1px solid #e2e8f0;
-      gap: 8px;
-    }
-    #shiny-modal .modal-footer .btn {
-      font-size: 0.875rem;
-      padding: 0.375rem 0.75rem;
-    }
-  ",
-    advanced_id,
-    advanced_id
-  )))
+  tags$style(
+    HTML(
+      sprintf(
+        "#%s {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease-out;
+        }
+        #%s.expanded {
+          max-height: 500px;
+          overflow: visible;
+          transition: max-height 0.5s ease-in;
+        }
+        .modal-advanced-toggle {
+          cursor: pointer;
+          user-select: none;
+          padding: 8px 0;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #6c757d;
+          font-size: 0.875rem;
+        }
+        .modal-chevron {
+          transition: transform 0.2s;
+          display: inline-block;
+          font-size: 14px;
+          font-weight: bold;
+        }
+        .modal-chevron.rotated {
+          transform: rotate(90deg);
+        }
+        /* Compact modal styling */
+        #shiny-modal .modal-header {
+          padding: 12px 20px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        #shiny-modal .modal-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          margin: 0;
+        }
+        #shiny-modal .modal-body {
+          padding: 20px;
+        }
+        #shiny-modal .modal-body .form-group {
+          width: 100%%;
+          margin-bottom: 16px;
+        }
+        #shiny-modal .modal-body .selectize-input,
+        #shiny-modal .modal-body input[type='text'] {
+          width: 100%%;
+        }
+        #shiny-modal .modal-body .shiny-input-container {
+          width: 100%%;
+        }
+        #shiny-modal .modal-body .control-label {
+          font-size: 0.875rem;
+          color: #6c757d;
+          margin-bottom: 4px;
+          font-weight: normal;
+        }
+        #shiny-modal .modal-footer {
+          padding: 12px 20px;
+          border-top: 1px solid #e2e8f0;
+          gap: 8px;
+        }
+        #shiny-modal .modal-footer .btn {
+          font-size: 0.875rem;
+          padding: 0.375rem 0.75rem;
+        }",
+        advanced_id,
+        advanced_id
+      )
+    )
+  )
 }
 
 #' @rdname modal
 #' @keywords internal
 css_block_selectize <- function() {
-  tags$style(HTML(
-    "
-    .selectize-dropdown-content {
-      max-height: 450px !important;
-      padding: 8px 0;
-    }
-    .block-option {
-      padding: 16px 24px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      margin: 4px 8px;
-      border-radius: 6px;
-      transition: background-color 0.15s ease;
-    }
-    .block-icon-wrapper {
-      flex-shrink: 0;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: white;
-    }
-    .block-content {
-      flex: 1;
-      min-width: 0;
-    }
-    .block-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 4px;
-    }
-    .block-name {
-      font-weight: 600;
-      font-size: 15px;
-      color: #212529;
-      flex: 1;
-    }
-    .block-desc {
-      font-size: 13px;
-      color: #6c757d;
-      line-height: 1.4;
-    }
-    .badge-two-tone {
-      display: inline-block;
-      padding: 0.125rem 0.375rem;
-      font-size: 0.625rem;
-      border-radius: 0.25rem;
-      background-color: rgba(148, 163, 184, 0.1);
-      color: rgba(100, 116, 139, 0.9);
-      border: 1px solid rgba(100, 116, 139, 0.1);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .selectize-dropdown .block-option {
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .selectize-dropdown .block-option:last-child {
-      border-bottom: none;
-    }
-    .selectize-dropdown .block-option:hover,
-    .selectize-dropdown .block-option.active {
-      background-color: #e9ecef;
-    }
-    "
-  ))
+  tags$style(
+    HTML(
+      ".selectize-dropdown-content {
+        max-height: 450px !important;
+        padding: 8px 0;
+      }
+      .block-option {
+        padding: 16px 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin: 4px 8px;
+        border-radius: 6px;
+        transition: background-color 0.15s ease;
+      }
+      .block-icon-wrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+      }
+      .block-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .block-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 4px;
+      }
+      .block-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: #212529;
+        flex: 1;
+      }
+      .block-desc {
+        font-size: 13px;
+        color: #6c757d;
+        line-height: 1.4;
+      }
+      .badge-two-tone {
+        display: inline-block;
+        padding: 0.125rem 0.375rem;
+        font-size: 0.625rem;
+        border-radius: 0.25rem;
+        background-color: rgba(148, 163, 184, 0.1);
+        color: rgba(100, 116, 139, 0.9);
+        border: 1px solid rgba(100, 116, 139, 0.1);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .selectize-dropdown .block-option {
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .selectize-dropdown .block-option:last-child {
+        border-bottom: none;
+      }
+      .selectize-dropdown .block-option:hover,
+      .selectize-dropdown .block-option.active {
+        background-color: #e9ecef;
+      }"
+    )
+  )
 }
 
 #' @rdname modal
@@ -186,9 +188,12 @@ js_blk_selectize_render <- function() {
           '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
           pkg + '</div>' : '';
         return '<div style=\"' + containerStyle + '\">' +
-               '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
-               '<div style=\"font-weight: 500; font-size: 14px;\">' +
-               name + '</div>' + pkgBadgeHtml + '</div>';
+                 '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
+                 '<div style=\"font-weight: 500; font-size: 14px;\">' +
+                   name +
+                 '</div>' +
+                 pkgBadgeHtml +
+               '</div>';
       },
       option: function(item, escape) {
         var name = escape(item.label);
@@ -226,11 +231,54 @@ js_blk_selectize_render <- function() {
         return '<div class=\"block-option\">' + iconWrapper +
                  '<div class=\"block-content\">' +
                    '<div class=\"block-header\">' +
-                     '<div class=\"block-name\">' + name +
-                     '</div>' + pkgBadge + '</div>' +
-                   descHtml + '</div>' + '</div>';
+                     '<div class=\"block-name\">' + name + '</div>' +
+                     pkgBadge +
+                   '</div>' +
+                   descHtml +
+                 '</div>' +
+               '</div>';
       }
     }"
+  )
+}
+
+auto_focus_script <- function(id) {
+  tags$script(
+    HTML(
+      sprintf(
+        "$('#shiny-modal').on(
+          'shown.bs.modal',
+          function() {
+            $('#%s')[0].selectize.focus();
+          }
+        );",
+        id
+      )
+    )
+  )
+}
+
+toggle_button <- function(opt_id, tog_id) {
+  div(
+    class = "modal-advanced-toggle text-muted",
+    id = tog_id,
+    onclick = sprintf(
+      "const section = document.getElementById('%s');
+      const chevron = document.querySelector('#%s .modal-chevron');
+      section.classList.toggle('expanded');
+      chevron.classList.toggle('rotated');",
+      opt_id,
+      tog_id
+    ),
+    tags$span(class = "modal-chevron", "\u203A"),
+    "Show advanced options"
+  )
+}
+
+confirm_button <- function(...) {
+  div(
+    style = "display: flex; justify-content: flex-end; margin-top: 20px;",
+    actionButton(..., class = "btn-primary")
   )
 }
 
@@ -261,33 +309,14 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
     placeholder = "Select block first"
   )
 
-  # Advanced options toggle button
-  toggle_button <- div(
-    class = "modal-advanced-toggle text-muted",
-    id = ns("block-advanced-toggle"),
-    onclick = sprintf(
-      "
-      const section = document.getElementById('%s');
-      const chevron = document.querySelector('#%s .modal-chevron');
-      section.classList.toggle('expanded');
-      chevron.classList.toggle('rotated');
-      ",
-      ns("block-advanced-options"),
-      ns("block-advanced-toggle")
-    ),
-    tags$span(class = "modal-chevron", "\u203A"),
-    "Show advanced options"
-  )
-
   # Advanced options (collapsible)
   advanced_fields <- list()
 
   # Add block input field only for append mode (in advanced options)
   if (mode == "append") {
-    advanced_fields[[length(advanced_fields) + 1]] <- selectizeInput(
-      ns("append_block_input"),
-      "Block input",
-      choices = c(`Select a block to populate options` = "")
+    advanced_fields[[length(advanced_fields) + 1]] <- block_input_select(
+      inputId = ns("append_block_input"),
+      label = "Block input"
     )
   }
 
@@ -313,23 +342,6 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
     tagList(advanced_fields)
   )
 
-  # Button section (right-aligned at bottom)
-  button_section <- div(
-    style = "display: flex; justify-content: flex-end; margin-top: 20px;",
-    actionButton(
-      ns(confirm_id),
-      button_label,
-      class = "btn-primary"
-    )
-  )
-
-  # Add auto-focus script
-  auto_focus_script <- tags$script(HTML(sprintf("
-    $('#shiny-modal').on('shown.bs.modal', function() {
-      $('#%s')[0].selectize.focus();
-    });
-  ", ns(selection_id))))
-
   modalDialog(
     title = title,
     size = "l",
@@ -338,12 +350,83 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
     tagList(
       css_modal_advanced(ns("block-advanced-options")),
       visible_fields,
-      toggle_button,
+      toggle_button(ns("block-advanced-options"), ns("block-advanced-toggle")),
       advanced_section,
-      button_section,
-      auto_focus_script
+      confirm_button(
+        inputId = ns(confirm_id),
+        label = button_label
+      ),
+      auto_focus_script(ns(selection_id))
     )
   )
+}
+
+block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
+                               mode = c("create", "update", "inputs"), ...) {
+
+  mode <- match.arg(mode)
+
+  if (mode == "inputs") {
+    stopifnot(
+      ...length() == 0L, not_null(block), not_null(block_id), not_null(links)
+    )
+  }
+
+  if (is.null(block_id) && is.null(links)) {
+    curr <- character()
+  } else {
+    stopifnot(is_links(links), is_string(block_id))
+    curr <- links[links$to == block_id]$input
+  }
+
+  if (is.null(block)) {
+
+    stopifnot(is.null(block_id), is.null(links))
+
+    inps <- c(`Select a block to populate options` = "")
+    opts <- list()
+
+  } else {
+
+    stopifnot(is_block(block))
+
+    inps <- setdiff(block_inputs(block), curr)
+
+    if (is.na(block_arity(block))) {
+
+      num <- suppressWarnings(as.integer(curr))
+      nna <- is.na(num)
+
+      if (all(nna)) {
+        inps <- c(inps, "1")
+      } else {
+        num <- num[!nna]
+        inps <- c(inps, as.character(min(setdiff(seq_len(max(num)), num))))
+      }
+
+      opts <- list(create = TRUE)
+
+    } else if (length(inps)) {
+
+      opts <- list()
+
+    } else {
+
+      if (mode == "inputs") {
+        return(character())
+      } else {
+        return(NULL)
+      }
+    }
+  }
+
+  if (mode == "create") {
+    selectizeInput(..., choices = inps, options = opts)
+  } else if (mode == "update") {
+    updateSelectizeInput(..., choices = inps, options = opts)
+  } else {
+    inps
+  }
 }
 
 block_registry_selectize <- function(id, blocks = list_blocks()) {
@@ -383,19 +466,91 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
     )
   )
 }
-stack_modal <- function(
-  ns,
-  board,
-  mode = c("create", "edit"),
-  stack = NULL,
-  stack_id = NULL
-) {
+
+link_modal <- function(ns, board, block_id) {
+
+  board_blocks <- board_blocks(board)
+
+  stopifnot(is_string(block_id), block_id %in% names(board_blocks))
+
+  selection_id <- "create_link"
+
+  avail <- map(
+    block_input_select,
+    board_blocks,
+    names(board_blocks),
+    MoreArgs = list(links = board_links(board), mode = "inputs")
+  )
+
+  visible_fields <- list(
+    board_select(
+      id = ns(selection_id),
+      blocks = board_blocks[lgl_ply(avail, has_length)],
+      label = "Select target block",
+      choices = NULL
+    )
+  )
+
+  toggle <- toggle_button(
+    ns("link-advanced-options"),
+    ns("link-advanced-toggle")
+  )
+
+  advanced_fields <- list(
+    block_input_select(
+      inputId = ns("add_link_input"),
+      label = "Block input"
+    ),
+    textInput(
+      ns("add_link_id"),
+      label = "Link ID",
+      value = rand_names(board_link_ids(board))
+    )
+  )
+
+  advanced_section <- div(
+    id = ns("link-advanced-options"),
+    tagList(advanced_fields)
+  )
+
+  modalDialog(
+    title = "Create new link",
+    size = "m",
+    easyClose = TRUE,
+    footer = NULL,
+    tagList(
+      css_modal_advanced(ns("link-advanced-options")),
+      visible_fields,
+      toggle,
+      advanced_section,
+      confirm_button(
+        inputId = ns("add_link_confirm"),
+        label = "Add Link"
+      ),
+      auto_focus_script(ns(selection_id))
+    )
+  )
+}
+
+stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
+                        stack_id = NULL) {
+
   mode <- match.arg(mode)
 
-  board_block_ids <- board_block_ids(board)
   board_blocks <- board_blocks(board)
   board_stack_ids <- board_stack_ids(board)
   board_stacks <- board_stacks(board)
+
+  avail <- available_stack_blocks(board)
+
+  if (mode == "edit") {
+    sel <- stack_blocks(stack)
+    avail <- c(avail, sel)
+  } else {
+    sel <- NULL
+  }
+
+  board_blocks <- board_blocks[avail]
 
   # Mode-specific values
   title <- if (mode == "create") "Create new stack" else "Edit stack"
@@ -415,7 +570,10 @@ stack_modal <- function(
     board_select(
       id = ns(selection_id),
       blocks = board_blocks,
-      selected = if (mode == "edit") stack_blocks(stack) else NULL
+      label = "Select blocks to add to stack (optional)",
+      choices = NULL,
+      selected = sel,
+      multiple = TRUE
     )
   )
 
@@ -444,26 +602,14 @@ stack_modal <- function(
   }
 
   # Advanced options (only for create mode)
-  toggle_button <- NULL
+  toggle <- NULL
   advanced_section <- NULL
 
   if (mode == "create") {
     # Advanced options toggle button
-    toggle_button <- div(
-      class = "modal-advanced-toggle text-muted",
-      id = ns("stack-advanced-toggle"),
-      onclick = sprintf(
-        "
-        const section = document.getElementById('%s');
-        const chevron = document.querySelector('#%s .modal-chevron');
-        section.classList.toggle('expanded');
-        chevron.classList.toggle('rotated');
-        ",
-        ns("stack-advanced-options"),
-        ns("stack-advanced-toggle")
-      ),
-      tags$span(class = "modal-chevron", "\u203A"),
-      "Show advanced options"
+    toggle <- toggle_button(
+      ns("stack-advanced-options"),
+      ns("stack-advanced-toggle")
     )
 
     # Advanced options (collapsible)
@@ -495,26 +641,6 @@ stack_modal <- function(
     )
   }
 
-  # Button section (right-aligned at bottom)
-  button_section <- div(
-    style = "display: flex; justify-content: flex-end; margin-top: 20px;",
-    actionButton(
-      ns(confirm_id),
-      button_label,
-      class = "btn-primary"
-    )
-  )
-
-  # Add auto-focus script
-  auto_focus_script <- tags$script(HTML(sprintf(
-    "
-    $('#shiny-modal').on('shown.bs.modal', function() {
-      $('#%s')[0].selectize.focus();
-    });
-  ",
-    ns(selection_id)
-  )))
-
   modalDialog(
     title = title,
     size = "l",
@@ -523,15 +649,18 @@ stack_modal <- function(
     tagList(
       css_modal_advanced(ns("stack-advanced-options")),
       visible_fields,
-      toggle_button,
+      toggle,
       advanced_section,
-      button_section,
-      auto_focus_script
+      confirm_button(
+        inputId = ns(confirm_id),
+        label = button_label
+      ),
+      auto_focus_script(ns(selection_id))
     )
   )
 }
 
-board_select <- function(id, blocks, selected = NULL) {
+board_select <- function(id, blocks, selected = NULL, ...) {
 
   meta <- blks_metadata(blocks)
 
@@ -570,67 +699,72 @@ board_select <- function(id, blocks, selected = NULL) {
 
   tagList(
     css_block_selectize(),
-    tags$style(HTML(
-      "
-      /* Style the remove button */
-      .selectize-input .remove {
-        text-decoration: none !important;
-        color: #6c757d !important;
-        font-weight: normal !important;
-        border: none !important;
-        margin-left: 8px !important;
-        padding: 2px 6px !important;
-        border-radius: 3px !important;
-        transition: background-color 0.2s ease, color 0.2s ease;
-      }
-      .selectize-input .remove:hover {
-        background-color: rgba(108, 117, 125, 0.1) !important;
-        color: #495057 !important;
-      }
-    "
-    )),
+    tags$style(
+      HTML(
+        "/* Style the remove button */
+        .selectize-input .remove {
+          text-decoration: none !important;
+          color: #6c757d !important;
+          font-weight: normal !important;
+          border: none !important;
+          margin-left: 8px !important;
+          padding: 2px 6px !important;
+          border-radius: 3px !important;
+          transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .selectize-input .remove:hover {
+          background-color: rgba(108, 117, 125, 0.1) !important;
+          color: #495057 !important;
+        }"
+      )
+    ),
     selectizeInput(
       id,
-      label = "Select blocks to add to stack (optional)",
-      choices = NULL,
+      ...,
       selected = selected,
-      multiple = TRUE,
       options = options
     ),
     if (!is.null(selected) && length(selected) > 0) {
-      tags$script(HTML(sprintf(
-        "
-        $(document).ready(function() {
-          function setSelectedValues() {
-            var $select = $('#%s');
-            if ($select.length) {
-              var selectize = $select[0].selectize;
-              if (selectize) {
-                try {
-                  selectize.setValue(%s, true);
-                  return true;
-                } catch(e) {
-                  console.log('Error setting values:', e);
+      tags$script(
+        HTML(
+          sprintf(
+            "$(document).ready(
+              function() {
+                function setSelectedValues() {
+                  var $select = $('#%s');
+                  if ($select.length) {
+                    var selectize = $select[0].selectize;
+                    if (selectize) {
+                      try {
+                        selectize.setValue(%s, true);
+                        return true;
+                      } catch(e) {
+                        console.log('Error setting values:', e);
+                        return false;
+                      }
+                    }
+                  }
                   return false;
                 }
+                // Try multiple times with increasing delays
+                var attempts = 0;
+                var maxAttempts = 10;
+                var interval = setInterval(
+                  function() {
+                    attempts++;
+                    if (setSelectedValues() || attempts >= maxAttempts) {
+                      clearInterval(interval);
+                    }
+                  },
+                  300
+                );
               }
-            }
-            return false;
-          }
-          // Try multiple times with increasing delays
-          var attempts = 0;
-          var maxAttempts = 10;
-          var interval = setInterval(function() {
-            attempts++;
-            if (setSelectedValues() || attempts >= maxAttempts) {
-              clearInterval(interval);
-            }
-          }, 300);
-        });
-        ",
-        id,
-        paste0("['", paste(selected, collapse = "','"), "']")
-      )))
+            );",
+            id,
+            paste0("['", paste(selected, collapse = "','"), "']")
+          )
+        )
+      )
     }
   )
 }
