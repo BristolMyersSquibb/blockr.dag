@@ -116,10 +116,11 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "node"
-      }
+      },
+      id = "remove_block"
     ),
     new_context_menu_entry(
-      name = "Remove edge",
+      name = "Remove link",
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
@@ -141,7 +142,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "edge"
-      }
+      },
+      id = "remove_link"
     ),
     new_context_menu_entry(
       name = "Append block",
@@ -271,7 +273,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "node"
-      }
+      },
+      id = "append_block"
     ),
     new_context_menu_entry(
       name = "Create stack",
@@ -345,7 +348,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "canvas"
-      }
+      },
+      id = "create_stack"
     ),
     new_context_menu_entry(
       name = "Remove stack",
@@ -426,7 +430,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "combo"
-      }
+      },
+      id = "remove_stack"
     ),
     new_context_menu_entry(
       name = "Add block",
@@ -515,7 +520,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "canvas"
-      }
+      },
+      id = "add_block"
     )
   )
 }

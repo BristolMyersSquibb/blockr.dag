@@ -20,7 +20,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(edge, "value"),
-    "remove_edge"
+    "remove_link"
   )
 
   canv <- build_context_menu(ctx, target = list(type = "canvas"))
