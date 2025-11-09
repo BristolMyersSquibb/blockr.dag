@@ -161,23 +161,21 @@ update_observer <- function(update, board, proxy) {
 }
 
 add_edge_observer <- function(input, board, proxy, update) {
-  ns <- proxy$session$ns
-
   observeEvent(
     input$added_edge,
     {
       new <- input$added_edge
-      lnk <- board_links(board$board)
 
-      inp_sel <- block_input_select(
-        board_blocks(board$board)[[new$target]],
-        new,
-        lnk,
-        inputId = ns("added_edge_input"),
-        label = "Block input"
+      blocks <- board_blocks(board$board)
+
+      inps <- block_input_select(
+        blocks[[new$target]],
+        new$target,
+        board_links(board$board),
+        mode = "inputs"
       )
 
-      if (is.null(inp_sel)) {
+      if (length(inps) == 0L) {
         notify(
           "No inputs are available for block {new$target}.",
           type = "warning"
@@ -188,77 +186,15 @@ add_edge_observer <- function(input, board, proxy, update) {
         return()
       }
 
-      showModal(
-        modalDialog(
-          title = "Target input",
-          tagList(
-            inp_sel,
-            textInput(
-              ns("added_edge_id"),
-              label = "Link ID",
-              value = rand_names(names(lnk))
-            )
-          ),
-          footer = tagList(
-            actionButton(
-              ns("added_edge_cancel"),
-              "Cancel"
-            ),
-            actionButton(
-              ns("added_edge_confirm"),
-              "Select input"
-            )
-          )
-        )
-      )
-    }
-  )
-
-  observeEvent(
-    input$added_edge_confirm,
-    {
-      remove_edges(input$added_edge$id, proxy)
-      removeModal()
-    }
-  )
-
-  observeEvent(
-    input$added_edge_confirm,
-    {
-      new_edg <- input$added_edge
-
-      req(
-        new_edg$source,
-        new_edg$target,
-        new_edg$id,
-        input$added_edge_input,
-        input$added_edge_id
-      )
-
-      if (new_edg$id %in% board_link_ids(board$board)) {
-        notify(
-          "Cannot add edge with existing ID {new_edg$id}.",
-          type = "warning"
-        )
-
-        return()
-      }
-
-      remove_edges(new_edg$id, proxy)
+      remove_edges(new$id, proxy)
 
       new_lnk <- new_link(
-        from = new_edg$source,
-        to = new_edg$target,
-        input = input$added_edge_input
+        from = new$source,
+        to = new$target,
+        input = inps[1L]
       )
 
-      new_lnk <- as_links(set_names(list(new_lnk), input$added_edge_id))
-
-      update(list(links = list(add = new_lnk)))
-
-      removeModal()
+      update(list(links = list(add = as_links(new_lnk))))
     }
   )
-
-  invisible()
 }

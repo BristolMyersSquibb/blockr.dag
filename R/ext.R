@@ -372,7 +372,8 @@ context_menu_items.dag_extension <- function(x) {
       },
       condition = function(board, target) {
         target$type == "combo"
-      }
+      },
+      id = "remove_stack"
     ),
     new_context_menu_entry(
       name = "Edit stack",
@@ -431,7 +432,7 @@ context_menu_items.dag_extension <- function(x) {
       condition = function(board, target) {
         target$type == "combo"
       },
-      id = "remove_stack"
+      id = "edit_stack"
     ),
     new_context_menu_entry(
       name = "Add block",

@@ -366,6 +366,12 @@ block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
 
   mode <- match.arg(mode)
 
+  if (mode == "inputs") {
+    stopifnot(
+      ...length() == 0L, not_null(block), not_null(block_id), not_null(links)
+    )
+  }
+
   if (is.null(block_id) && is.null(links)) {
     curr <- character()
   } else {
@@ -375,7 +381,7 @@ block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
 
   if (is.null(block)) {
 
-    stopifnot(is.null(block_id), is.null(links), mode != "inputs")
+    stopifnot(is.null(block_id), is.null(links))
 
     inps <- c(`Select a block to populate options` = "")
     opts <- list()
