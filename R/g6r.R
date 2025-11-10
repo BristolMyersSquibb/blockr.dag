@@ -192,17 +192,21 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 #' @rdname g6r
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
-  do.call(
-    g6_edges,
-    map(
-      g6_edge,
-      id = names(links),
-      source = links$from,
-      target = links$to,
-      style = map(list, labelText = links$input),
-      MoreArgs = list(type = "line")
-    )
+
+  res <- map(
+    g6_edge,
+    id = names(links),
+    source = links$from,
+    target = links$to,
+    style = map(list, labelText = links$input),
+    MoreArgs = list(type = "line")
   )
+
+  if (length(res)) {
+    do.call(g6_edges, res)
+  } else {
+    res
+  }
 }
 
 #' @rdname g6r
@@ -217,26 +221,29 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     do.call("c", stk_blks)
   )
 
-  do.call(
-    g6_nodes,
-    map(
-      g6_node,
-      id = names(blocks),
-      type = rep("image", length(blocks)),
-      style = map(
-        list,
-        src = map(
-          blk_icon_data_uri,
-          lapply(blocks, blk_icon),
-          lapply(chr_ply(blocks, blk_category), blk_color),
-          MoreArgs = list(size = 48)
-        ),
-        labelText = chr_ply(blocks, block_name),
+  res <- map(
+    g6_node,
+    id = names(blocks),
+    type = rep("image", length(blocks)),
+    style = map(
+      list,
+      src = map(
+        blk_icon_data_uri,
+        lapply(blocks, blk_icon),
+        lapply(chr_ply(blocks, blk_category), blk_color),
         MoreArgs = list(size = 48)
       ),
-      combo = stk_blks[names(blocks)]
-    )
+      labelText = chr_ply(blocks, block_name),
+      MoreArgs = list(size = 48)
+    ),
+    combo = stk_blks[names(blocks)]
   )
+
+  if (length(res)) {
+    do.call(g6_nodes, res)
+  } else {
+    res
+  }
 }
 
 #' @rdname g6r
@@ -251,27 +258,30 @@ g6_combos_data_from_stacks <- function(stacks) {
     sum(is.na(colors))
   )
 
-  do.call(
-    g6_combos,
-    map(
-      g6_combo,
-      id = names(stacks),
-      style = map(
-        list,
-        stroke = colors,
-        fill = colors,
-        shadowColor = colors,
-        collapsedFill = colors,
-        collapsedStroke = colors,
-        iconFill = colors,
-        labelText = chr_ply(stacks, stack_name),
-        MoreArgs = list(
-          fillOpacity = 0.2,
-          labelPlacement = "top"
-        )
+  res <-     map(
+    g6_combo,
+    id = names(stacks),
+    style = map(
+      list,
+      stroke = colors,
+      fill = colors,
+      shadowColor = colors,
+      collapsedFill = colors,
+      collapsedStroke = colors,
+      iconFill = colors,
+      labelText = chr_ply(stacks, stack_name),
+      MoreArgs = list(
+        fillOpacity = 0.2,
+        labelPlacement = "top"
       )
     )
   )
+
+  if (length(res)) {
+    do.call(g6_combos, res)
+  } else {
+    res
+  }
 }
 
 #' Create network data from board
