@@ -80,7 +80,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
           return !e.shiftKey && !e.altKey;
         }"
       ),
-      dropEffect = "link"
+      # For now, we prevent nodes from being dropped outside combo.
+      dropEffect = "move"
     ),
     click_select(multiple = TRUE),
     brush_select(
@@ -210,7 +211,6 @@ g6_edges_from_links <- function(links) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_nodes_from_blocks <- function(blocks, stacks) {
-
   stk_blks <- lapply(stacks, stack_blocks)
   stk_blks <- set_names(
     as.list(rep(names(stk_blks), lengths(stk_blks))),
@@ -243,7 +243,6 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_combos_data_from_stacks <- function(stacks) {
-
   colors <- stack_color(stacks)
 
   colors[is.na(colors)] <- suggest_new_colors(
@@ -336,7 +335,6 @@ add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
 }
 
 add_nodes_to_combos <- function(stacks, proxy = blockr_g6_proxy()) {
-
   map(
     add_nodes_to_combo,
     lapply(stacks, stack_blocks),
@@ -348,7 +346,6 @@ add_nodes_to_combos <- function(stacks, proxy = blockr_g6_proxy()) {
 }
 
 add_nodes_to_combo <- function(block_ids, stack_id, proxy = blockr_g6_proxy()) {
-
   g6_update_nodes(
     proxy,
     map(list, id = block_ids, MoreArgs = list(combo = stack_id))
@@ -358,7 +355,6 @@ add_nodes_to_combo <- function(block_ids, stack_id, proxy = blockr_g6_proxy()) {
 }
 
 remove_nodes_from_combo <- function(block_ids, proxy = blockr_g6_proxy()) {
-
   g6_update_nodes(
     proxy,
     map(list, id = block_ids, MoreArgs = list(combo = NULL))
@@ -368,13 +364,11 @@ remove_nodes_from_combo <- function(block_ids, proxy = blockr_g6_proxy()) {
 }
 
 update_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
-
   g6_update_combos(proxy, g6_combos_data_from_stacks(stacks))
 
   cur_stacks <- board_stacks(board)
 
   for (id in names(stacks)) {
-
     cur_stack_blocks <- stack_blocks(cur_stacks[[id]])
     new_stack_blocks <- stack_blocks(stacks[[id]])
 
