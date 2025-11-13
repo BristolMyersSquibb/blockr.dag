@@ -149,6 +149,11 @@ context_menu_items.list <- function(x) {
 }
 
 #' @export
+context_menu_items.dock_extensions <- function(x) {
+  context_menu_items(as.list(x))
+}
+
+#' @export
 context_menu_items.dock_board <- function(x) {
   context_menu_items(blockr.dock::dock_extensions(x))
 }
