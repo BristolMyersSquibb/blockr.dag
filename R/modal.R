@@ -440,7 +440,7 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
         category = unname(blk["category"]),
         package = unname(blk["package"]),
         icon = unname(blk["icon"]),
-        color = blk_color(blk["category"]),
+        color = blockr.dock::blk_color(blk["category"]),
         searchtext = paste(blk["name"], blk["description"], blk["package"])
       )
     }
@@ -662,7 +662,7 @@ stack_modal <- function(
 }
 
 board_select <- function(id, blocks, selected = NULL, ...) {
-  meta <- blks_metadata(blocks)
+  meta <- blockr.dock::blks_metadata(blocks)
 
   bid <- names(blocks)
   bnm <- chr_ply(blocks, block_name)

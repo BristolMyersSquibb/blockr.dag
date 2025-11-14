@@ -228,9 +228,9 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     style = map(
       list,
       src = map(
-        blk_icon_data_uri,
+        blockr.dock::blk_icon_data_uri,
         lapply(blocks, blk_icon),
-        lapply(chr_ply(blocks, blk_category), blk_color),
+        lapply(chr_ply(blocks, blk_category), blockr.dock::blk_color),
         MoreArgs = list(size = 48)
       ),
       labelText = chr_ply(blocks, block_name),
