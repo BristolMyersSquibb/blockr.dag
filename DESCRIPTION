@@ -31,7 +31,7 @@ Remotes:
     BristolMyersSquibb/blockr.core,
     BristolMyersSquibb/blockr.dock,
     cynkra/dockViewR,
-    cynkra/g6R@prefix-ids
+    cynkra/g6R
 Suggests: 
     testthat (>= 3.0.0),
     colorspace
