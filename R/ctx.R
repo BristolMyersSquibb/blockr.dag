@@ -11,10 +11,13 @@
 #'
 #' @rdname ctx
 #' @export
-new_context_menu_entry <- function(name, js, action = NULL,
-                                   condition = TRUE,
-                                   id = tolower(gsub(" +", "_", name))) {
-
+new_context_menu_entry <- function(
+  name,
+  js,
+  action = NULL,
+  condition = TRUE,
+  id = tolower(gsub(" +", "_", name))
+) {
   if (is.null(action)) {
     action <- function(...) NULL
   }
@@ -59,27 +62,22 @@ context_menu_entry_condition <- function(x, ...) {
 }
 
 context_menu_entry_action <- function(x, ...) {
-
   if (!is_context_menu_entry(x)) {
-
     validate_context_menu_entries(x)
-
     for (i in x) {
       context_menu_entry_action(i, ...)
     }
-
     return(invisible(NULL))
   }
-
-  x[["action"]](...)
-
+  id <- context_menu_entry_id(x)
+  moduleServer(id, function(input, output, session) {
+    x[["action"]](...)
+  })
   invisible(NULL)
 }
 
 context_menu_entry_js <- function(x, ns = NULL) {
-
   if (!is_context_menu_entry(x)) {
-
     validate_context_menu_entries(x)
 
     res <- paste(
@@ -106,7 +104,6 @@ context_menu_entry_js <- function(x, ns = NULL) {
 }
 
 build_context_menu <- function(x, ...) {
-
   if (!is_context_menu_entry(x)) {
     validate_context_menu_entries(x)
     res <- Filter(not_null, lapply(x, build_context_menu, ...))

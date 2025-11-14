@@ -1,5 +1,5 @@
 ^LICENSE\.md$
-^README\.Rmd$
+^README\.(Rmd|html)$
 ^\.github$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$

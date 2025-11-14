@@ -33,7 +33,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         observeEvent(
           input$add_link,
           showModal(link_modal(session$ns, board$board, input$add_link))
@@ -156,119 +155,14 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-        ns <- session$ns
-        blk <- reactiveVal()
-
-        observeEvent(
-          input$append_block,
-          {
-            blk(NULL)
-            showModal(
-              create_block_modal(
-                mode = "append",
-                ns = ns,
-                board = board$board
-              )
-            )
-          }
-        )
-
-        observeEvent(
-          input$append_block_selection,
-          {
-            req(input$append_block_selection)
-
-            new_blk <- create_block_with_name(
-              input$append_block_selection,
-              chr_ply(board_blocks(board$board), block_name)
-            )
-
-            res <- block_input_select(
-              new_blk,
-              mode = "update",
-              session = session,
-              inputId = "append_block_input"
-            )
-
-            if (is.null(res)) {
-              notify(
-                "No inputs are available for the selected block.",
-                type = "warning"
-              )
-              return()
-            }
-
-            updateTextInput(
-              session,
-              "append_block_name",
-              value = block_name(new_blk)
-            )
-
-            blk(new_blk)
-          }
-        )
-
-        observeEvent(
-          input$append_block_confirm,
-          {
-            blk_id <- input$append_block_id
-            lnk_id <- input$append_link_id
-
-            if (!nchar(blk_id) || blk_id %in% board_block_ids(board$board)) {
-              notify(
-                "Please choose a valid block ID.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            if (!nchar(lnk_id) || lnk_id %in% board_link_ids(board$board)) {
-              notify(
-                "Please choose a valid link ID.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            new_blk <- blk()
-
-            if (!is_block(new_blk)) {
-              notify(
-                "Please choose a block type.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            if (!identical(input$append_block_name, block_name(new_blk))) {
-              block_name(new_blk) <- input$append_block_name
-            }
-
-            new_blk <- as_blocks(set_names(list(new_blk), blk_id))
-
-            new_lnk <- new_link(
-              from = input$append_block,
-              to = blk_id,
-              input = input$append_block_input
-            )
-
-            new_lnk <- as_links(set_names(list(new_lnk), lnk_id))
-
-            update(
-              list(
-                blocks = list(add = new_blk),
-                links = list(add = new_lnk)
-              )
-            )
-
-            removeModal()
-          }
+        append_block_server(
+          trigger = reactive({
+            req(input$append_block)
+          }),
+          input,
+          session,
+          board,
+          update
         )
       },
       condition = function(board, target) {
@@ -287,7 +181,6 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = function(input, output, session, board, update) {
-
         observeEvent(
           input$create_stack,
           showModal(
@@ -303,8 +196,10 @@ context_menu_items.dag_extension <- function(x) {
             stack_color <- input$stack_color
             selected_blocks <- input$stack_block_selection
 
-            if (!nchar(stack_id) ||
-                  stack_id %in% board_stack_ids(board$board)) {
+            if (
+              !nchar(stack_id) ||
+                stack_id %in% board_stack_ids(board$board)
+            ) {
               notify(
                 "Please choose a valid stack ID.",
                 type = "warning",

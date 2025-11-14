@@ -361,14 +361,21 @@ create_block_modal <- function(mode = c("append", "add"), ns, board) {
   )
 }
 
-block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
-                               mode = c("create", "update", "inputs"), ...) {
-
+block_input_select <- function(
+  block = NULL,
+  block_id = NULL,
+  links = NULL,
+  mode = c("create", "update", "inputs"),
+  ...
+) {
   mode <- match.arg(mode)
 
   if (mode == "inputs") {
     stopifnot(
-      ...length() == 0L, not_null(block), not_null(block_id), not_null(links)
+      ...length() == 0L,
+      not_null(block),
+      not_null(block_id),
+      not_null(links)
     )
   }
 
@@ -380,20 +387,16 @@ block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
   }
 
   if (is.null(block)) {
-
     stopifnot(is.null(block_id), is.null(links))
 
     inps <- c(`Select a block to populate options` = "")
     opts <- list()
-
   } else {
-
     stopifnot(is_block(block))
 
     inps <- setdiff(block_inputs(block), curr)
 
     if (is.na(block_arity(block))) {
-
       num <- suppressWarnings(as.integer(curr))
       nna <- is.na(num)
 
@@ -405,13 +408,9 @@ block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
       }
 
       opts <- list(create = TRUE)
-
     } else if (length(inps)) {
-
       opts <- list()
-
     } else {
-
       if (mode == "inputs") {
         return(character())
       } else {
@@ -430,7 +429,6 @@ block_input_select <- function(block = NULL, block_id = NULL, links = NULL,
 }
 
 block_registry_selectize <- function(id, blocks = list_blocks()) {
-
   options_data <- apply(
     block_metadata(blocks),
     1L,
@@ -468,7 +466,6 @@ block_registry_selectize <- function(id, blocks = list_blocks()) {
 }
 
 link_modal <- function(ns, board, block_id) {
-
   board_blocks <- board_blocks(board)
 
   stopifnot(is_string(block_id), block_id %in% names(board_blocks))
@@ -532,9 +529,13 @@ link_modal <- function(ns, board, block_id) {
   )
 }
 
-stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
-                        stack_id = NULL) {
-
+stack_modal <- function(
+  ns,
+  board,
+  mode = c("create", "edit"),
+  stack = NULL,
+  stack_id = NULL
+) {
   mode <- match.arg(mode)
 
   board_blocks <- board_blocks(board)
@@ -661,7 +662,6 @@ stack_modal <- function(ns, board, mode = c("create", "edit"), stack = NULL,
 }
 
 board_select <- function(id, blocks, selected = NULL, ...) {
-
   meta <- blks_metadata(blocks)
 
   bid <- names(blocks)
