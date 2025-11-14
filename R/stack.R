@@ -8,7 +8,8 @@
 #' @rdname stack
 #' @export
 new_dag_stack <- function(..., color = suggest_new_colors()) {
-  new_stack(..., color = color, class = "dag_stack")
+  new_stack(..., color = color, ctor = "new_dag_stack", pkg = pkg_name(),
+            class = "dag_stack")
 }
 
 #' @param x object

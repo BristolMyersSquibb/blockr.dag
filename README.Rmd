@@ -35,8 +35,8 @@ To start up a board with the `dag` extension, run the following code:
 
 ```r
 library(blockr.dag)
-library(blockr.dock)
 library(blockr.core)
+library(blockr.dock)
 
 serve(
   new_dock_board(
@@ -45,11 +45,11 @@ serve(
       b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width")
     ),
     links = list(from = "a", to = "b", input = "data"),
-    stacks = c(stack_1 = new_stack(c("a", "b"), color = "blue"), stack_2 = new_stack()),
+    stacks = c(stack_1 = new_dag_stack(c("a", "b"), color = "#0000FF"),
+               stack_2 = new_dag_stack()),
     extensions = new_dag_extension()
   )
 )
-## basic example code
 ```
 
 To start up the dag extension with dummy nodes and edges:
@@ -80,5 +80,4 @@ serve(
     extensions = new_dag_extension(graph)
   )
 )
-## basic example code
 ```
