@@ -158,7 +158,6 @@ update_observer <- function(update, board, proxy) {
 }
 
 add_edge_observer <- function(input, board, proxy, update, session) {
-  ns <- session$ns
 
   observeEvent(req(input$added_edge$type != "canvas"), {
     new <- input$added_edge
@@ -201,7 +200,6 @@ add_edge_observer <- function(input, board, proxy, update, session) {
       input$added_edge$source
     }),
     input,
-    output,
     session,
     board,
     update
@@ -211,7 +209,6 @@ add_edge_observer <- function(input, board, proxy, update, session) {
 append_block_server <- function(
   trigger,
   input,
-  output,
   session,
   board,
   update

@@ -160,7 +160,6 @@ context_menu_items.dag_extension <- function(x) {
             req(input$append_block)
           }),
           input,
-          output,
           session,
           board,
           update
