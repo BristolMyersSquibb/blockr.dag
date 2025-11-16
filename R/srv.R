@@ -90,11 +90,16 @@ dag_ext_srv <- function(graph) {
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
-          blockr.dock::show_panel(
-            input[[paste0(graph_id(), "-selected_node")]],
-            board$board,
-            dock
-          )
+          {
+            sel <- input[[paste0(graph_id(), "-selected_node")]]
+            if (length(sel) == 1L) {
+              blockr.dock::show_panel(
+                input[[paste0(graph_id(), "-selected_node")]],
+                board$board,
+                dock
+              )
+            }
+          }
         )
 
         reactive(
