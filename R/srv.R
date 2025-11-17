@@ -93,11 +93,7 @@ dag_ext_srv <- function(graph) {
           {
             sel <- input[[paste0(graph_id(), "-selected_node")]]
             if (length(sel) == 1L) {
-              blockr.dock::show_panel(
-                input[[paste0(graph_id(), "-selected_node")]],
-                board$board,
-                dock
-              )
+              blockr.dock::show_panel(sel, board$board, dock)
             }
           }
         )
