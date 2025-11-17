@@ -177,7 +177,7 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   if (is.null(graph)) {
     res <- g6_from_board(board)
   } else {
-    res <- g6_from_graph(graph)
+    res <- g6_from_graph(as_graph(graph))
   }
 
   res <- set_g6_options(res)
