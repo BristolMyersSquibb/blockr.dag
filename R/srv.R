@@ -102,8 +102,10 @@ dag_ext_srv <- function(graph) {
           }
         )
 
-        reactive(
-          input[[paste0(graph_id(), "-state")]]
+        list(
+          graph = reactive(
+            input[[paste0(graph_id(), "-state")]]
+          )
         )
       }
     )
