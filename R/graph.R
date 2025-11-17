@@ -39,3 +39,22 @@ graph_edges <- function(x) {
 graph_combos <- function(x) {
   x[["combos"]]
 }
+
+#' @param ... Generic consistency
+#' @rdname graph
+#' @export
+as_graph <- function(x, ...) {
+  UseMethod("as_graph")
+}
+
+#' @rdname graph
+#' @export
+as_graph.graph <- function(x, ...) {
+  x
+}
+
+#' @rdname graph
+#' @export
+as_graph.list <- function(x, ...) {
+  do.call(new_graph, x)
+}

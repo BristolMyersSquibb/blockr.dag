@@ -4,7 +4,7 @@
 \alias{new_dag_extension}
 \title{DAG extension}
 \usage{
-new_dag_extension(graph = NULL, ...)
+new_dag_extension(graph = new_graph(), ...)
 }
 \arguments{
 \item{graph}{A \code{graph} object (or \code{NULL})}

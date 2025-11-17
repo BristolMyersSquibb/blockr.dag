@@ -8,9 +8,9 @@
 #'
 #' @rdname dag
 #' @export
-new_dag_extension <- function(graph = NULL, ...) {
+new_dag_extension <- function(graph = new_graph(), ...) {
   blockr.dock::new_dock_extension(
-    dag_ext_srv(graph),
+    dag_ext_srv(as_graph(graph)),
     dag_ext_ui,
     name = "DAG",
     class = "dag_extension",

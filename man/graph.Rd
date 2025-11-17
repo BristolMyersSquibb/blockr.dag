@@ -6,6 +6,9 @@
 \alias{graph_nodes}
 \alias{graph_edges}
 \alias{graph_combos}
+\alias{as_graph}
+\alias{as_graph.graph}
+\alias{as_graph.list}
 \title{Graph object}
 \usage{
 new_graph(nodes = list(), edges = list(), combos = list())
@@ -17,6 +20,12 @@ graph_nodes(x)
 graph_edges(x)
 
 graph_combos(x)
+
+as_graph(x, ...)
+
+\method{as_graph}{graph}(x, ...)
+
+\method{as_graph}{list}(x, ...)
 }
 \arguments{
 \item{nodes}{Graph nodes (i.e. board blocks)}
@@ -26,6 +35,8 @@ graph_combos(x)
 \item{combos}{Node groups (i.e. board stacks)}
 
 \item{x}{Object}
+
+\item{...}{Generic consistency}
 }
 \description{
 R list-based representation of a g6 graph object.
