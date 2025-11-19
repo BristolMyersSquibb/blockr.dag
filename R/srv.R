@@ -166,7 +166,7 @@ update_observer <- function(update, board, proxy) {
 
 add_edge_observer <- function(input, board, proxy, update, session) {
 
-  observeEvent(req(input$added_edge$type != "canvas"), {
+  observeEvent(req(input$added_edge$targetType != "canvas"), {
     new <- input$added_edge
 
     blocks <- board_blocks(board$board)
