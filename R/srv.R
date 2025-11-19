@@ -145,6 +145,10 @@ update_observer <- function(update, board, proxy) {
         add_nodes(upd$blocks$add, board$board, proxy)
       }
 
+      if (length(upd$blocks$mod)) {
+        update_nodes(upd$blocks$mod, board$board, proxy)
+      }
+
       if (length(upd$links$add)) {
         add_edges(upd$links$add, proxy)
       }

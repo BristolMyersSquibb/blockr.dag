@@ -328,6 +328,12 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
+update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  g6_update_nodes(proxy, nodes)
+  invisible()
+}
+
 add_edges <- function(links, proxy = blockr_g6_proxy()) {
   edges <- g6_edges_from_links(links)
   g6_add_edges(proxy, edges)
