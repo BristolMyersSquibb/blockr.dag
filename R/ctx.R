@@ -2,12 +2,12 @@
 #'
 #' Adds a new entry to the context menu of a board.
 #'
-#' @param name Name of the context menu entry.
-#' @param js JavaScript code to execute when the entry is selected.
-#' @param action Action to perform when the entry is selected.
-#' @param condition Condition to determine if the entry should be shown.
-#' @param id Unique identifier for the context menu entry.
-#' Infered from `name` if not provided.
+#' @param name Name of the context menu entry
+#' @param js JavaScript code to execute when the entry is selected
+#' @param action Action to perform when the entry is selected
+#' @param condition Condition to determine if the entry should be shown
+#' @param id Unique identifier for the context menu entry
+#' Infered from `name` if not provided
 #'
 #' @rdname ctx
 #' @export
