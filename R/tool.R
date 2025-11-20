@@ -11,10 +11,6 @@
 #' @export
 new_toolbar_item <- function(id, icon, js, action = NULL) {
 
-  if (is.null(action)) {
-    action <- function(...) NULL
-  }
-
   if (is_string(js)) {
     js_string <- js
     js <- function(...) js_string
@@ -23,7 +19,7 @@ new_toolbar_item <- function(id, icon, js, action = NULL) {
   stopifnot(
     is_string(id),
     is_string(icon),
-    is.function(action),
+    is.null(action) || is.function(action),
     is.function(js)
   )
 
@@ -57,7 +53,7 @@ toolbar_item_id <- function(x) attr(x, "id")
 
 toolbar_item_icon <- function(x) attr(x, "icon")
 
-toolbar_item_action <- function(x, ...) {
+toolbar_item_action <- function(x, ..., session = get_session()) {
 
   if (!is_toolbar_item(x)) {
 
@@ -70,14 +66,21 @@ toolbar_item_action <- function(x, ...) {
     return(invisible(NULL))
   }
 
-  id <- toolbar_item_id(x)
+  fun <- x[["action"]]
 
-  moduleServer(
-    id,
-    function(input, output, session) {
-      x[["action"]](...)
-    }
-  )
+  if (is.null(fun)) {
+    return(invisible(NULL))
+  }
+
+  id <- toolbar_item_id(x)
+  res <- moduleServer(id, fun(...), session)
+
+  if (not_null(res)) {
+    blockr_abort(
+      "Expecting a toolbar item module {id} to return `NULL`.",
+      class = "toolbar_item_return_invalid"
+    )
+  }
 
   invisible(NULL)
 }
@@ -132,4 +135,39 @@ build_toolbar <- function(x, ...) {
     toolbar_item_icon(x),
     toolbar_item_id(x)
   )
+}
+
+#' @rdname tool
+#' @export
+toolbar_items <- function(x) {
+  UseMethod("toolbar_items")
+}
+
+#' @export
+toolbar_items.dock_extension <- function(x) {
+  list()
+}
+
+#' @export
+toolbar_items.list <- function(x) {
+
+  res <- lapply(x, toolbar_items)
+
+  for (x in res) {
+    validate_toolbar_items(x)
+  }
+
+  coal(unlst(res), list())
+}
+
+#' @export
+toolbar_items.dock_extensions <- function(x) {
+  res <- toolbar_items(as.list(x))
+  validate_toolbar_items(res)
+  res
+}
+
+#' @export
+toolbar_items.dock_board <- function(x) {
+  toolbar_items(blockr.dock::dock_extensions(x))
 }

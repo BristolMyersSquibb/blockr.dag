@@ -3,11 +3,14 @@
 \name{new_toolbar_item}
 \alias{new_toolbar_item}
 \alias{is_toolbar_item}
+\alias{toolbar_items}
 \title{Create a toolbar item}
 \usage{
 new_toolbar_item(id, icon, js, action = NULL)
 
 is_toolbar_item(x)
+
+toolbar_items(x)
 }
 \arguments{
 \item{id}{Unique identifier for the toolbar item}

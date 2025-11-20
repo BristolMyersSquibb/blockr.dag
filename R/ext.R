@@ -422,6 +422,32 @@ context_menu_items.dag_extension <- function(x) {
   )
 }
 
+#' @export
+toolbar_items.dag_extension <- function(x) {
+  list(
+    new_toolbar_item(
+      id = "zoom-in",
+      icon = "zoom-in",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.zoomTo(graph.getZoom() + 0.1);
+      }"
+    ),
+    new_toolbar_item(
+      id = "zoom-out",
+      icon = "zoom-out",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.zoomTo (graph.getZoom() - 0.1);
+      }"
+    )
+  )
+}
+
 create_block_with_name <- function(reg_id, blk_nms, ...) {
   name_fun <- function(nms) {
     function(class) {

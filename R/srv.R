@@ -3,9 +3,10 @@ dag_ext_srv <- function(graph) {
     moduleServer(
       id,
       function(input, output, session) {
-        context_menu <- context_menu_items(
-          isolate(board$board)
-        )
+
+        initial_board <- isolate(board$board)
+
+        context_menu <- context_menu_items(initial_board)
 
         ctx_path <- session$registerDataObj(
           name = "context-menu-items",
@@ -15,7 +16,7 @@ dag_ext_srv <- function(graph) {
             res <- jsonlite::toJSON(
               build_context_menu(
                 context_menu,
-                board = isolate(board$board),
+                board = initial_board,
                 target = jsonlite::fromJSON(rawToChar(body_bytes))
               )
             )
@@ -35,11 +36,21 @@ dag_ext_srv <- function(graph) {
           update = update
         )
 
+        toolbar <- toolbar_items(initial_board)
+
+        toolbar_item_action(
+          toolbar,
+          board = board,
+          update = update,
+          session = session
+        )
+
         g6_graph <- init_g6(
-          board = isolate(board$board),
+          board = initial_board,
           graph = graph,
           path = ctx_path,
           ctx = context_menu,
+          tools = toolbar,
           session = session
         )
 
