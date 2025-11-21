@@ -61,15 +61,14 @@ context_menu_entry_condition <- function(x, ...) {
   x[["condition"]](...)
 }
 
-context_menu_entry_action <- function(x, board, update,
-                                      session = get_session()) {
+context_menu_entry_action <- function(x, board, update, proxy) {
 
   if (!is_context_menu_entry(x)) {
 
     validate_context_menu_entries(x)
 
     for (i in x) {
-      context_menu_entry_action(i, board, update)
+      context_menu_entry_action(i, board, update, proxy)
     }
 
     return(invisible(NULL))
@@ -85,8 +84,8 @@ context_menu_entry_action <- function(x, board, update,
 
   res <- moduleServer(
     paste0("ctx_", id),
-    fun(board, update),
-    session
+    fun(board, update, proxy),
+    proxy$session
   )
 
   if (not_null(res)) {

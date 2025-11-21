@@ -165,7 +165,7 @@ context_menu_items.dag_extension <- function(x) {
 toolbar_items.dag_extension <- function(x) {
   list(
     new_toolbar_item(
-      id = "zoom-in",
+      id = "zoom_in",
       icon = "zoom-in",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -175,7 +175,7 @@ toolbar_items.dag_extension <- function(x) {
       }"
     ),
     new_toolbar_item(
-      id = "zoom-out",
+      id = "zoom_out",
       icon = "zoom-out",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -185,7 +185,7 @@ toolbar_items.dag_extension <- function(x) {
       }"
     ),
     new_toolbar_item(
-      id = "auto-fit",
+      id = "auto_fit",
       icon = "auto-fit",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -205,7 +205,7 @@ toolbar_items.dag_extension <- function(x) {
       }"
     ),
     new_toolbar_item(
-      id = "add-block",
+      id = "add_block",
       icon = "icon-roundaddfill",
       js = function(ns) {
         sprintf(
@@ -216,6 +216,19 @@ toolbar_items.dag_extension <- function(x) {
         )
       },
       action = add_block_action("add_block")
+    ),
+    new_toolbar_item(
+      id = "remove_selected",
+      icon = "icon-delete",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("rm_selected")
+        )
+      },
+      action = remove_selected_action("rm_selected")
     )
   )
 }

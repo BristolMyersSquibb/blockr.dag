@@ -53,14 +53,14 @@ toolbar_item_id <- function(x) attr(x, "id")
 
 toolbar_item_icon <- function(x) attr(x, "icon")
 
-toolbar_item_action <- function(x, board, update, session = get_session()) {
+toolbar_item_action <- function(x, board, update, proxy) {
 
   if (!is_toolbar_item(x)) {
 
     validate_toolbar_items(x)
 
     for (i in x) {
-      toolbar_item_action(i, board, update)
+      toolbar_item_action(i, board, update, proxy)
     }
 
     return(invisible(NULL))
@@ -76,8 +76,8 @@ toolbar_item_action <- function(x, board, update, session = get_session()) {
 
   res <- moduleServer(
     paste0("tool_", id),
-    fun(board, update),
-    session
+    fun(board, update, proxy),
+    proxy$session
   )
 
   if (not_null(res)) {

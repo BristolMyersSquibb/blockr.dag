@@ -54,7 +54,7 @@ new_action <- function(expr) {
 
     if (isTRUE(as_module)) {
 
-      function(board, update) {
+      function(board, update, proxy) {
         new_function(
           alist(input = , output = , session = ),
           combine_exprs(body)
@@ -66,6 +66,7 @@ new_action <- function(expr) {
       body <- c(
         quote(
           {
+            session <- proxy$session
             input <- session$input
             output <- session$output
           }
@@ -73,7 +74,7 @@ new_action <- function(expr) {
       )
 
       new_function(
-        alist(board = , update = , session = get_session()),
+        alist(board = , update = , proxy = ),
         combine_exprs(body)
       )
     }
@@ -345,6 +346,47 @@ add_link_action <- new_action(
   }
 )
 
+draw_link_action <- new_action(
+  {
+    observeEvent(
+      trigger(),
+      {
+        new <- input$added_edge
+
+        blocks <- board_blocks(board$board)
+
+        inps <- block_input_select(
+          blocks[[new$target]],
+          new$target,
+          board_links(board$board),
+          mode = "inputs"
+        )
+
+        if (length(inps) == 0L) {
+          notify(
+            "No inputs are available for block {new$target}.",
+            type = "warning"
+          )
+
+          remove_edges(new$id, proxy)
+
+          return()
+        }
+
+        remove_edges(new$id, proxy)
+
+        new_lnk <- new_link(
+          from = new$source,
+          to = new$target,
+          input = inps[1L]
+        )
+
+        update(list(links = list(add = as_links(new_lnk))))
+      }
+    )
+  }
+)
+
 remove_link_action <- new_action(
   {
     observeEvent(
@@ -470,6 +512,24 @@ remove_stack_action <- new_action(
     observeEvent(
       trigger(),
       update(list(stacks = list(rm = trigger())))
+    )
+  }
+)
+
+remove_selected_action <- new_action(
+  {
+    observeEvent(
+      trigger(),
+      {
+        inp <- proxy$session$input
+        update(
+          list(
+            blocks = list(rm = inp[[paste0(graph_id(), "-selected_node")]]),
+            links = list(rm = inp[[paste0(graph_id(), "-selected_edge")]]),
+            stacks = list(rm = inp[[paste0(graph_id(), "-selected_combo")]])
+          )
+        )
+      }
     )
   }
 )

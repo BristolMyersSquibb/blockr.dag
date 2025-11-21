@@ -27,21 +27,7 @@ dag_ext_srv <- function(graph) {
           }
         )
 
-        context_menu_entry_action(
-          context_menu,
-          board = board,
-          update = update,
-          session = session
-        )
-
         toolbar <- toolbar_items(initial_board)
-
-        toolbar_item_action(
-          toolbar,
-          board = board,
-          update = update,
-          session = session
-        )
 
         g6_graph <- init_g6(
           board = initial_board,
@@ -54,48 +40,27 @@ dag_ext_srv <- function(graph) {
 
         proxy <- blockr_g6_proxy(session)
 
-        update_observer(update, board, proxy)
-
-        observeEvent(
-          TRUE,
-          {
-            stacks <- board_stacks(board$board)
-            has_col <- lgl_ply(stacks, is_dag_stack)
-
-            if (any(!has_col)) {
-              cmbs <- g6_graph[["x"]][["data"]][["combos"]]
-
-              cmbs <- set_names(
-                chr_xtr(lst_xtr(cmbs, "style"), "fill"),
-                chr_xtr(cmbs, "id")
-              )
-
-              log_debug(
-                "converting stack{?s} {names(stacks)[!has_col]} to ",
-                "type 'dag_stack'"
-              )
-
-              stack_upd <- Map(
-                as_dag_stack,
-                stacks[!has_col],
-                cmbs[names(stacks)[!has_col]]
-              )
-
-              update(list(stacks = list(mod = as_stacks(stack_upd))))
-            } else {
-              log_debug("no conversions to type 'dag_stack' required")
-            }
-          },
-          once = TRUE
+        context_menu_entry_action(
+          context_menu,
+          board = board,
+          update = update,
+          proxy = proxy
         )
 
-        # TBD: when adding new node, register node validation (see old API).
-        # TBD: when adding new blocks call register_node_stack_link (see old
-        # API).
+        toolbar_item_action(
+          toolbar,
+          board = board,
+          update = update,
+          proxy = proxy
+        )
 
-        batch_delete_observer(input, update)
+        update_observer(update, board, proxy)
 
-        add_edge_observer(board, proxy, update, session)
+        stack_conversion_observer(board, g6_graph, update)
+
+        batch_delete_observer(board, update, proxy)
+
+        add_edge_observer(board, proxy, update)
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
@@ -117,19 +82,54 @@ dag_ext_srv <- function(graph) {
   }
 }
 
-batch_delete_observer <- function(input, update) {
-  # Handle remove any selected element with backspace key
+stack_conversion_observer <- function(board, graph, update) {
+  observeEvent(
+    TRUE,
+    {
+      stacks <- board_stacks(board$board)
+      has_col <- lgl_ply(stacks, is_dag_stack)
+
+      if (any(!has_col)) {
+        cmbs <- graph[["x"]][["data"]][["combos"]]
+
+        cmbs <- set_names(
+          chr_xtr(lst_xtr(cmbs, "style"), "fill"),
+          chr_xtr(cmbs, "id")
+        )
+
+        log_debug(
+          "converting stack{?s} {names(stacks)[!has_col]} to ",
+          "type 'dag_stack'"
+        )
+
+        stack_upd <- Map(
+          as_dag_stack,
+          stacks[!has_col],
+          cmbs[names(stacks)[!has_col]]
+        )
+
+        update(list(stacks = list(mod = as_stacks(stack_upd))))
+      } else {
+        log_debug("no conversions to type 'dag_stack' required")
+      }
+    },
+    once = TRUE
+  )
+}
+
+batch_delete_observer <- function(board, update, proxy) {
+
   setup_remove_elements_kbd()
 
-  observeEvent(input[[paste0(graph_id(), "-batch_delete")]], {
-    update(
-      list(
-        blocks = list(rm = input[[paste0(graph_id(), "-selected_node")]]),
-        links = list(rm = input[[paste0(graph_id(), "-selected_edge")]]),
-        stacks = list(rm = input[[paste0(graph_id(), "-selected_combo")]])
-      )
-    )
-  })
+  session <- proxy$session
+  input <- session$input
+
+  remove_selected <- remove_selected_action(
+    reactive(req(input[[paste0(graph_id(), "-batch_delete")]])),
+    as_module = FALSE
+  )
+
+  remove_selected(board, update, session)
 }
 
 update_observer <- function(update, board, proxy) {
@@ -173,46 +173,17 @@ update_observer <- function(update, board, proxy) {
   )
 }
 
-add_edge_observer <- function(board, proxy, update, session) {
+add_edge_observer <- function(board, proxy, update) {
 
+  session <- proxy$session
   input <- session$input
 
-  observeEvent(
-    req(input$added_edge$targetType != "canvas"),
-    {
-      new <- input$added_edge
-
-      blocks <- board_blocks(board$board)
-
-      inps <- block_input_select(
-        blocks[[new$target]],
-        new$target,
-        board_links(board$board),
-        mode = "inputs"
-      )
-
-      if (length(inps) == 0L) {
-        notify(
-          "No inputs are available for block {new$target}.",
-          type = "warning"
-        )
-
-        remove_edges(new$id, proxy)
-
-        return()
-      }
-
-      remove_edges(new$id, proxy)
-
-      new_lnk <- new_link(
-        from = new$source,
-        to = new$target,
-        input = inps[1L]
-      )
-
-      update(list(links = list(add = as_links(new_lnk))))
-    }
+  draw_link <- draw_link_action(
+    reactive(req(input$added_edge$targetType != "canvas")),
+    as_module = FALSE
   )
+
+  draw_link(board, update, session)
 
   # Drag edge on canvas to create new block
   append_action <- append_block_action(
