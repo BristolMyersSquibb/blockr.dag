@@ -32,65 +32,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_link")
         )
       },
-      action = function(input, output, session, board, update) {
-        observeEvent(
-          input$add_link,
-          showModal(link_modal(session$ns, board$board, input$add_link))
-        )
-
-        observeEvent(
-          input$create_link,
-          {
-            req(input$create_link)
-
-            res <- block_input_select(
-              board_blocks(board$board)[[input$create_link]],
-              mode = "update",
-              session = session,
-              inputId = "add_link_input"
-            )
-
-            if (is.null(res)) {
-              notify(
-                "No inputs are available for the selected block.",
-                type = "warning"
-              )
-              return()
-            }
-          }
-        )
-
-        observeEvent(
-          input$add_link_confirm,
-          {
-            lnk_id <- input$add_link_id
-
-            if (!nchar(lnk_id) || lnk_id %in% board_link_ids(board$board)) {
-              notify(
-                "Please choose a valid link ID.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            new_lnk <- new_link(
-              from = input$add_link,
-              to = input$create_link,
-              input = input$add_link_input
-            )
-
-            new_lnk <- as_links(set_names(list(new_lnk), lnk_id))
-
-            update(
-              list(links = list(add = new_lnk))
-            )
-
-            removeModal()
-          }
-        )
-      },
+      action = add_link_action("add_link"),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -104,15 +46,10 @@ context_menu_items.dag_extension <- function(x) {
             if (current.id === undefined) return;
             Shiny.setInputValue('%s', current.id);
           }",
-          ns("remove_node")
+          ns("remove_block")
         )
       },
-      action = function(input, output, session, board, update) {
-        observeEvent(
-          input$remove_node,
-          update(list(blocks = list(rm = input$remove_node)))
-        )
-      },
+      action = remove_block_action("remove_block"),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -130,15 +67,10 @@ context_menu_items.dag_extension <- function(x) {
             graph.removeEdgeData([current.id]);
             graph.draw();
           }",
-          ns("remove_edge")
+          ns("remove_link")
         )
       },
-      action = function(input, output, session, board, update) {
-        observeEvent(
-          input$remove_edge,
-          update(list(links = list(rm = input$remove_edge)))
-        )
-      },
+      action = remove_link_action("remove_link"),
       condition = function(board, target) {
         target$type == "edge"
       },
@@ -154,17 +86,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("append_block")
         )
       },
-      action = function(input, output, session, board, update) {
-        append_block_server(
-          trigger = reactive({
-            req(input$append_block)
-          }),
-          input,
-          session,
-          board,
-          update
-        )
-      },
+      action = append_block_action("append_block"),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -180,67 +102,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("create_stack")
         )
       },
-      action = function(input, output, session, board, update) {
-        observeEvent(
-          input$create_stack,
-          showModal(
-            stack_modal(ns = session$ns, board = board$board, mode = "create")
-          )
-        )
-
-        observeEvent(
-          input$stack_confirm,
-          {
-            stack_id <- input$stack_id
-            stack_name <- input$stack_name
-            stack_color <- input$stack_color
-            selected_blocks <- input$stack_block_selection
-
-            if (
-              !nchar(stack_id) ||
-                stack_id %in% board_stack_ids(board$board)
-            ) {
-              notify(
-                "Please choose a valid stack ID.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            # Get blocks - use selected blocks if any, otherwise empty
-            # character vector
-            has_blocks <- length(selected_blocks) > 0 &&
-              !is.null(selected_blocks) &&
-              any(nchar(selected_blocks) > 0)
-            block_ids <- if (has_blocks) {
-              selected_blocks[nchar(selected_blocks) > 0]
-            } else {
-              character()
-            }
-
-            # Create stack name - use input if provided, otherwise
-            # generate from ID
-            if (is.null(stack_name) || !nchar(stack_name)) {
-              stack_name <- id_to_sentence_case(stack_id)
-            }
-
-            # Create the stack
-            new_stk <- new_dag_stack(
-              blocks = block_ids,
-              name = stack_name,
-              color = stack_color
-            )
-
-            new_stk <- as_stacks(set_names(list(new_stk), stack_id))
-
-            update(list(stacks = list(add = new_stk)))
-
-            removeModal()
-          }
-        )
-      },
+      action = add_stack_action("create_stack"),
       condition = function(board, target) {
         target$type == "canvas"
       },
@@ -257,14 +119,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_stack")
         )
       },
-      action = function(input, output, session, board, update) {
-        observeEvent(
-          input$remove_stack,
-          {
-            update(list(stacks = list(rm = input$remove_stack)))
-          }
-        )
-      },
+      action = remove_stack_action("remove_stack"),
       condition = function(board, target) {
         target$type == "combo"
       },
@@ -281,49 +136,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("edit_stack")
         )
       },
-      action = function(input, output, session, board, update) {
-        ns <- session$ns
-        observeEvent(
-          input$edit_stack,
-          {
-            stack <- board_stacks(board$board)[[input$edit_stack]]
-
-            showModal(
-              stack_modal(
-                ns = ns,
-                board = board$board,
-                mode = "edit",
-                stack = stack,
-                stack_id = input$edit_stack
-              )
-            )
-          }
-        )
-
-        observeEvent(
-          input$edit_stack_confirm,
-          {
-            id <- input$edit_stack
-            stack <- board_stacks(board$board)[[id]]
-
-            blocks <- input$edit_stack_blocks
-
-            if (is.null(blocks)) {
-              blocks <- character(0)
-            }
-
-            stack_blocks(stack) <- blocks
-            stack_color(stack) <- input$edit_stack_color
-            stack_name(stack) <- input$edit_stack_name
-
-            stack <- as_stacks(set_names(list(stack), id))
-
-            update(list(stacks = list(mod = stack)))
-
-            removeModal()
-          }
-        )
-      },
+      action = edit_stack_action("edit_stack"),
       condition = function(board, target) {
         target$type == "combo"
       },
@@ -339,81 +152,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = function(input, output, session, board, update) {
-        ns <- session$ns
-        blk <- reactiveVal()
-
-        observeEvent(
-          input$add_block,
-          {
-            blk(NULL)
-            showModal(
-              create_block_modal(
-                mode = "add",
-                ns = ns,
-                board = board$board
-              )
-            )
-          }
-        )
-
-        observeEvent(
-          input$add_block_selection,
-          {
-            req(input$add_block_selection)
-
-            new_blk <- create_block_with_name(
-              input$add_block_selection,
-              chr_ply(board_blocks(board$board), block_name)
-            )
-
-            updateTextInput(
-              session,
-              "add_block_name",
-              value = block_name(new_blk)
-            )
-
-            blk(new_blk)
-          }
-        )
-
-        observeEvent(
-          input$add_block_confirm,
-          {
-            id <- input$add_block_id
-            bk <- blk()
-
-            if (!nchar(id) || id %in% board_block_ids(board$board)) {
-              notify(
-                "Please choose a valid block ID.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            if (!is_block(bk)) {
-              notify(
-                "Please choose a block type.",
-                type = "warning",
-                session = session
-              )
-
-              return()
-            }
-
-            if (!identical(input$add_block_name, block_name(bk))) {
-              block_name(bk) <- input$add_block_name
-            }
-
-            bk <- as_blocks(set_names(list(bk), id))
-
-            update(list(blocks = list(add = bk)))
-            removeModal()
-          }
-        )
-      },
+      action = add_block_action("add_block"),
       condition = function(board, target) {
         target$type == "canvas"
       },
@@ -422,17 +161,87 @@ context_menu_items.dag_extension <- function(x) {
   )
 }
 
-create_block_with_name <- function(reg_id, blk_nms, ...) {
-  name_fun <- function(nms) {
-    function(class) {
-      last(make.unique(c(nms, default_block_name(class)), sep = " "))
-    }
-  }
-
-  create_block(reg_id, ..., block_name = name_fun(blk_nms))
-}
-
-new_stack_name <- function(board) {
-  existsing <- chr_ply(board_stacks(board), stack_name)
-  last(make.unique(c(existsing, default_stack_name()), sep = " "))
+#' @export
+toolbar_items.dag_extension <- function(x) {
+  list(
+    new_toolbar_item(
+      id = "zoom_in",
+      icon = "zoom-in",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.zoomTo(graph.getZoom() + 0.1);
+      }"
+    ),
+    new_toolbar_item(
+      id = "zoom_out",
+      icon = "zoom-out",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.zoomTo (graph.getZoom() - 0.1);
+      }"
+    ),
+    new_toolbar_item(
+      id = "auto_fit",
+      icon = "auto-fit",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.fitView();
+      }"
+    ),
+    new_toolbar_item(
+      id = "layout",
+      icon = "reset",
+      js = "(value, target, current) => {
+        const graph = HTMLWidgets.find(
+          `#${target.closest('.g6').id}`
+        ).getWidget();
+        graph.layout();
+      }"
+    ),
+    new_toolbar_item(
+      id = "add_block",
+      icon = "icon-roundaddfill",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("add_block")
+        )
+      },
+      action = add_block_action("add_block")
+    ),
+    new_toolbar_item(
+      id = "add_stack",
+      icon = "icon-roundadd",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("add_stack")
+        )
+      },
+      action = add_stack_action("add_stack")
+    ),
+    new_toolbar_item(
+      id = "remove_selected",
+      icon = "icon-delete",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("rm_selected")
+        )
+      },
+      action = remove_selected_action("rm_selected")
+    )
+  )
 }

@@ -119,7 +119,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
   )
 }
 
-set_g6_plugins <- function(graph, ..., ns, path, ctx) {
+set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
   g6_plugins(
     graph,
     ...,
@@ -162,6 +162,25 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx) {
           }",
           path
         )
+      )
+    ),
+    toolbar(
+      style = list(
+        backgroundColor = "#f5f5f5",
+        padding = "8px",
+        boxShadow = "0 2px 8px rgba(0, 0, 0, 0.15)",
+        borderRadius = "8px",
+        border = "1px solid #e8e8e8",
+        opacity = "0.9",
+        marginTop = "12px",
+        marginLeft = "12px"
+      ),
+      position = "left",
+      getItems = JS(
+        build_toolbar(tools)
+      ),
+      onClick = JS(
+        toolbar_item_js(tools, ns)
       )
     )
   )

@@ -19,16 +19,16 @@ is_context_menu_entry(x)
 context_menu_items(x)
 }
 \arguments{
-\item{name}{Name of the context menu entry.}
+\item{name}{Name of the context menu entry}
 
-\item{js}{JavaScript code to execute when the entry is selected.}
+\item{js}{JavaScript code to execute when the entry is selected}
 
-\item{action}{Action to perform when the entry is selected.}
+\item{action}{Action to perform when the entry is selected}
 
-\item{condition}{Condition to determine if the entry should be shown.}
+\item{condition}{Condition to determine if the entry should be shown}
 
-\item{id}{Unique identifier for the context menu entry.
-Infered from \code{name} if not provided.}
+\item{id}{Unique identifier for the context menu entry
+Infered from \code{name} if not provided}
 
 \item{x}{Object}
 }

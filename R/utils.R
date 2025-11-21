@@ -92,3 +92,18 @@ available_stack_blocks <- function(board) {
 filter_null <- function(x) Filter(Negate(is.null), x)
 
 has_length <- function(x) length(x) > 0L
+
+create_block_with_name <- function(reg_id, blk_nms, ...) {
+  name_fun <- function(nms) {
+    function(class) {
+      last(make.unique(c(nms, default_block_name(class)), sep = " "))
+    }
+  }
+
+  create_block(reg_id, ..., block_name = name_fun(blk_nms))
+}
+
+new_stack_name <- function(board) {
+  existsing <- chr_ply(board_stacks(board), stack_name)
+  last(make.unique(c(existsing, default_stack_name()), sep = " "))
+}
