@@ -53,14 +53,14 @@ toolbar_item_id <- function(x) attr(x, "id")
 
 toolbar_item_icon <- function(x) attr(x, "icon")
 
-toolbar_item_action <- function(x, ..., session = get_session()) {
+toolbar_item_action <- function(x, board, update, session = get_session()) {
 
   if (!is_toolbar_item(x)) {
 
     validate_toolbar_items(x)
 
     for (i in x) {
-      toolbar_item_action(i, ...)
+      toolbar_item_action(i, board, update)
     }
 
     return(invisible(NULL))
@@ -73,11 +73,16 @@ toolbar_item_action <- function(x, ..., session = get_session()) {
   }
 
   id <- toolbar_item_id(x)
-  res <- moduleServer(id, fun(...), session)
+
+  res <- moduleServer(
+    paste0("tool_", id),
+    fun(board, update),
+    session
+  )
 
   if (not_null(res)) {
     blockr_abort(
-      "Expecting a toolbar item module {id} to return `NULL`.",
+      "Expecting toolbar item server {id} to return `NULL`.",
       class = "toolbar_item_return_invalid"
     )
   }
@@ -103,6 +108,8 @@ toolbar_item_js <- function(x, ns = NULL) {
 
   if (is.null(ns)) {
     ns <- NS(NULL)
+  } else {
+    ns <- NS(ns(paste0("tool_", toolbar_item_id(x))))
   }
 
   paste0(

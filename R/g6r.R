@@ -120,7 +120,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
 }
 
 set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
-  browser()
   g6_plugins(
     graph,
     ...,
