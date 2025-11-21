@@ -221,10 +221,9 @@ add_edge_observer <- function(board, proxy, update, session) {
         req(input$added_edge$targetType == "canvas")
         input$added_edge$source
       }
-    )
+    ),
+    as_module = FALSE
   )
 
-  append_action <- append_action(board, update)
-
-  append_action(input, session$output, session)
+  append_action(board, update, session)
 }
