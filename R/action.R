@@ -396,7 +396,7 @@ remove_link_action <- new_action(
   }
 )
 
-create_stack_action <- new_action(
+add_stack_action <- new_action(
   {
     observeEvent(
       trigger(),

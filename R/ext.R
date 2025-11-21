@@ -102,7 +102,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("create_stack")
         )
       },
-      action = create_stack_action("create_stack"),
+      action = add_stack_action("create_stack"),
       condition = function(board, target) {
         target$type == "canvas"
       },
@@ -216,6 +216,19 @@ toolbar_items.dag_extension <- function(x) {
         )
       },
       action = add_block_action("add_block")
+    ),
+    new_toolbar_item(
+      id = "add_stack",
+      icon = "icon-roundadd",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("add_stack")
+        )
+      },
+      action = add_stack_action("add_stack")
     ),
     new_toolbar_item(
       id = "remove_selected",
