@@ -163,17 +163,41 @@ css_block_selectize <- function() {
 #' @rdname modal
 #' @keywords internal
 js_blk_selectize_render <- function() {
+  # Get icon style setting
+  icon_style <- blockr_option("icon_style", "light")
+
   I(
-    "{
+    sprintf(
+      "(function() {
+      var iconStyle = '%s';
+      return {
       item: function(item, escape) {
+        var hexToRgba = function(hex, alpha) {
+          var r = parseInt(hex.slice(1, 3), 16);
+          var g = parseInt(hex.slice(3, 5), 16);
+          var b = parseInt(hex.slice(5, 7), 16);
+          return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+        };
+
         var name = escape(item.label);
         var pkg = escape(item.package || '');
         var color = item.color || '#6c757d';
 
         var iconSvg = item.icon || '';
+
+        // Configure based on icon style
+        var iconFill, bgColor;
+        if (iconStyle === 'light') {
+          iconFill = color;
+          bgColor = hexToRgba(color, 0.3);
+        } else {
+          iconFill = 'white';
+          bgColor = color;
+        }
+
         var styledSvg = iconSvg.replace(
           '<svg ',
-          '<svg style=\"width: 14px; height: 14px; fill: white;\" '
+          '<svg style=\"width: 14px; height: 14px; fill: ' + iconFill + ';\" '
         );
 
         var containerStyle =
@@ -181,33 +205,48 @@ js_blk_selectize_render <- function() {
           'padding: 4px 8px; background-color: #f8f9fa; ' +
           'border-radius: 6px; border: 1px solid #e9ecef;';
         var iconStyle =
-          'background-color: ' + color + '; width: 24px; ' +
+          'background-color: ' + bgColor + '; width: 24px; ' +
           'height: 24px; border-radius: 4px; display: flex; ' +
           'align-items: center; justify-content: center; flex-shrink: 0;';
         var pkgBadgeHtml = pkg ?
           '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
           pkg + '</div>' : '';
         return '<div style=\"' + containerStyle + '\">' +
-                 '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
-                 '<div style=\"font-weight: 500; font-size: 14px;\">' +
-                   name +
-                 '</div>' +
-                 pkgBadgeHtml +
-               '</div>';
+               '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
+               '<div style=\"font-weight: 500; font-size: 14px;\">' +
+               name + '</div>' + pkgBadgeHtml + '</div>';
       },
       option: function(item, escape) {
+        var hexToRgba = function(hex, alpha) {
+          var r = parseInt(hex.slice(1, 3), 16);
+          var g = parseInt(hex.slice(3, 5), 16);
+          var b = parseInt(hex.slice(5, 7), 16);
+          return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+        };
+
         var name = escape(item.label);
         var desc = escape(item.description || '');
         var pkg = escape(item.package || '');
         var color = item.color || '#6c757d';
 
         var iconSvg = item.icon || '';
+
+        // Configure based on icon style
+        var iconFill, bgColor;
+        if (iconStyle === 'light') {
+          iconFill = color;
+          bgColor = hexToRgba(color, 0.3);
+        } else {
+          iconFill = 'white';
+          bgColor = color;
+        }
+
         var styledSvg = iconSvg.replace(
           '<svg ',
-          '<svg style=\"width: 20px; height: 20px; fill: white;\" '
+          '<svg style=\"width: 20px; height: 20px; fill: ' + iconFill + ';\" '
         );
 
-        var iconWrapperStyle = 'background-color: ' + color + ';';
+        var iconWrapperStyle = 'background-color: ' + bgColor + ';';
         var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
                           'style=\"' + iconWrapperStyle + '\">' +
                           styledSvg + '</div>';
@@ -231,14 +270,14 @@ js_blk_selectize_render <- function() {
         return '<div class=\"block-option\">' + iconWrapper +
                  '<div class=\"block-content\">' +
                    '<div class=\"block-header\">' +
-                     '<div class=\"block-name\">' + name + '</div>' +
-                     pkgBadge +
-                   '</div>' +
-                   descHtml +
-                 '</div>' +
-               '</div>';
+                     '<div class=\"block-name\">' + name +
+                     '</div>' + pkgBadge + '</div>' +
+                   descHtml + '</div>' + '</div>';
       }
-    }"
+    };
+  })()",
+      icon_style
+    )
   )
 }
 
