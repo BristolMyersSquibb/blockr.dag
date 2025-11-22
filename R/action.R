@@ -105,9 +105,11 @@ add_block_action <- new_action(
       {
         req(input$add_block_selection)
 
+        pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
         new_blk <- create_block_with_name(
           input$add_block_selection,
-          chr_ply(board_blocks(board$board), block_name)
+          chr_ply(board_blocks(board$board), block_name),
+          coords = list(x = pos$x, y = pos$y)
         )
 
         updateTextInput(
@@ -175,6 +177,8 @@ append_block_action <- new_action(
             board = board$board
           )
         )
+
+        g6_get_nodes(g6_proxy(graph_id()) , trigger())
       }
     )
 
