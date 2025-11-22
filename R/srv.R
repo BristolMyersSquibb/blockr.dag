@@ -67,7 +67,11 @@ dag_ext_srv <- function(graph) {
           {
             sel <- input[[paste0(graph_id(), "-selected_node")]]
             if (length(sel) == 1L) {
-              blockr.dock::show_panel(sel, board$board, dock)
+              blockr.dock::show_panel(
+                from_g6_node_id(sel),
+                board$board,
+                dock
+              )
             }
           }
         )
@@ -190,7 +194,7 @@ add_edge_observer <- function(board, proxy, update) {
     reactive(
       {
         req(input$added_edge$targetType == "canvas")
-        input$added_edge$source
+        from_g6_node_id(input$added_edge$source)
       }
     ),
     as_module = FALSE

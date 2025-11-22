@@ -36,10 +36,11 @@ new_action <- function(expr) {
   body <- list( # nolint: object_usage_linter.
     quote(
       {
-        if (is_string(trigger)) {
-          trigr_q <- bquote(req(input[[.(trg)]]), list(trg = trigger))
+        if (!is.reactive(trigger)) {
+          trigr_q <- bquote(.(fun)(input), list(fun = trigger))
           trigger <- reactive(trigr_q, quoted = TRUE)
         }
+        stopifnot(is.reactive(trigger))
       }
     ),
     substitute(expr),
@@ -353,31 +354,36 @@ draw_link_action <- new_action(
       {
         new <- input$added_edge
 
+        trg <- from_g6_node_id(new$target)
+        src <- from_g6_node_id(new$source)
+
         blocks <- board_blocks(board$board)
 
         inps <- block_input_select(
-          blocks[[new$target]],
-          new$target,
+          blocks[[trg]],
+          trg,
           board_links(board$board),
           mode = "inputs"
         )
 
+        browser()
+
         if (length(inps) == 0L) {
           notify(
-            "No inputs are available for block {new$target}.",
+            "No inputs are available for block {trg}.",
             type = "warning"
           )
 
-          remove_edges(new$id, proxy)
+          remove_edges(new$id, asis = TRUE, proxy = proxy)
 
           return()
         }
 
-        remove_edges(new$id, proxy)
+        remove_edges(new$id, asis = TRUE, proxy = proxy)
 
         new_lnk <- new_link(
-          from = new$source,
-          to = new$target,
+          from = src,
+          to = trg,
           input = inps[1L]
         )
 
@@ -521,12 +527,24 @@ remove_selected_action <- new_action(
     observeEvent(
       trigger(),
       {
-        inp <- proxy$session$input
+        input <- proxy$session$input
         update(
           list(
-            blocks = list(rm = inp[[paste0(graph_id(), "-selected_node")]]),
-            links = list(rm = inp[[paste0(graph_id(), "-selected_edge")]]),
-            stacks = list(rm = inp[[paste0(graph_id(), "-selected_combo")]])
+            blocks = list(
+              rm = from_g6_node_id(
+                input[[paste0(graph_id(), "-selected_node")]]
+              )
+            ),
+            links = list(
+              rm = from_g6_edge_id(
+                input[[paste0(graph_id(), "-selected_edge")]]
+              )
+            ),
+            stacks = list(
+              rm = from_g6_combo_id(
+                input[[paste0(graph_id(), "-selected_combo")]]
+              )
+            )
           )
         )
       }

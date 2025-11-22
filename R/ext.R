@@ -32,7 +32,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_link")
         )
       },
-      action = add_link_action("add_link"),
+      action = add_link_action(
+        function(inp) req(from_g6_node_id(inp[["add_link"]]))
+      ),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -49,7 +51,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_block")
         )
       },
-      action = remove_block_action("remove_block"),
+      action = remove_block_action(
+        function(inp) req(from_g6_node_id(inp[["remove_block"]]))
+      ),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -62,15 +66,13 @@ context_menu_items.dag_extension <- function(x) {
           "(value, target, current) => {
             if (current.id === undefined) return;
             Shiny.setInputValue('%s', current.id);
-            const graphId = `${target.closest('.g6').id}`;
-            const graph = HTMLWidgets.find(`#${graphId}`).getWidget();
-            graph.removeEdgeData([current.id]);
-            graph.draw();
           }",
           ns("remove_link")
         )
       },
-      action = remove_link_action("remove_link"),
+      action = remove_link_action(
+        function(inp) req(from_g6_edge_id(inp[["remove_link"]]))
+      ),
       condition = function(board, target) {
         target$type == "edge"
       },
@@ -86,7 +88,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("append_block")
         )
       },
-      action = append_block_action("append_block"),
+      action = append_block_action(
+        function(inp) req(from_g6_node_id(inp[["append_block"]]))
+      ),
       condition = function(board, target) {
         target$type == "node"
       },
@@ -102,7 +106,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("create_stack")
         )
       },
-      action = add_stack_action("create_stack"),
+      action = add_stack_action(
+        function(inp) req(inp[["create_stack"]])
+      ),
       condition = function(board, target) {
         target$type == "canvas"
       },
@@ -119,7 +125,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_stack")
         )
       },
-      action = remove_stack_action("remove_stack"),
+      action = remove_stack_action(
+        function(inp) req(from_g6_combo_id(inp[["remove_stack"]]))
+      ),
       condition = function(board, target) {
         target$type == "combo"
       },
@@ -136,7 +144,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("edit_stack")
         )
       },
-      action = edit_stack_action("edit_stack"),
+      action = edit_stack_action(
+        function(inp) req(from_g6_combo_id(inp[["edit_stack"]]))
+      ),
       condition = function(board, target) {
         target$type == "combo"
       },
@@ -152,7 +162,9 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = add_block_action("add_block"),
+      action = add_block_action(
+        function(inp) req(inp[["add_block"]])
+      ),
       condition = function(board, target) {
         target$type == "canvas"
       },
@@ -215,7 +227,9 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = add_block_action("add_block")
+      action = add_block_action(
+        function(inp) req(inp[["add_block"]])
+      )
     ),
     new_toolbar_item(
       id = "add_stack",
@@ -228,7 +242,9 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_stack")
         )
       },
-      action = add_stack_action("add_stack")
+      action = add_stack_action(
+        function(inp) req(inp[["add_stack"]])
+      )
     ),
     new_toolbar_item(
       id = "remove_selected",
@@ -241,7 +257,9 @@ toolbar_items.dag_extension <- function(x) {
           ns("rm_selected")
         )
       },
-      action = remove_selected_action("rm_selected")
+      action = remove_selected_action(
+        function(inp) req(inp[["rm_selected"]])
+      )
     )
   )
 }
