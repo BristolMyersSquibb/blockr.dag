@@ -105,9 +105,11 @@ add_block_action <- new_action(
       {
         req(input$add_block_selection)
 
+        pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
         new_blk <- create_block_with_name(
           input$add_block_selection,
-          chr_ply(board_blocks(board$board), block_name)
+          chr_ply(board_blocks(board$board), block_name),
+          coords = list(x = pos$x, y = pos$y)
         )
 
         updateTextInput(
@@ -175,6 +177,9 @@ append_block_action <- new_action(
             board = board$board
           )
         )
+        
+        # Get trigger coordinates
+        g6_get_nodes(proxy , trigger())
       }
     )
 
@@ -183,9 +188,12 @@ append_block_action <- new_action(
       {
         req(input$append_block_selection)
 
+        trigger_style <- proxy$session$input[[paste0(graph_id(), "-", trigger(), "-state")]]$style
+
         new_blk <- create_block_with_name(
           input$append_block_selection,
-          chr_ply(board_blocks(board$board), block_name)
+          chr_ply(board_blocks(board$board), block_name),
+          coords = list(x = trigger_style$x, y = trigger_style$y + 150) # Offset below trigger block
         )
 
         res <- block_input_select(
