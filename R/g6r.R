@@ -1,3 +1,15 @@
+to_g6_node_id <- function(x) paste0("node-", x)
+
+from_g6_node_id <- function(x) sub("^node-", "", x)
+
+to_g6_edge_id <- function(x) paste0("edge-", x)
+
+from_g6_edge_id <- function(x) sub("^edge-", "", x)
+
+to_g6_combo_id <- function(x) paste0("combo-", x)
+
+from_g6_combo_id <- function(x) sub("^combo-", "", x)
+
 g6_from_board <- function(board) {
   stopifnot(is_board(board))
   graph <- g6_data_from_board(board)
