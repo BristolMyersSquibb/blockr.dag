@@ -37,7 +37,11 @@ set_g6_options <- function(graph, ...) {
     combo = list(
       animation = FALSE,
       badge = TRUE,
-      type = "rect"
+      type = "rect",
+      style = list(
+        # more bottom padding, because of the badge
+        padding = c(20, 20, 40, 20)
+      )
     ),
     edge = list(
       animation = FALSE,
@@ -212,7 +216,6 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 #' @rdname g6r
 #' @param links Board links.
 g6_edges_from_links <- function(links) {
-
   res <- map(
     g6_edge,
     id = names(links),
@@ -276,21 +279,21 @@ g6_combos_data_from_stacks <- function(stacks) {
     sum(is.na(colors))
   )
 
-  res <-     map(
+  res <- map(
     g6_combo,
     id = names(stacks),
     style = map(
       list,
-      stroke = colors,
       fill = colors,
       shadowColor = colors,
       collapsedFill = colors,
-      collapsedStroke = colors,
       iconFill = colors,
       labelText = chr_ply(stacks, stack_name),
       MoreArgs = list(
-        fillOpacity = 0.2,
-        labelPlacement = "top"
+        fillOpacity = 0.1,
+        labelPlacement = "top",
+        lineWidth = 0,
+        radius = 8
       )
     )
   )
