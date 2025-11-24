@@ -209,7 +209,8 @@ js_blk_selectize_render <- function() {
         return {
           svg: cleanSvg.replace(
             '<svg ',
-            '<svg style=\"width: ' + size + 'px; height: ' + size + 'px; fill: ' + colors.iconFill + ';\" '
+            '<svg style=\"width: ' + size + 'px; height: ' + size +
+            'px; fill: ' + colors.iconFill + ';\" '
           ),
           bgColor: colors.bgColor
         };
@@ -238,7 +239,8 @@ js_blk_selectize_render <- function() {
           '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
           pkg + '</div>' : '';
         return '<div style=\"' + containerStyle + '\">' +
-               '<div style=\"' + iconWrapperStyle + '\">' + styledSvg + '</div>' +
+               '<div style=\"' + iconWrapperStyle + '\">' +
+               styledSvg + '</div>' +
                '<div style=\"font-weight: 500; font-size: 14px;\">' +
                name + '</div>' + pkgBadgeHtml + '</div>';
       },
