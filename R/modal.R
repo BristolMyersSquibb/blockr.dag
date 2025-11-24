@@ -111,7 +111,6 @@ css_block_selectize <- function() {
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        color: white;
       }
       .block-content {
         flex: 1;
@@ -170,41 +169,69 @@ js_blk_selectize_render <- function() {
     sprintf(
       "(function() {
       var iconStyle = '%s';
+
+      // Shared helper functions
+      var hexToRgba = function(hex, alpha) {
+        var r = parseInt(hex.slice(1, 3), 16);
+        var g = parseInt(hex.slice(3, 5), 16);
+        var b = parseInt(hex.slice(5, 7), 16);
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+      };
+
+      var getIconColors = function(color) {
+        if (iconStyle === 'light') {
+          return {
+            iconFill: color,
+            bgColor: hexToRgba(color, 0.3)
+          };
+        } else {
+          return {
+            iconFill: 'white',
+            bgColor: color
+          };
+        }
+      };
+
+      var styleIcon = function(iconSvg, color, size) {
+        var colors = getIconColors(color);
+
+        // Remove existing style attribute using string manipulation
+        var cleanSvg = iconSvg;
+        var styleStart = cleanSvg.indexOf('style=\"');
+        if (styleStart !== -1) {
+          var styleEnd = cleanSvg.indexOf('\"', styleStart + 7);
+          if (styleEnd !== -1) {
+            cleanSvg = cleanSvg.substring(0, styleStart) +
+                       cleanSvg.substring(styleEnd + 1);
+          }
+        }
+
+        return {
+          svg: cleanSvg.replace(
+            '<svg ',
+            '<svg style=\"width: ' + size + 'px; height: ' + size +
+            'px; fill: ' + colors.iconFill + ';\" '
+          ),
+          bgColor: colors.bgColor
+        };
+      };
+
       return {
       item: function(item, escape) {
-        var hexToRgba = function(hex, alpha) {
-          var r = parseInt(hex.slice(1, 3), 16);
-          var g = parseInt(hex.slice(3, 5), 16);
-          var b = parseInt(hex.slice(5, 7), 16);
-          return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-        };
-
         var name = escape(item.label);
         var pkg = escape(item.package || '');
         var color = item.color || '#6c757d';
-
         var iconSvg = item.icon || '';
 
-        // Configure based on icon style
-        var iconFill, bgColor;
-        if (iconStyle === 'light') {
-          iconFill = color;
-          bgColor = hexToRgba(color, 0.3);
-        } else {
-          iconFill = 'white';
-          bgColor = color;
-        }
-
-        var styledSvg = iconSvg.replace(
-          '<svg ',
-          '<svg style=\"width: 14px; height: 14px; fill: ' + iconFill + ';\" '
-        );
+        var styledIcon = styleIcon(iconSvg, color, 14);
+        var styledSvg = styledIcon.svg;
+        var bgColor = styledIcon.bgColor;
 
         var containerStyle =
           'display: inline-flex; align-items: center; gap: 8px; ' +
           'padding: 4px 8px; background-color: #f8f9fa; ' +
           'border-radius: 6px; border: 1px solid #e9ecef;';
-        var iconStyle =
+        var iconWrapperStyle =
           'background-color: ' + bgColor + '; width: 24px; ' +
           'height: 24px; border-radius: 4px; display: flex; ' +
           'align-items: center; justify-content: center; flex-shrink: 0;';
@@ -212,39 +239,21 @@ js_blk_selectize_render <- function() {
           '<div class=\"badge-two-tone\" style=\"margin-left: 4px;\">' +
           pkg + '</div>' : '';
         return '<div style=\"' + containerStyle + '\">' +
-               '<div style=\"' + iconStyle + '\">' + styledSvg + '</div>' +
+               '<div style=\"' + iconWrapperStyle + '\">' +
+               styledSvg + '</div>' +
                '<div style=\"font-weight: 500; font-size: 14px;\">' +
                name + '</div>' + pkgBadgeHtml + '</div>';
       },
       option: function(item, escape) {
-        var hexToRgba = function(hex, alpha) {
-          var r = parseInt(hex.slice(1, 3), 16);
-          var g = parseInt(hex.slice(3, 5), 16);
-          var b = parseInt(hex.slice(5, 7), 16);
-          return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-        };
-
         var name = escape(item.label);
         var desc = escape(item.description || '');
         var pkg = escape(item.package || '');
         var color = item.color || '#6c757d';
-
         var iconSvg = item.icon || '';
 
-        // Configure based on icon style
-        var iconFill, bgColor;
-        if (iconStyle === 'light') {
-          iconFill = color;
-          bgColor = hexToRgba(color, 0.3);
-        } else {
-          iconFill = 'white';
-          bgColor = color;
-        }
-
-        var styledSvg = iconSvg.replace(
-          '<svg ',
-          '<svg style=\"width: 20px; height: 20px; fill: ' + iconFill + ';\" '
-        );
+        var styledIcon = styleIcon(iconSvg, color, 20);
+        var styledSvg = styledIcon.svg;
+        var bgColor = styledIcon.bgColor;
 
         var iconWrapperStyle = 'background-color: ' + bgColor + ';';
         var iconWrapper = '<div class=\"block-icon-wrapper\" ' +
