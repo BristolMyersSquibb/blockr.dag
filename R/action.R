@@ -70,7 +70,8 @@ new_action <- function(expr) {
             input <- session$input
             output <- session$output
           }
-        )
+        ),
+        body
       )
 
       new_function(
