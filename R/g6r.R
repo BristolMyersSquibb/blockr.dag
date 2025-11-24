@@ -146,10 +146,18 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const graph = HTMLWidgets.find('#%s').getWidget();
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
-            if (targetType !== 'node') {
+            if (targetType === 'combo') {
               graph.removeEdgeData([edge.id]);
             } else {
-              Shiny.setInputValue('%s', edge);
+              Shiny.setInputValue(
+                '%s',
+                {
+                  id: edge.id,
+                  source: edge.source.replace(/^node-/, ''),
+                  target: edge.target.replace(/^node-/, ''),
+                  targetType: edge.targetType
+                }
+              );
             }
           }",
           graph_id(ns),
@@ -182,7 +190,10 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
             if (e.targetType === 'canvas') {
               body = {type: e.targetType};
             } else {
-              body = {id: e.target.id, type: e.targetType};
+              body = {
+                id: e.target.id.replace(/^(node|edge|combo)-/, ''),
+                type: e.targetType
+              };
             }
             const response = await fetch(
               '%s',
@@ -291,7 +302,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
       labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
-    combo = to_g6_combo_id(stk_blks[names(blocks)])
+    combo = lapply(stk_blks[names(blocks)], to_g6_combo_id)
   )
 
   if (length(res)) {

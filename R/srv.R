@@ -183,7 +183,12 @@ add_edge_observer <- function(board, proxy, update) {
   input <- session$input
 
   draw_link <- draw_link_action(
-    reactive(req(input$added_edge$targetType != "canvas")),
+    reactive(
+      {
+        req(input$added_edge$targetType != "canvas")
+        input$added_edge
+      }
+    ),
     as_module = FALSE
   )
 
@@ -194,7 +199,7 @@ add_edge_observer <- function(board, proxy, update) {
     reactive(
       {
         req(input$added_edge$targetType == "canvas")
-        from_g6_node_id(input$added_edge$source)
+        input$added_edge$source
       }
     ),
     as_module = FALSE

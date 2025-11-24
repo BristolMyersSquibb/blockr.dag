@@ -37,7 +37,17 @@ new_action <- function(expr) {
     quote(
       {
         if (!is.reactive(trigger)) {
-          trigr_q <- bquote(.(fun)(input), list(fun = trigger))
+          if (is_string(trigger)) {
+            trigr_q <- bquote(req(input[[.(trg)]]), list(trg = trigger))
+          } else if (is.function(trigger)) {
+            trigr_q <- bquote(.(fun)(input), list(fun = trigger))
+          } else {
+            blockr_abort(
+              "An action trigger should be a string, function or reactive ",
+              "object",
+              class = "invalid_action_trigger"
+            )
+          }
           trigger <- reactive(trigr_q, quoted = TRUE)
         }
         stopifnot(is.reactive(trigger))
@@ -352,25 +362,20 @@ draw_link_action <- new_action(
     observeEvent(
       trigger(),
       {
-        new <- input$added_edge
-
-        trg <- from_g6_node_id(new$target)
-        src <- from_g6_node_id(new$source)
+        new <- trigger()
 
         blocks <- board_blocks(board$board)
 
         inps <- block_input_select(
-          blocks[[trg]],
-          trg,
+          blocks[[new$target]],
+          new$target,
           board_links(board$board),
           mode = "inputs"
         )
 
-        browser()
-
         if (length(inps) == 0L) {
           notify(
-            "No inputs are available for block {trg}.",
+            "No inputs are available for block {new$target}.",
             type = "warning"
           )
 
@@ -382,8 +387,8 @@ draw_link_action <- new_action(
         remove_edges(new$id, asis = TRUE, proxy = proxy)
 
         new_lnk <- new_link(
-          from = src,
-          to = trg,
+          from = new$source,
+          to = new$target,
           input = inps[1L]
         )
 
