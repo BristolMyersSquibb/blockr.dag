@@ -1,5 +1,46 @@
+to_g6_node_id <- function(x) {
+
+  if (length(x)) {
+    x <- paste0("node-", x)
+  }
+
+  x
+}
+
+from_g6_node_id <- function(x) {
+  sub("^node-", "", x)
+}
+
+to_g6_edge_id <- function(x) {
+
+  if (length(x)) {
+    x <- paste0("edge-", x)
+  }
+
+  x
+}
+
+from_g6_edge_id <- function(x) {
+  sub("^edge-", "", x)
+}
+
+to_g6_combo_id <- function(x) {
+
+  if (length(x)) {
+    x <- paste0("combo-", x)
+  }
+
+  x
+}
+
+from_g6_combo_id <- function(x) {
+  sub("^combo-", "", x)
+}
+
 g6_from_board <- function(board) {
+
   stopifnot(is_board(board))
+
   graph <- g6_data_from_board(board)
 
   g6(
@@ -105,10 +146,18 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const graph = HTMLWidgets.find('#%s').getWidget();
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
-            if (targetType !== 'node') {
+            if (targetType === 'combo') {
               graph.removeEdgeData([edge.id]);
             } else {
-              Shiny.setInputValue('%s', edge);
+              Shiny.setInputValue(
+                '%s',
+                {
+                  id: edge.id,
+                  source: edge.source.replace(/^node-/, ''),
+                  target: edge.target.replace(/^node-/, ''),
+                  targetType: edge.targetType
+                }
+              );
             }
           }",
           graph_id(ns),
@@ -133,14 +182,19 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
           return cond;
         }"
       ),
-      # nolint start
-      onClick = JS(
-        context_menu_entry_js(ctx, ns)
-      ),
-      # nolint end
+      onClick = JS(context_menu_entry_js(ctx, ns)),
       getItems = JS(
         sprintf(
           "async (e) => {
+            var body;
+            if (e.targetType === 'canvas') {
+              body = {type: e.targetType};
+            } else {
+              body = {
+                id: e.target.id.replace(/^(node|edge|combo)-/, ''),
+                type: e.targetType
+              };
+            }
             const response = await fetch(
               '%s',
               {
@@ -149,12 +203,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(
-                  {
-                    id: e.target.id,
-                    type: e.targetType
-                  }
-                )
+                body: JSON.stringify(body)
               }
             );
             const items = await response.json();
@@ -176,12 +225,8 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
         marginLeft = "12px"
       ),
       position = "left",
-      getItems = JS(
-        build_toolbar(tools)
-      ),
-      onClick = JS(
-        toolbar_item_js(tools, ns)
-      )
+      getItems = JS(build_toolbar(tools)),
+      onClick = JS(toolbar_item_js(tools, ns))
     )
   )
 }
@@ -215,9 +260,9 @@ g6_edges_from_links <- function(links) {
 
   res <- map(
     g6_edge,
-    id = names(links),
-    source = links$from,
-    target = links$to,
+    id = to_g6_edge_id(names(links)),
+    source = to_g6_node_id(links$from),
+    target = to_g6_node_id(links$to),
     style = map(list, labelText = links$input),
     MoreArgs = list(type = "line")
   )
@@ -234,7 +279,9 @@ g6_edges_from_links <- function(links) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_nodes_from_blocks <- function(blocks, stacks) {
+
   stk_blks <- lapply(stacks, stack_blocks)
+
   stk_blks <- set_names(
     as.list(rep(names(stk_blks), lengths(stk_blks))),
     do.call("c", stk_blks)
@@ -242,7 +289,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 
   res <- map(
     g6_node,
-    id = names(blocks),
+    id = to_g6_node_id(names(blocks)),
     type = rep("image", length(blocks)),
     style = map(
       list,
@@ -255,7 +302,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
       labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
-    combo = stk_blks[names(blocks)]
+    combo = lapply(stk_blks[names(blocks)], to_g6_combo_id)
   )
 
   if (length(res)) {
@@ -278,7 +325,7 @@ g6_combos_data_from_stacks <- function(stacks) {
 
   res <-     map(
     g6_combo,
-    id = names(stacks),
+    id = to_g6_combo_id(names(stacks)),
     style = map(
       list,
       stroke = colors,
@@ -324,20 +371,36 @@ g6_data_from_board <- function(board) {
   )
 }
 
-remove_nodes <- function(nodes, proxy = blockr_g6_proxy()) {
+remove_nodes <- function(nodes, asis = FALSE, proxy = blockr_g6_proxy()) {
+
+  if (!isTRUE(asis)) {
+    nodes <- to_g6_node_id(nodes)
+  }
+
   g6_remove_nodes(proxy, nodes)
+
   invisible()
 }
 
-remove_edges <- function(edges, proxy = blockr_g6_proxy()) {
+remove_edges <- function(edges, asis = FALSE, proxy = blockr_g6_proxy()) {
+
+  if (!isTRUE(asis)) {
+    edges <- to_g6_edge_id(edges)
+  }
+
   g6_remove_edges(proxy, edges)
+
   invisible()
 }
 
-remove_combos <- function(combos, proxy = blockr_g6_proxy()) {
-  # No need to remove the combos data from nodes, this is done
-  # automatically by g6 :)
+remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
+
+  if (!isTRUE(asis)) {
+    combos <- to_g6_combo_id(combos)
+  }
+
   g6_remove_combos(proxy, combos)
+
   invisible()
 }
 
@@ -383,7 +446,11 @@ add_nodes_to_combos <- function(stacks, proxy = blockr_g6_proxy()) {
 add_nodes_to_combo <- function(block_ids, stack_id, proxy = blockr_g6_proxy()) {
   g6_update_nodes(
     proxy,
-    map(list, id = block_ids, MoreArgs = list(combo = stack_id))
+    map(
+      list,
+      id = to_g6_node_id(block_ids),
+      MoreArgs = list(combo = to_g6_combo_id(stack_id))
+    )
   )
 
   invisible()
@@ -392,7 +459,7 @@ add_nodes_to_combo <- function(block_ids, stack_id, proxy = blockr_g6_proxy()) {
 remove_nodes_from_combo <- function(block_ids, proxy = blockr_g6_proxy()) {
   g6_update_nodes(
     proxy,
-    map(list, id = block_ids, MoreArgs = list(combo = NULL))
+    map(list, id = to_g6_node_id(block_ids), MoreArgs = list(combo = NULL))
   )
 
   invisible()

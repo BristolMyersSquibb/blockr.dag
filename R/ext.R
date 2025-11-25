@@ -27,15 +27,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''));
           }",
           ns("add_link")
         )
       },
       action = add_link_action("add_link"),
-      condition = function(board, target) {
-        target$type == "node"
-      },
+      condition = function(board, target) target$type == "node",
       id = "create_link"
     ),
     new_context_menu_entry(
@@ -44,15 +42,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''));
           }",
           ns("remove_block")
         )
       },
       action = remove_block_action("remove_block"),
-      condition = function(board, target) {
-        target$type == "node"
-      },
+      condition = function(board, target) target$type == "node",
       id = "remove_block"
     ),
     new_context_menu_entry(
@@ -61,19 +57,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
-            const graphId = `${target.closest('.g6').id}`;
-            const graph = HTMLWidgets.find(`#${graphId}`).getWidget();
-            graph.removeEdgeData([current.id]);
-            graph.draw();
+            Shiny.setInputValue('%s', current.id.replace(/^edge-/, ''));
           }",
           ns("remove_link")
         )
       },
       action = remove_link_action("remove_link"),
-      condition = function(board, target) {
-        target$type == "edge"
-      },
+      condition = function(board, target) target$type == "edge",
       id = "remove_link"
     ),
     new_context_menu_entry(
@@ -81,15 +71,17 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', current.id, {priority: 'event'});
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^node-/, ''),
+              {priority: 'event'}
+            );
           }",
           ns("append_block")
         )
       },
       action = append_block_action("append_block"),
-      condition = function(board, target) {
-        target$type == "node"
-      },
+      condition = function(board, target) target$type == "node",
       id = "append_block"
     ),
     new_context_menu_entry(
@@ -103,9 +95,7 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = add_stack_action("create_stack"),
-      condition = function(board, target) {
-        target$type == "canvas"
-      },
+      condition = function(board, target) target$type == "canvas",
       id = "create_stack"
     ),
     new_context_menu_entry(
@@ -114,15 +104,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id);
+            Shiny.setInputValue('%s', current.id.replace(/^combo-/, ''));
           }",
           ns("remove_stack")
         )
       },
       action = remove_stack_action("remove_stack"),
-      condition = function(board, target) {
-        target$type == "combo"
-      },
+      condition = function(board, target) target$type == "combo",
       id = "remove_stack"
     ),
     new_context_menu_entry(
@@ -131,15 +119,17 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id, {priority: 'event'});
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^combo-/, ''),
+              {priority: 'event'}
+            );
           }",
           ns("edit_stack")
         )
       },
       action = edit_stack_action("edit_stack"),
-      condition = function(board, target) {
-        target$type == "combo"
-      },
+      condition = function(board, target) target$type == "combo",
       id = "edit_stack"
     ),
     new_context_menu_entry(
@@ -153,9 +143,7 @@ context_menu_items.dag_extension <- function(x) {
         )
       },
       action = add_block_action("add_block"),
-      condition = function(board, target) {
-        target$type == "canvas"
-      },
+      condition = function(board, target) target$type == "canvas",
       id = "add_block"
     )
   )

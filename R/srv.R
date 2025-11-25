@@ -69,7 +69,11 @@ dag_ext_srv <- function(graph) {
             evt <- attr(sel, "eventType")
 
             if (length(sel) == 1L && !identical(evt, "brush_select")) {
-              blockr.dock::show_panel(sel, board$board, dock)
+              blockr.dock::show_panel(
+                from_g6_node_id(sel),
+                board$board,
+                dock
+              )
             }
           }
         )
@@ -181,7 +185,12 @@ add_edge_observer <- function(board, proxy, update) {
   input <- session$input
 
   draw_link <- draw_link_action(
-    reactive(req(input$added_edge$targetType != "canvas")),
+    reactive(
+      {
+        req(input$added_edge$targetType != "canvas")
+        input$added_edge
+      }
+    ),
     as_module = FALSE
   )
 
