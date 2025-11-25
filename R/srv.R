@@ -67,7 +67,7 @@ dag_ext_srv <- function(graph) {
           {
             sel <- input[[paste0(graph_id(), "-selected_node")]]
             evt <- attr(sel, "eventType")
-            
+
             if (length(sel) == 1L && !identical(evt, "brush_select")) {
               blockr.dock::show_panel(
                 from_g6_node_id(sel),
