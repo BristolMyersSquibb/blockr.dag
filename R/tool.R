@@ -22,8 +22,12 @@ new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
     is_string(icon),
     is.null(action) || is.function(action),
     is.function(js),
-    (!is.null(tooltip) && is_string(tooltip))
+    is.null(tooltip) || is_string(tooltip)
   )
+
+  if (is.null(tooltip)) {
+    tooltip <- blockr.core::id_to_sentence_case(id)
+  }
 
   structure(
     list(action = action, js = js),
