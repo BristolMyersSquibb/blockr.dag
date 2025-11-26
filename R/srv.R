@@ -194,7 +194,7 @@ add_edge_observer <- function(board, proxy, update) {
     as_module = FALSE
   )
 
-  draw_link(board, update, session)
+  draw_link(board, update, proxy)
 
   # Drag edge on canvas to create new block
   append_action <- append_block_action(
@@ -207,5 +207,5 @@ add_edge_observer <- function(board, proxy, update) {
     as_module = FALSE
   )
 
-  append_action(board, update, session)
+  append_action(board, update, proxy)
 }
