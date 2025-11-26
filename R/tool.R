@@ -5,11 +5,12 @@
 #' @param id Unique identifier for the toolbar item
 #' @param icon Name of an icon to show in the toolbar
 #' @param js JavaScript code to execute when the entry is selected
+#' @param tooltip Optional tooltip text for the entry.
 #' @param action Action to perform when the entry is selected
 #'
 #' @rdname tool
 #' @export
-new_toolbar_item <- function(id, icon, js, action = NULL) {
+new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
 
   if (is_string(js)) {
     js_string <- js
@@ -20,13 +21,15 @@ new_toolbar_item <- function(id, icon, js, action = NULL) {
     is_string(id),
     is_string(icon),
     is.null(action) || is.function(action),
-    is.function(js)
+    is.function(js),
+    (!is.null(tooltip) && is_string(tooltip))
   )
 
   structure(
     list(action = action, js = js),
     id = id,
     icon = icon,
+    tooltip = tooltip,
     class = "toolbar_item"
   )
 }
@@ -52,6 +55,8 @@ validate_toolbar_items <- function(x) {
 toolbar_item_id <- function(x) attr(x, "id")
 
 toolbar_item_icon <- function(x) attr(x, "icon")
+
+toolbar_item_tooltip <- function(x) attr(x, "tooltip")
 
 toolbar_item_action <- function(x, board, update, proxy) {
 
@@ -138,9 +143,10 @@ build_toolbar <- function(x, ...) {
   }
 
   sprintf(
-    "{ id : '%s' , value : '%s' }",
+    "{ id : '%s' , value : '%s', title: '%s' }",
     toolbar_item_icon(x),
-    toolbar_item_id(x)
+    toolbar_item_id(x),
+    toolbar_item_tooltip(x)
   )
 }
 

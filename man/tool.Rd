@@ -6,7 +6,7 @@
 \alias{toolbar_items}
 \title{Create a toolbar item}
 \usage{
-new_toolbar_item(id, icon, js, action = NULL)
+new_toolbar_item(id, icon, js, action = NULL, tooltip = NULL)
 
 is_toolbar_item(x)
 
@@ -20,6 +20,8 @@ toolbar_items(x)
 \item{js}{JavaScript code to execute when the entry is selected}
 
 \item{action}{Action to perform when the entry is selected}
+
+\item{tooltip}{Optional tooltip text for the entry.}
 
 \item{x}{Object}
 }

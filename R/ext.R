@@ -160,7 +160,8 @@ toolbar_items.dag_extension <- function(x) {
           `#${target.closest('.g6').id}`
         ).getWidget();
         graph.zoomTo(graph.getZoom() + 0.1);
-      }"
+      }",
+      tooltip = "Zoom in"
     ),
     new_toolbar_item(
       id = "zoom_out",
@@ -170,7 +171,8 @@ toolbar_items.dag_extension <- function(x) {
           `#${target.closest('.g6').id}`
         ).getWidget();
         graph.zoomTo (graph.getZoom() - 0.1);
-      }"
+      }",
+      tooltip = "Zoom out"
     ),
     new_toolbar_item(
       id = "auto_fit",
@@ -180,7 +182,8 @@ toolbar_items.dag_extension <- function(x) {
           `#${target.closest('.g6').id}`
         ).getWidget();
         graph.fitView();
-      }"
+      }",
+      tooltip = "Auto fit"
     ),
     new_toolbar_item(
       id = "layout",
@@ -190,7 +193,8 @@ toolbar_items.dag_extension <- function(x) {
           `#${target.closest('.g6').id}`
         ).getWidget();
         graph.layout();
-      }"
+      }",
+      tooltip = "Update layout"
     ),
     new_toolbar_item(
       id = "add_block",
@@ -203,7 +207,8 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = add_block_action("add_block")
+      action = add_block_action("add_block"),
+      tooltip = "Add block"
     ),
     new_toolbar_item(
       id = "add_stack",
@@ -216,7 +221,8 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_stack")
         )
       },
-      action = add_stack_action("add_stack")
+      action = add_stack_action("add_stack"),
+      tooltip = "Add stack"
     ),
     new_toolbar_item(
       id = "remove_selected",
@@ -229,7 +235,8 @@ toolbar_items.dag_extension <- function(x) {
           ns("rm_selected")
         )
       },
-      action = remove_selected_action("rm_selected")
+      action = remove_selected_action("rm_selected"),
+      tooltip = "Remove selected"
     )
   )
 }
