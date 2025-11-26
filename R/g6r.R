@@ -477,8 +477,13 @@ update_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
     to_add <- setdiff(new_stack_blocks, cur_stack_blocks)
     to_remove <- setdiff(cur_stack_blocks, new_stack_blocks)
 
-    remove_nodes_from_combo(to_remove, proxy)
-    add_nodes_to_combo(to_add, id, proxy)
+    # Prevent no-oops from flooding the JS handlers
+    if (length(to_remove)) {
+      remove_nodes_from_combo(to_remove, proxy)
+    }
+    if (length(to_add)) {
+      add_nodes_to_combo(to_add, id, proxy)
+    }
   }
 
   invisible()
