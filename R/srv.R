@@ -135,7 +135,7 @@ batch_delete_observer <- function(board, update, proxy) {
     as_module = FALSE
   )
 
-  remove_selected(board, update, session)
+  remove_selected(board, update, proxy)
 }
 
 update_observer <- function(update, board, proxy) {
