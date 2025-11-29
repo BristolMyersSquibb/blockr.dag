@@ -12,7 +12,7 @@ new_dag_extension <- function(graph = NULL, ...) {
   blockr.dock::new_dock_extension(
     dag_ext_srv(graph),
     dag_ext_ui,
-    name = "DAG",
+    name = "Workflow",
     class = "dag_extension",
     ...
   )
