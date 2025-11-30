@@ -302,6 +302,14 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
         lapply(chr_ply(blocks, blk_category), blockr.dock::blk_color),
         MoreArgs = list(size = 48)
       ),
+      x = dbl_ply(blocks, function(b) {
+        co <- attr(b, "coords")
+        if (!is.null(co) && !is.null(co$x)) co$x else NA_real_
+      }),
+      y = dbl_ply(blocks, function(b) {
+        co <- attr(b, "coords")
+        if (!is.null(co) && !is.null(co$y)) co$y else NA_real_
+      }),
       labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
