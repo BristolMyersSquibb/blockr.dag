@@ -3,16 +3,13 @@
 \name{new_dag_stack}
 \alias{new_dag_stack}
 \alias{is_dag_stack}
-\alias{stack_color}
 \alias{stack_color<-}
 \alias{as_dag_stack}
 \title{DAG stack}
 \usage{
-new_dag_stack(..., color = suggest_new_colors())
+new_dag_stack(..., color = blockr.dock::suggest_new_colors())
 
 is_dag_stack(x)
-
-stack_color(x)
 
 stack_color(x) <- value
 
