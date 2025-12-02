@@ -1,13 +1,10 @@
 dag_ext_srv <- function(graph) {
-
   function(id, board, update, dock, ...) {
-
     dot_args <- list(...)
 
     moduleServer(
       id,
       function(input, output, session) {
-
         initial_board <- isolate(board$board)
 
         context_menu <- context_menu_items(initial_board)
@@ -164,18 +161,6 @@ update_observer <- function(update, board, proxy) {
     {
       upd <- update()
 
-      if (length(upd$stacks$rm)) {
-        remove_combos(upd$stacks$rm, proxy)
-      }
-
-      if (length(upd$links$rm)) {
-        remove_edges(upd$links$rm, proxy)
-      }
-
-      if (length(upd$blocks$rm)) {
-        remove_nodes(upd$blocks$rm, proxy)
-      }
-
       if (length(upd$blocks$add)) {
         add_nodes(upd$blocks$add, board$board, proxy)
       }
@@ -194,6 +179,18 @@ update_observer <- function(update, board, proxy) {
 
       if (length(upd$stacks$mod)) {
         update_combos(upd$stacks$mod, board$board, proxy)
+      }
+
+      if (length(upd$stacks$rm)) {
+        remove_combos(upd$stacks$rm, proxy)
+      }
+
+      if (length(upd$links$rm)) {
+        remove_edges(upd$links$rm, proxy)
+      }
+
+      if (length(upd$blocks$rm)) {
+        remove_nodes(upd$blocks$rm, proxy)
       }
     }
   )
