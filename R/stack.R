@@ -7,7 +7,7 @@
 #'
 #' @rdname stack
 #' @export
-new_dag_stack <- function(..., color = suggest_new_colors()) {
+new_dag_stack <- function(..., color = blockr.dock::suggest_new_colors()) {
   new_stack(..., color = color, ctor = "new_dag_stack", pkg = pkg_name(),
             class = "dag_stack")
 }
@@ -38,30 +38,10 @@ is_hex_color <- function(x) {
   grepl("^#(?:[0-9a-fA-F]{3}){1,2}$", x)
 }
 
-#' @rdname stack
-#' @export
-stack_color <- function(x) {
-  UseMethod("stack_color")
-}
-
+#' @importFrom blockr.dock stack_color
 #' @export
 stack_color.dag_stack <- function(x) {
   attr(x, "color")
-}
-
-#' @export
-stack_color.stack <- function(x) {
-  NA_character_
-}
-
-#' @export
-stack_color.stacks <- function(x) {
-  chr_ply(x, stack_color)
-}
-
-#' @export
-stack_color.board <- function(x) {
-  stack_color(board_stacks(x))
 }
 
 #' @param value Replacement value
@@ -85,7 +65,8 @@ as_dag_stack.dag_stack <- function(x, ...) {
 }
 
 #' @export
-as_dag_stack.stack <- function(x, color = suggest_new_colors(), ...) {
+as_dag_stack.stack <- function(x, color = blockr.dock::suggest_new_colors(),
+                               ...) {
 
   attr(x, "color") <- color
 

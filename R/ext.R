@@ -32,7 +32,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_link")
         )
       },
-      action = add_link_action("add_link"),
+      action = blockr.dock::add_link_action("add_link"),
       condition = function(board, target) target$type == "node",
       id = "create_link"
     ),
@@ -47,7 +47,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_block")
         )
       },
-      action = remove_block_action("remove_block"),
+      action = blockr.dock::remove_block_action("remove_block"),
       condition = function(board, target) target$type == "node",
       id = "remove_block"
     ),
@@ -62,7 +62,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_link")
         )
       },
-      action = remove_link_action("remove_link"),
+      action = blockr.dock::remove_link_action("remove_link"),
       condition = function(board, target) target$type == "edge",
       id = "remove_link"
     ),
@@ -80,7 +80,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("append_block")
         )
       },
-      action = append_block_action("append_block"),
+      action = blockr.dock::append_block_action("append_block"),
       condition = function(board, target) target$type == "node",
       id = "append_block"
     ),
@@ -94,7 +94,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("create_stack")
         )
       },
-      action = add_stack_action("create_stack"),
+      action = blockr.dock::add_stack_action("create_stack"),
       condition = function(board, target) target$type == "canvas",
       id = "create_stack"
     ),
@@ -109,7 +109,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("remove_stack")
         )
       },
-      action = remove_stack_action("remove_stack"),
+      action = blockr.dock::remove_stack_action("remove_stack"),
       condition = function(board, target) target$type == "combo",
       id = "remove_stack"
     ),
@@ -128,7 +128,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("edit_stack")
         )
       },
-      action = edit_stack_action("edit_stack"),
+      action = blockr.dock::edit_stack_action("edit_stack"),
       condition = function(board, target) target$type == "combo",
       id = "edit_stack"
     ),
@@ -142,7 +142,7 @@ context_menu_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = add_block_action("add_block"),
+      action = blockr.dock::add_block_action("add_block"),
       condition = function(board, target) target$type == "canvas",
       id = "add_block"
     )
@@ -203,7 +203,7 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_block")
         )
       },
-      action = add_block_action("add_block")
+      action = blockr.dock::add_block_action("add_block")
     ),
     new_toolbar_item(
       id = "add_stack",
@@ -216,7 +216,7 @@ toolbar_items.dag_extension <- function(x) {
           ns("add_stack")
         )
       },
-      action = add_stack_action("add_stack")
+      action = blockr.dock::add_stack_action("add_stack")
     ),
     new_toolbar_item(
       id = "remove_selected",

@@ -62,14 +62,14 @@ toolbar_item_icon <- function(x) attr(x, "icon")
 
 toolbar_item_tooltip <- function(x) attr(x, "tooltip")
 
-toolbar_item_action <- function(x, board, update, proxy) {
+toolbar_item_action <- function(x, board, update, ..., domain = get_session()) {
 
   if (!is_toolbar_item(x)) {
 
     validate_toolbar_items(x)
 
     for (i in x) {
-      toolbar_item_action(i, board, update, proxy)
+      toolbar_item_action(i, board, update, ..., domain = domain)
     }
 
     return(invisible(NULL))
@@ -85,8 +85,8 @@ toolbar_item_action <- function(x, board, update, proxy) {
 
   res <- moduleServer(
     paste0("tool_", id),
-    fun(board, update, proxy),
-    proxy$session
+    fun(board, update, ..., domain = domain),
+    domain
   )
 
   if (not_null(res)) {

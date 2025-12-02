@@ -321,7 +321,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 g6_combos_data_from_stacks <- function(stacks) {
   colors <- stack_color(stacks)
 
-  colors[is.na(colors)] <- suggest_new_colors(
+  colors[is.na(colors)] <- blockr.dock::suggest_new_colors(
     coal(unlst(colors[!is.na(colors)]), character()),
     sum(is.na(colors))
   )
