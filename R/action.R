@@ -37,7 +37,8 @@ draw_link_action <- blockr.dock::new_action(
         update(list(links = list(add = as_links(new_lnk))))
       }
     )
-  }
+  },
+  package = "blockr.dag"
 )
 
 remove_selected_action <- blockr.dock::new_action(
@@ -67,5 +68,6 @@ remove_selected_action <- blockr.dock::new_action(
         )
       }
     )
-  }
+  },
+  package = "blockr.dag"
 )
