@@ -24,7 +24,7 @@ draw_link_action <- blockr.dock::new_action(
           remove_edges(new$id, asis = TRUE, proxy = proxy)
 
           return()
-        }        
+        }
 
         remove_edges(new$id, asis = TRUE, proxy = proxy)
 
