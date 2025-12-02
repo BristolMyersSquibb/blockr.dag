@@ -1,5 +1,6 @@
 draw_link_action <- blockr.dock::new_action(
   {
+    proxy <- blockr_g6_proxy(session)
     observeEvent(
       trigger(),
       {
@@ -23,7 +24,7 @@ draw_link_action <- blockr.dock::new_action(
           remove_edges(new$id, asis = TRUE, proxy = proxy)
 
           return()
-        }
+        }        
 
         remove_edges(new$id, asis = TRUE, proxy = proxy)
 
@@ -44,7 +45,7 @@ remove_selected_action <- blockr.dock::new_action(
     observeEvent(
       trigger(),
       {
-        input <- domain$input
+        input <- session$input
         update(
           list(
             blocks = list(
