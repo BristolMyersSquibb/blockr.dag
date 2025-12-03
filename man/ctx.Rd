@@ -59,7 +59,8 @@ extract context menu items from various
 objects like dock extensions, boards, or lists.}
 }
 
-The \code{context_menu_items.dag_extension()} method provides the following actions:
+The \code{context_menu_items.dag_extension()} method
+provides the following actions:
 \itemize{
 \item Create link - Creates connections between workflow nodes.
 \item Remove block - Removes individual blocks from the workflow.
