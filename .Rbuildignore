@@ -11,3 +11,4 @@
 ^vignettes/articles$
 ^vignettes/*_files$
 ^vignettes/.quarto$
+^\.lintr$
