@@ -3,13 +3,13 @@
 #' Functions for creating and working with context
 #' menu entries.
 #'
-#' @param name Name of the context menu entry
-#' @param js JavaScript code to execute when the entry is selected
-#' @param action Action to perform when the entry is selected
-#' @param condition Condition to determine if the entry should be shown
+#' @param name Name of the context menu entry.
+#' @param js JavaScript code to execute when the entry is selected.
+#' @param action Action to perform when the entry is selected.
+#' @param condition Condition to determine if the entry should be shown.
 #' @param id Unique identifier for the context menu entry.
 #'   Inferred from `name` if not provided
-#' @param x Object to test or extract context menu items from
+#' @param x Object to test or extract context menu items from.
 #'
 #' @details
 #' \describe{
@@ -21,6 +21,18 @@
 #'   \item{`context_menu_items()`}{Generic function to
 #' extract context menu items from various
 #' objects like dock extensions, boards, or lists.}
+#' }
+#'
+#' The `context_menu_items.dag_extension()` method provides the following actions:
+#' \itemize{
+#'   \item Create link - Creates connections between workflow nodes.
+#'   \item Remove block - Removes individual blocks from the workflow.
+#'   \item Remove link - Removes connections between workflow nodes.
+#'   \item Append block - Adds a new block after the selected node.
+#'   \item Create stack - Creates a new workflow stack.
+#'   \item Remove stack - Removes an entire workflow stack.
+#'   \item Edit stack - Opens stack editing interface.
+#'   \item Add block - Adds a new block to the canvas.
 #' }
 #'
 #' @rdname ctx
@@ -184,7 +196,6 @@ validate_context_menu_entries <- function(x) {
 #' @param x Object
 #' @rdname ctx
 #' @export
-#' @return A list of context menu items for the given object.
 context_menu_items <- function(x) {
   UseMethod("context_menu_items")
 }

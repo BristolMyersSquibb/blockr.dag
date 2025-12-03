@@ -1,11 +1,13 @@
 #' DAG extension
 #'
 #' Visualizes the DAG (directed acyclic graph) underlying a board and provides
-#' UI elemtnts to manipulate the board,
+#' UI elements to manipulate the board.
 #'
-#' @param graph A `graph` object (or `NULL`)
-#' @param ... Forwarded to [blockr.dock::new_dock_extension()]
+#' @param graph A `graph` object (or `NULL`).
+#' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
+#' @return A `dag_extension` object that extends the dock extension system
+#' for visualizing and manipulating DAG workflows.
 #' @rdname dag
 #' @export
 new_dag_extension <- function(graph = NULL, ...) {
