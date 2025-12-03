@@ -207,7 +207,7 @@ toolbar_items.dag_extension <- function(x) {
     ),
     new_toolbar_item(
       id = "add_stack",
-      icon = "icon-roundadd",
+      icon = "icon-cascades",
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
