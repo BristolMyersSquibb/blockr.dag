@@ -56,9 +56,9 @@ serve(
 )
 ```
 
-<figure>
-<img src="man/figures/demo-app.png"
-alt="blockr.dag demo application with stacks" />
-<figcaption aria-hidden="true">blockr.dag demo application with
-stacks</figcaption>
-</figure>
+> **Note**
+>
+> The demo below runs with shinylive. Not all feature may work as
+> expected due to compatibility issues with webR.
+
+<iframe class="border border-5 rounded shadow-lg" src="https://shinylive.io/r/app/#h=0&amp;code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAdzgCMAnRRAVwhiLdIAoAdMAPQsAzgwEAbAJZ0BWCdIZQGATwF1xRAgGsGGYgzj8AlLwi1GzSRGGko48XzDrNOvUQP9cAAgOoiwrwBeL34AC1JSVGFEAQECZQgdKAwAc0lSUJY6DEkiNQ1tXXM5Y1NzJkQrGzsHfmdCjAATKBTPHzg-AOCwiKiYuISk1PTM7Nz8lyL6ErATCClGJWVuetdmlLmFxRUVgtd9OE2FJd3Jppc50yJUUlzrPggvELAUgDYsDA5GwzAg5++AG6eUxPADE-DeH3EUGUnFIAH0SPDmrZ4QRQlAICkfn8ACpYACqAFFcCDnpCMKgDMI4AwAXB4XBxHB4GRhPDOuk7vw8YSiaZLtZafSHk8IHBqMiXPC6EQlI1RU8vKsul4CIqlV4oH9xZKUVAaQjVo5JAxJMJjKTHprlTqJfDhAQoBFaTK9twAB5-fgAZQ6dgwABkKCkMm1lN6wH7UAGAOqSRph2Zkp5GK2aqSJVVSGzcABmDCIMEjUDapCIkbobSsqBYpEj+stKa81W0qvVzaera08IAjHa9S0HbZtNwOyg2nVLWqiBoGJHQQAGZeLgBiq6b1s13fhACYB8ih93uHNNWnm3APeRrHdVbrDylGVeKMI7ieyXMjGAAL4AXSAA" style="zoom: 0.75;" width="100%" height="1100px"></iframe>

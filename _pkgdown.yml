@@ -4,7 +4,7 @@ template:
 
 navbar:
   structure:
-    left: [intro, extension, graph, context, toolbar]
+    left: [intro, components]
     right: [search, reference, news, github]
   components:
     home: ~
@@ -13,27 +13,13 @@ navbar:
       text: Get started
       href: articles/blockr.dag.html
     
-    extension:
-      text: Extension
-      menu:
-        - text: DAG Extension
-          href: articles/dag-extension.html
-    
-    graph:
-      text: Graph
+    components:
+      text: Components
       menu:
         - text: Graph Objects
-          href: articles/graph-objects.html
-    
-    context:
-      text: Context Menu
-      menu:
+          href: articles/graph-class.html
         - text: Context Menu Items
           href: articles/context-menu.html
-    
-    toolbar:
-      text: Toolbar
-      menu:
         - text: Toolbar Items
           href: articles/toolbar.html
 

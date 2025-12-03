@@ -1,0 +1,82 @@
+---
+title: "Context Menu Items"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Context Menu Items}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(blockr.dag)
+```
+
+# Context Menu Items
+
+The context menu provides contextual actions based on what element is right-clicked in the graph.
+
+## Available Actions
+
+### Right-click on canvas:
+
+- Add block.
+- Create stack.
+
+### Right-click on node (block):
+
+- Create link.
+- Remove block.  
+- Append block.
+
+### Right-click on edge (link):
+
+- Remove link.
+
+### Right-click on combo (stack):
+
+- Remove stack.
+- Edit stack: add/remove blocks and change color.
+
+## Creating Context Menu Entries
+
+Context menu items are registered through the extension system:
+
+```{r}
+# Context menu entry
+entry <- new_context_menu_entry(
+  name = "Custom Action",
+  js = function(ns) "alert('Custom action')",
+  action = function(board, update, ...) {
+    # Server-side logic
+  },
+  condition = function(board, target) {
+    target$type == "node"
+  }
+)
+```
+
+Any new entry has to go inside `context_menu_items.dag_extension`:
+
+```{r}
+# Add custom context menu items to an extension
+context_menu_items.dag_extension <- function(x) {
+  list(
+    new_context_menu_entry(
+      name = "My Action",
+      js = function(ns) {
+        sprintf("Shiny.setInputValue('%s', true)", ns("my_action"))
+      },
+      action = my_custom_action("my_action"),
+      condition = function(board, target) TRUE
+    )
+  )
+}
+```

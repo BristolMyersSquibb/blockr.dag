@@ -10,10 +10,154 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
 ```{r setup}
 library(blockr.dag)
+library(blockr.core)
+library(blockr.dock)
 ```
+
+# Introduction
+
+The `blockr.dag` package provides an interactive directed acyclic graph (DAG) __extension__ for `blockr` boards using the `g6R` library. It allows users to visually manipulate data processing workflows through an intuitive drag-and-drop interface.
+
+# User Guide
+
+## Basic Usage
+
+### Starting a DAG Board
+
+We create an empty board from [blockr.dock](https://github.com/BristolMyersSquibb/blockr.dock) and serve it with the `new_dag_extension()` extension:
+
+```{r}
+# Create an empty board.
+serve(new_dock_board(extensions = new_dag_extension()))
+```
+
+### Creating Custom Graphs
+
+You can also start with a custom graph structure:
+
+```{r}
+graph <- new_graph(
+  nodes = list(
+    list(id = 1),
+    list(id = 2)
+  ),
+  edges = list(
+    list(
+      source = 1,
+      target = 2,
+      style = list(labelText = "1-2")
+    )
+  )
+)
+
+serve(
+  new_dock_board(
+    extensions = new_dag_extension(graph)
+  )
+)
+```
+
+## User Interface Elements
+
+### Keyboard Shortcuts
+
+- **Shift + Drag**: Create connections between blocks
+- **Ctrl + Backspace**: Remove selected elements
+- **Alt + Drag**: Multi-select elements
+
+# Developer Guide
+
+## Architecture Overview
+
+```{mermaid}
+graph TB
+    A[blockr.dag] --> B[UI Layer]
+    A --> C[Server Layer] 
+    A --> D[Data Layer]
+    
+    B --> B1[dag_ext_ui]
+    B --> B2[g6_output]
+    B --> B3[Context Menus]
+    B --> B4[Toolbar]
+    
+    C --> C1[dag_ext_srv]
+    C --> C2[Module Servers]
+    C --> C3[Observers]
+    C --> C4[Proxy Updates]
+    
+    D --> D1[Graph Objects]
+    D --> D2[Board State]
+    D --> D3[Stack Management]
+    
+    B1 --> G6[g6R Widget]
+    C4 --> G6
+    G6 --> JS[JavaScript Handlers]
+```
+
+## Core Components
+
+The package extends `blockr.dock` through the extension system:
+
+```{mermaid}
+graph LR
+    A[new_dag_extension] --> B[dag_ext_srv]
+    A --> C[dag_ext_ui]
+    B --> D[Context Menu Items]
+    B --> E[Toolbar Items]
+    B --> F[Event Observers]
+    C --> G[g6 Widget]
+    C --> H[Empty State UI]
+```
+
+## Event Handling
+
+### Observer Pattern
+
+Server-side observers handle state synchronization. `update` and `board` are inherited from `blockr.core`:
+
+`update` is composed of:
+- `blocks`: Changes to individual blocks.
+  - `add`: New blocks to add.
+  - `mod`: Modified blocks.
+  - `rm`: Deleted blocks.
+- `stacks`: Changes to block groupings.
+  - `add`: New stacks to add.
+  - `mod`: Modified stacks.
+  - `rm`: Deleted stacks.
+- `links`: Changes to connections between blocks.
+  - `add`: New links to add.
+  - `mod`: Modified links.
+  - `rm`: Deleted links.
+
+We listen to `update()` and apply the necessary changes to the `g6R` widget via its proxy functions:
+
+```{r}
+# Update observer handles board changes
+update_observer <- function(update, board, proxy) {
+  observeEvent(update(), {
+    upd <- update()
+
+    if (length(upd$blocks$add)) {
+      add_nodes(upd$blocks$add, board$board, proxy)
+    }
+
+    if (length(upd$stacks$mod)) {
+      update_combos(upd$stacks$mod, board$board, proxy)
+    }
+
+    # Handle other update types...
+  })
+}
+```
+
+## Extending the Package
+
+You can create custom context menu and toolbar items by defining functions in your extension.
+

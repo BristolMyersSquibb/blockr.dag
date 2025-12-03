@@ -1,0 +1,58 @@
+---
+title: "Toolbar Items"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Toolbar Items}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(blockr.dag)
+```
+
+# Toolbar Items
+
+The toolbar provides quick access to common graph operations.
+
+## Available Actions
+
+- **Zoom in/out** - Navigate large workflows.
+- **Auto fit** - Fit entire graph to view.
+- **Layout** - Reset graph layout.
+- **Add block** - Insert new processing blocks.
+- **Add stack** - Create new block groupings.
+- **Remove selected** - Delete selected elements.
+
+## Creating Toolbar Items
+
+Toolbar items are registered through the extension system:
+
+```{r}
+# Toolbar item
+item <- new_toolbar_item(
+  id = "custom_tool",
+  icon = "icon-custom",
+  js = "console.log('Custom tool clicked')",
+  action = function(board, update, ...) {
+    # Server-side logic
+  }
+)
+```
+
+Any new item has to go inside `toolbar_items.dag_extension`:
+
+```r
+toolbar_items.dag_extension <- function(x) {
+  list(
+    item
+  )
+```

@@ -39,6 +39,14 @@ To start up a board with the `dag` extension, run the following code:
 ```{r basic-example, eval=FALSE, code=readLines("inst/examples/stacks/app.R")}
 ```
 
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+code_lines <- knitr::knit_code$get("basic-example")
+app <- eval(parse(text = code_lines))
+webshot2::appshot(app, "man/figures/demo-app.png")
+```
+
+![blockr.dag demo application with stacks](man/figures/demo-app.png)
+
 To start up the dag extension with dummy nodes and edges:
 
 ```{r dummy-graph-example, eval=FALSE, code=readLines("inst/examples/graph/app.R")}

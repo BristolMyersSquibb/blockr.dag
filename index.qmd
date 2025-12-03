@@ -6,6 +6,7 @@ format: md
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
+library(htmltools)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -40,10 +41,31 @@ To start up a board with the `dag` extension, run the following code:
 ```{r basic-example, eval=FALSE, code=readLines("inst/examples/stacks/app.R")}
 ```
 
-```{r, echo= FALSE, message=FALSE, warning=FALSE}
-code_lines <- knitr::knit_code$get("basic-example")
-app <- eval(parse(text = code_lines))
-webshot2::appshot(app, "man/figures/demo-app.png")
+::: {.callout-note}
+The demo below runs with shinylive. Not all feature may work as expected due to compatibility issues with webR.
+:::
+
+```{r shinylive_url, echo = FALSE, results = 'asis'}
+# extract the code from knitr code chunks by ID
+code <- paste0(
+  c(
+    "webr::unmount(\"/usr/lib/R/library/blockr.core\")",
+    "webr::install(\"blockr.core\", repos = \"https://cynkra.github.io/blockr.webR/\")",
+    "webr::install(\"blockr.dag\", repos = \"https://cynkra.github.io/blockr.webR/\")",
+    knitr::knit_code$get("basic-example")
+  ),
+  collapse = "\n"
+)
+
+url <- roxy.shinylive::create_shinylive_url(code, header = FALSE)
 ```
 
-![blockr.dag demo application with stacks](man/figures/demo-app.png)
+```{r shinylive_iframe, echo = FALSE, eval = TRUE}
+tags$iframe(
+  class = "border border-5 rounded shadow-lg",
+  src = url,
+  style = "zoom: 0.75;",
+  width = "100%",
+  height = "1100px"
+)
+```

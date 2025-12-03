@@ -54,6 +54,13 @@ serve(
 )
 ```
 
+<figure>
+<img src="man/figures/demo-app.png"
+alt="blockr.dag demo application with stacks" />
+<figcaption aria-hidden="true">blockr.dag demo application with
+stacks</figcaption>
+</figure>
+
 To start up the dag extension with dummy nodes and edges:
 
 ``` r
