@@ -16,14 +16,39 @@ stack_color(x) <- value
 as_dag_stack(x, ...)
 }
 \arguments{
-\item{...}{Forwarded to \code{\link[blockr.core:new_stack]{blockr.core::new_stack()}}}
+\item{...}{Forwarded to \code{\link[blockr.core:new_stack]{blockr.core::new_stack()}}.}
 
-\item{color}{String-valued color}
+\item{color}{String-valued color.}
 
-\item{x}{object}
+\item{x}{object.}
 
-\item{value}{Replacement value}
+\item{value}{Replacement value.}
+}
+\value{
+\describe{
+\item{\code{new_dag_stack()}}{A \code{dag_stack} object}
+\item{\code{is_dag_stack()}}{Logical value
+indicating if object is a DAG stack.}
+\item{\code{validate_stack.dag_stack()}}{The validated
+DAG stack object.}
+\item{\verb{stack_color<-()}}{The modified DAG
+stack with updated color.}
+\item{\code{as_dag_stack()}}{A \code{dag_stack} object
+converted from input.}
+}
 }
 \description{
 Extends \code{\link[blockr.core:new_stack]{blockr.core::new_stack()}} by adding a color attribute.
+}
+\details{
+\describe{
+\item{\code{new_dag_stack()}}{Creates a new DAG
+stack with color attribute.}
+\item{\code{is_dag_stack()}}{Tests if object is a DAG stack.}
+\item{\code{validate_stack.dag_stack()}}{Validates
+DAG stack structure and color.}
+\item{\verb{stack_color<-()}}{Sets the color
+attribute of a DAG stack.}
+\item{\code{as_dag_stack()}}{Converts objects to DAG stack.}
+}
 }

@@ -2,11 +2,11 @@
 #'
 #' R list-based representation of a g6 graph object.
 #'
-#' @param nodes Graph nodes (i.e. board blocks)
-#' @param edges Graph edges (i.e. board links)
-#' @param combos Node groups (i.e. board stacks)
-#' @param x Object to test or convert
-#' @param ... Generic consistency
+#' @param nodes Graph nodes (i.e. board blocks).
+#' @param edges Graph edges (i.e. board links).
+#' @param combos Node groups (i.e. board stacks).
+#' @param x Object to test or convert.
+#' @param ... Generic consistency.
 #'
 #' @details
 #' \describe{

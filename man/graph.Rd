@@ -28,15 +28,15 @@ as_graph(x, ...)
 \method{as_graph}{list}(x, ...)
 }
 \arguments{
-\item{nodes}{Graph nodes (i.e. board blocks)}
+\item{nodes}{Graph nodes (i.e. board blocks).}
 
-\item{edges}{Graph edges (i.e. board links)}
+\item{edges}{Graph edges (i.e. board links).}
 
-\item{combos}{Node groups (i.e. board stacks)}
+\item{combos}{Node groups (i.e. board stacks).}
 
-\item{x}{Object to test or convert}
+\item{x}{Object to test or convert.}
 
-\item{...}{Generic consistency}
+\item{...}{Generic consistency.}
 }
 \value{
 \describe{
