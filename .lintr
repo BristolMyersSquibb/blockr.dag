@@ -6,3 +6,9 @@ linters: linters_with_defaults(
   cyclocomp_linter(complexity_limit = 25L),
   return_linter = NULL
   )
+exclusions: list(
+  "vignettes/blockr.dag.qmd",
+  "vignettes/context-menu.qmd",
+  "vignettes/toolbar.qmd",
+  "vignettes/graph-class.qmd"
+  )
