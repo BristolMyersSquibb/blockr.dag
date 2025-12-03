@@ -1,0 +1,84 @@
+url: https://bristolmyerssquibb.github.io/blockr.dag/
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, extension, graph, context, toolbar]
+    right: [search, reference, news, github]
+  components:
+    home: ~
+
+    intro:
+      text: Get started
+      href: articles/blockr.dag.html
+    
+    extension:
+      text: Extension
+      menu:
+        - text: DAG Extension
+          href: articles/dag-extension.html
+    
+    graph:
+      text: Graph
+      menu:
+        - text: Graph Objects
+          href: articles/graph-objects.html
+    
+    context:
+      text: Context Menu
+      menu:
+        - text: Context Menu Items
+          href: articles/context-menu.html
+    
+    toolbar:
+      text: Toolbar
+      menu:
+        - text: Toolbar Items
+          href: articles/toolbar.html
+
+reference:
+  - title: Initialize
+  - subtitle: Extension
+    desc: Initialize a DAG extension
+    contents:
+      - new_dag_extension
+  
+  - title: Graph
+    desc: Create and manipulate graph objects
+  - subtitle: Graph object
+    desc: Core graph functionality
+    contents:
+      - new_graph
+      - is_graph
+      - as_graph
+  - subtitle: Graph components
+    desc: Access graph components
+    contents:
+      - graph_nodes
+      - graph_edges
+      - graph_combos
+
+  - title: DAG Stack
+    desc: Create and manipulate DAG stacks
+    contents:
+      - new_dag_stack
+      - is_dag_stack
+      - as_dag_stack
+      - "stack_color<-"
+  
+  - title: User Interface
+    desc: UI components and interactions
+  - subtitle: Context Menu
+    desc: Context menu functionality
+    contents:
+      - new_context_menu_entry
+      - is_context_menu_entry
+      - context_menu_items
+  - subtitle: Toolbar
+    desc: Toolbar functionality
+    contents:
+      - new_toolbar_item
+      - is_toolbar_item
+      - toolbar_items
+

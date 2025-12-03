@@ -31,5 +31,13 @@ Remotes:
     cynkra/dockViewR,
     cynkra/g6R
 Suggests: 
-    testthat (>= 3.0.0)
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    roxy.shinylive,
+    webshot2,
+    quarto
 Config/testthat/edition: 3
+URL: https://bristolmyerssquibb.github.io/blockr.dag/
+VignetteBuilder: 
+    quarto
