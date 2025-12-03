@@ -36,7 +36,8 @@ Suggests:
     testthat (>= 3.0.0),
     roxy.shinylive,
     webshot2,
-    quarto
+    quarto,
+    cyclocomp
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
