@@ -45,7 +45,7 @@ remove_selected_action <- blockr.dock::new_action(
     observeEvent(
       trigger(),
       {
-        input <- session$input
+        input <- domain$input
         update(
           list(
             blocks = list(
