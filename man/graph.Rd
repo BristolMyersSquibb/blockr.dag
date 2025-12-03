@@ -34,10 +34,40 @@ as_graph(x, ...)
 
 \item{combos}{Node groups (i.e. board stacks)}
 
-\item{x}{Object}
+\item{x}{Object to test or convert}
 
 \item{...}{Generic consistency}
 }
+\value{
+\describe{
+\item{\code{new_graph()}}{A graph object
+of class "graph" containing nodes, edges, and combos lists.}
+\item{\code{is_graph()}}{\code{TRUE} if \code{x} is a
+graph object, \code{FALSE} otherwise.}
+\item{\code{graph_nodes()}}{A list of graph nodes.}
+\item{\code{graph_edges()}}{A list of graph edges.}
+\item{\code{graph_combos()}}{A list of graph
+combos (node groups).}
+\item{\code{as_graph()}}{A graph object converted
+from the input.}
+}
+}
 \description{
 R list-based representation of a g6 graph object.
+}
+\details{
+\describe{
+\item{\code{new_graph()}}{Creates a new graph
+object with the specified nodes, edges, and combos.}
+\item{\code{is_graph()}}{Tests whether an object
+is a valid graph object.}
+\item{\code{graph_nodes()}}{Extracts the nodes
+component from a graph object.}
+\item{\code{graph_edges()}}{Extracts the edges
+component from a graph object.}
+\item{\code{graph_combos()}}{Extracts the combos
+component from a graph object.}
+\item{\code{as_graph()}}{Generic function to
+convert objects to graph format.}
+}
 }
