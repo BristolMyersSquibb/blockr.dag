@@ -33,7 +33,7 @@ library(blockr.core)
 library(blockr.dock)
 
 options(
-  "g6R.mode" = "dev", 
+  "g6R.mode" = "dev",
   #"g6R.layout_on_data_change" = TRUE,
   "g6R.preserve_elements_position" = TRUE
 )

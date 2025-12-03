@@ -35,7 +35,7 @@ library(blockr.core)
 library(blockr.dock)
 
 options(
-  "g6R.mode" = "dev", 
+  "g6R.mode" = "dev",
   #"g6R.layout_on_data_change" = TRUE,
   "g6R.preserve_elements_position" = TRUE
 )
@@ -56,4 +56,9 @@ serve(
 )
 ```
 
-<img src="man/figures/demo-app.png" style="width:100.0%" />
+<figure>
+<img src="man/figures/demo-app.png"
+alt="blockr.dag demo application with stacks" />
+<figcaption aria-hidden="true">blockr.dag demo application with
+stacks</figcaption>
+</figure>
