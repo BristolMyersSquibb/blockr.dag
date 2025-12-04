@@ -8,6 +8,8 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![status](https://github.com/BristolMyersSquibb/blockr.dag/actions/workflows/ci.yaml/badge.svg)](https://github.com/BristolMyersSquibb/blockr.dag/actions/workflows/ci.yaml)
 [![coverage](https://codecov.io/gh/BristolMyersSquibb/blockr.dag/graph/badge.svg?token=s0zz3En4x1)](https://app.codecov.io/gh/BristolMyersSquibb/blockr.dag)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/blockr.dag)](https://CRAN.R-project.org/package=blockr.dag)
 <!-- badges: end -->
 
 An interative network library provided by g6R can be used as front-end
@@ -46,8 +48,8 @@ serve(
     ),
     links = list(from = "a", to = "b", input = "data"),
     stacks = c(
-      stack_1 = new_dag_stack(c("a", "b"), color = "#0000FF"),
-      stack_2 = new_dag_stack()
+      stack_1 = new_dock_stack(c("a", "b"), color = "#0000FF"),
+      stack_2 = new_dock_stack()
     ),
     extensions = new_dag_extension()
   )

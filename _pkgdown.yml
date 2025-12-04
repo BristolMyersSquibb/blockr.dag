@@ -44,14 +44,6 @@ reference:
       - graph_nodes
       - graph_edges
       - graph_combos
-
-  - title: DAG Stack
-    desc: Create and manipulate DAG stacks
-    contents:
-      - new_dag_stack
-      - is_dag_stack
-      - as_dag_stack
-      - "stack_color<-"
   
   - title: User Interface
     desc: UI components and interactions

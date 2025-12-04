@@ -16,8 +16,8 @@ serve(
     ),
     links = list(from = "a", to = "b", input = "data"),
     stacks = c(
-      stack_1 = new_dag_stack(c("a", "b"), color = "#0000FF"),
-      stack_2 = new_dag_stack()
+      stack_1 = new_dock_stack(c("a", "b"), color = "#0000FF"),
+      stack_2 = new_dock_stack()
     ),
     extensions = new_dag_extension()
   )
