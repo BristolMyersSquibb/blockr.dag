@@ -111,9 +111,12 @@ dag_ext_srv <- function(graph) {
         empty_state_observer(board, session)
 
         list(
-          graph = reactive(
-            input[[paste0(graph_id(), "-state")]]
-          )
+          state = list(
+            graph = reactive(
+              input[[paste0(graph_id(), "-state")]]
+            )
+          ),
+          proxy = proxy
         )
       }
     )
