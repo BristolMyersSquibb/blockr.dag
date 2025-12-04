@@ -30,7 +30,7 @@ dag_ext_srv <- function(graph) {
 
         toolbar <- toolbar_items(initial_board)
 
-        g6_graph <- init_g6(
+        init_g6(
           board = initial_board,
           graph = graph,
           path = ctx_path,
