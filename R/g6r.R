@@ -319,7 +319,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_combos_data_from_stacks <- function(stacks) {
-  colors <- stack_color(stacks)
+  colors <- blockr.dock::stack_color(stacks)
 
   colors[is.na(colors)] <- blockr.dock::suggest_new_colors(
     coal(unlst(colors[!is.na(colors)]), character()),

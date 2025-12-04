@@ -235,3 +235,62 @@ toolbar_items.dag_extension <- function(x) {
     )
   )
 }
+
+#' @importFrom blockr.dock extension_block_callback
+#' @export
+extension_block_callback.dag_extension <- function(x, ...) {
+
+  function(id, board, update, conditions, dag_extension, ...,
+           session = get_session()) {
+
+    n_cnd <- reactive(
+      sum(lengths(conditions()))
+    )
+
+    badge_count <- reactiveVal(0L)
+
+    observeEvent(
+      req(n_cnd() > 0L, n_cnd() != badge_count()),
+      {
+        n <- n_cnd()
+
+        badge <- list(
+          text = format(n),
+          placement = "right-top",
+          backgroundFill = "#000"
+        )
+
+        node_config <- list(
+          list(
+            id = to_g6_node_id(id),
+            style = list(
+              badges = list(badge)
+            )
+          )
+        )
+
+        g6_update_nodes(dag_extension$proxy, node_config)
+        badge_count(n)
+      }
+    )
+
+    observeEvent(
+      req(n_cnd() == 0L, badge_count() > 0L),
+      {
+        node_config <- list(
+          list(
+            id = to_g6_node_id(id),
+            style = list(
+              badges = list()
+            )
+          )
+        )
+
+        g6_update_nodes(dag_extension$proxy, node_config)
+        badge_count(0L)
+      }
+    )
+
+    NULL
+  }
+}
