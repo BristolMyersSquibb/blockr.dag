@@ -59,8 +59,6 @@ dag_ext_srv <- function(graph) {
 
         update_observer(update, board, proxy)
 
-        stack_conversion_observer(board, g6_graph, update)
-
         setup_remove_elements_kbd()
 
         do.call(
@@ -118,41 +116,6 @@ dag_ext_srv <- function(graph) {
       }
     )
   }
-}
-
-stack_conversion_observer <- function(board, graph, update) {
-  observeEvent(
-    TRUE,
-    {
-      stacks <- board_stacks(board$board)
-      has_col <- lgl_ply(stacks, is_dag_stack)
-
-      if (any(!has_col)) {
-        cmbs <- graph[["x"]][["data"]][["combos"]]
-
-        cmbs <- set_names(
-          chr_xtr(lst_xtr(cmbs, "style"), "fill"),
-          chr_xtr(cmbs, "id")
-        )
-
-        log_debug(
-          "converting stack{?s} {names(stacks)[!has_col]} to ",
-          "type 'dag_stack'"
-        )
-
-        stack_upd <- Map(
-          as_dag_stack,
-          stacks[!has_col],
-          cmbs[names(stacks)[!has_col]]
-        )
-
-        update(list(stacks = list(mod = as_stacks(stack_upd))))
-      } else {
-        log_debug("no conversions to type 'dag_stack' required")
-      }
-    },
-    once = TRUE
-  )
 }
 
 update_observer <- function(update, board, proxy) {
