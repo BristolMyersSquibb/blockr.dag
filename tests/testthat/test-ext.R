@@ -7,6 +7,10 @@ non_empty_board <- new_board(
   )
 )
 
+test_that("dag extension ctor", {
+  ext <- new_dag_extension()
+  expect_s3_class(ext, "dag_extension")
+})
 
 test_that("ext_ui works", {
   ui <- dag_ext_ui("test", empty_board)
