@@ -123,15 +123,20 @@ graph LR
 Server-side observers handle state synchronization. `update` and `board` are inherited from `blockr.core`:
 
 `update` is composed of:
+
 - `blocks`: Changes to individual blocks.
+
   - `add`: New blocks to add.
   - `mod`: Modified blocks.
   - `rm`: Deleted blocks.
 - `stacks`: Changes to block groupings.
+
   - `add`: New stacks to add.
   - `mod`: Modified stacks.
   - `rm`: Deleted stacks.
+
 - `links`: Changes to connections between blocks.
+
   - `add`: New links to add.
   - `mod`: Modified links.
   - `rm`: Deleted links.
