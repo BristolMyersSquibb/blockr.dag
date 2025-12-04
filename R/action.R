@@ -40,10 +40,11 @@ draw_link_function <- function(trigger, board, update, session) {
 
 draw_link_action <- blockr.dock::new_action(draw_link_function)
 
-remove_selected_function <- function(trigger, update, input) {
+remove_selected_function <- function(trigger, update, domain) {
   observeEvent(
     trigger(),
     {
+      input <- domain$input
       update(
         list(
           blocks = list(
