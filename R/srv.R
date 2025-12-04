@@ -108,6 +108,8 @@ dag_ext_srv <- function(graph) {
           }
         )
 
+        empty_state_observer(board, session)
+
         list(
           graph = reactive(
             input[[paste0(graph_id(), "-state")]]
@@ -155,6 +157,24 @@ update_observer <- function(update, board, proxy) {
       if (length(upd$blocks$rm)) {
         remove_nodes(upd$blocks$rm, proxy)
       }
+    }
+  )
+}
+
+empty_state_observer <- function(board, session) {
+  ns <- session$ns
+
+  observeEvent(
+    board$board,
+    {
+      has_blocks <- length(board_blocks(board$board)) > 0
+      session$sendCustomMessage(
+        "update-empty-state",
+        list(
+          id = ns("empty-state"),
+          show = !has_blocks
+        )
+      )
     }
   )
 }
