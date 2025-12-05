@@ -21,12 +21,6 @@ library(blockr.core)
 library(blockr.dock)
 ```
 
-# Introduction
-
-The `blockr.dag` package provides an interactive directed acyclic graph (DAG) __extension__ for `blockr` boards using the `g6R` library. It allows users to visually manipulate data processing workflows through an intuitive drag-and-drop interface.
-
-# User Guide
-
 ## Basic Usage
 
 ### Starting a DAG Board
@@ -38,7 +32,7 @@ We create an empty board from [blockr.dock](https://github.com/BristolMyersSquib
 serve(new_dock_board(extensions = new_dag_extension()))
 ```
 
-### Creating Custom Graphs
+### Start from a graph object
 
 You can also start with a custom graph structure:
 
@@ -66,57 +60,17 @@ serve(
 
 ## User Interface Elements
 
+### Quick tour
+
+TBD
+
 ### Keyboard Shortcuts
 
-- **Shift + Drag**: Create connections between blocks
-- **Ctrl + Backspace**: Remove selected elements
-- **Alt + Drag**: Multi-select elements
+- **Shift + Drag**: Create connections between blocks.
+- **Ctrl + Backspace**: Remove selected elements.
+- **Alt/Option(Mac) + Drag**: Multi-select elements.
 
-# Developer Guide
-
-## Architecture Overview
-
-```{mermaid}
-graph TB
-    A[blockr.dag] --> B[UI Layer]
-    A --> C[Server Layer] 
-    A --> D[Data Layer]
-    
-    B --> B1[dag_ext_ui]
-    B --> B2[g6_output]
-    B --> B3[Context Menus]
-    B --> B4[Toolbar]
-    
-    C --> C1[dag_ext_srv]
-    C --> C2[Module Servers]
-    C --> C3[Observers]
-    C --> C4[Proxy Updates]
-    
-    D --> D1[Graph Objects]
-    D --> D2[Board State]
-    D --> D3[Stack Management]
-    
-    B1 --> G6[g6R Widget]
-    C4 --> G6
-    G6 --> JS[JavaScript Handlers]
-```
-
-## Core Components
-
-The package extends `blockr.dock` through the extension system:
-
-```{mermaid}
-graph LR
-    A[new_dag_extension] --> B[dag_ext_srv]
-    A --> C[dag_ext_ui]
-    B --> D[Context Menu Items]
-    B --> E[Toolbar Items]
-    B --> F[Event Observers]
-    C --> G[g6 Widget]
-    C --> H[Empty State UI]
-```
-
-## Event Handling
+## Developer Guide
 
 ### Observer Pattern
 
@@ -124,22 +78,17 @@ Server-side observers handle state synchronization. `update` and `board` are inh
 
 `update` is composed of:
 
-- `blocks`: Changes to individual blocks.
-
-  - `add`: New blocks to add.
-  - `mod`: Modified blocks.
-  - `rm`: Deleted blocks.
-- `stacks`: Changes to block groupings.
-
-  - `add`: New stacks to add.
-  - `mod`: Modified stacks.
-  - `rm`: Deleted stacks.
-
-- `links`: Changes to connections between blocks.
-
-  - `add`: New links to add.
-  - `mod`: Modified links.
-  - `rm`: Deleted links.
+| Category | Operation | Description |
+|----------|-----------|-------------|
+| `blocks` | `add` | New blocks to add (blocks object) |
+|          | `mod` | Modified blocks (blocks object) |
+|          | `rm` | Deleted blocks (block IDS, character) |
+| `stacks` | `add` | New stacks to add (stacks object) |
+|          | `mod` | Modified stacks (stacks object) |
+|          | `rm` | Deleted stacks (stacks IDS, character) |
+| `links`  | `add` | New links to add (links object) |
+|          | `mod` | Modified links (links object) |
+|          | `rm` | Deleted links (links IDS, character()) |
 
 We listen to `update()` and apply the necessary changes to the `g6R` widget via its proxy functions:
 
@@ -164,5 +113,11 @@ update_observer <- function(update, board, proxy) {
 
 ## Extending the Package
 
+### Custom Context Menu and Toolbar Items
+
 You can create custom context menu and toolbar items by defining functions in your extension.
+
+### Extension block callback
+
+TBD
 

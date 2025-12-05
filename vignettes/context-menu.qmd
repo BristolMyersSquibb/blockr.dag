@@ -19,31 +19,16 @@ knitr::opts_chunk$set(
 library(blockr.dag)
 ```
 
-# Context Menu Items
-
 The context menu provides actions based on what element is right-clicked in the graph.
 
 ## Available Actions
 
-### Right-click on canvas:
-
-- Add block.
-- Create stack.
-
-### Right-click on node (block):
-
-- Create link.
-- Remove block.  
-- Append block.
-
-### Right-click on edge (link):
-
-- Remove link.
-
-### Right-click on combo (stack):
-
-- Remove stack.
-- Edit stack: add/remove blocks and change color.
+| Target Element | Available Actions |
+|----------------|------------------|
+| Canvas | • Add block<br>• Create stack |
+| Node (block) | • Create link<br>• Remove block<br>• Append block |
+| Edge (link) | • Remove link |
+| Combo (stack) | • Remove stack<br>• Edit stack: add/remove blocks and change color |
 
 ## Creating Context Menu Entries
 

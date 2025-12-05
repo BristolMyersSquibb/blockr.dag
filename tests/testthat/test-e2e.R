@@ -1,7 +1,9 @@
 library(shinytest2)
 test_that("sample_app works", {
   appdir <- system.file(package = "blockr.dag", "examples/empty")
-  local_app_support(appdir)
+
+  # when shinytest2 0.5.0 lands ...
+  #local_app_support(appdir)
 
   app <- AppDriver$new(appdir, name = "empty-app", seed = 4323)
 

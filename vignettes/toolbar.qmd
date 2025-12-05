@@ -19,8 +19,6 @@ knitr::opts_chunk$set(
 library(blockr.dag)
 ```
 
-# Toolbar Items
-
 The toolbar provides quick access to common graph operations.
 
 ## Available Actions
