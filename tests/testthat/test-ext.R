@@ -116,3 +116,34 @@ testServer(
     )
   }
 )
+
+test_that("extension_block_callback works", {
+  ext_cb <- extension_block_callback(new_dag_extension())
+
+  testServer(
+    function(input, output, session) {
+      conditions <- reactive({
+        list(
+          errors = input$errors
+        )
+      })
+      ext_cb(
+        id = "test",
+        board = test_board,
+        update = reactiveVal(NULL),
+        conditions = conditions,
+        dag_extension = list(
+          proxy = g6_proxy(
+            "graph",
+            session = session
+          )
+        ),
+        session = session
+      )
+    },
+    {
+      session$setInputs(errors = c("error1", "error2"))
+      session$setInputs(errors = character(0))
+    }
+  )
+})

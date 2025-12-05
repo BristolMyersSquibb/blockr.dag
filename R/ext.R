@@ -239,10 +239,15 @@ toolbar_items.dag_extension <- function(x) {
 #' @importFrom blockr.dock extension_block_callback
 #' @export
 extension_block_callback.dag_extension <- function(x, ...) {
-
-  function(id, board, update, conditions, dag_extension, ...,
-           session = get_session()) {
-
+  function(
+    id,
+    board,
+    update,
+    conditions,
+    dag_extension,
+    ...,
+    session = get_session()
+  ) {
     n_cnd <- reactive(
       sum(lengths(conditions()))
     )
