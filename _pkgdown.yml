@@ -16,8 +16,6 @@ navbar:
     components:
       text: Components
       menu:
-        - text: Graph Objects
-          href: articles/graph-class.html
         - text: Context Menu Items
           href: articles/context-menu.html
         - text: Toolbar Items
