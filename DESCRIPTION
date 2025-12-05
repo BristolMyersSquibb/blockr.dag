@@ -37,7 +37,8 @@ Suggests:
     roxy.shinylive,
     webshot2,
     quarto,
-    cyclocomp
+    cyclocomp,
+    shinytest2
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
