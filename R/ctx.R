@@ -1,16 +1,53 @@
-#' Create a context menu entry
+#' Context menu functions
 #'
-#' Adds a new entry to the context menu of a board.
+#' Functions for creating and working with context
+#' menu entries.
 #'
-#' @param name Name of the context menu entry
-#' @param js JavaScript code to execute when the entry is selected
-#' @param action Action to perform when the entry is selected
-#' @param condition Condition to determine if the entry should be shown
-#' @param id Unique identifier for the context menu entry
-#' Infered from `name` if not provided
+#' @param name Name of the context menu entry.
+#' @param js JavaScript code to execute when the entry is selected.
+#' @param action Action to perform when the entry is selected.
+#' @param condition Condition to determine if the entry should be shown.
+#' @param id Unique identifier for the context menu entry.
+#'   Inferred from `name` if not provided
+#' @param x Object to test or extract context menu items from.
+#'
+#' @details
+#' \describe{
+#'   \item{`new_context_menu_entry()`}{Creates a new context menu
+#' entry with the specified name, JavaScript code, action function,
+#' and display condition.}
+#'   \item{`is_context_menu_entry()`}{
+#' Tests whether an object is a valid context menu entry.}
+#'   \item{`context_menu_items()`}{Generic function to
+#' extract context menu items from various
+#' objects like dock extensions, boards, or lists.}
+#' }
+#'
+#' The `context_menu_items.dag_extension()` method
+#' provides the following actions:
+#' \itemize{
+#'   \item Create link - Creates connections between workflow nodes.
+#'   \item Remove block - Removes individual blocks from the workflow.
+#'   \item Remove link - Removes connections between workflow nodes.
+#'   \item Append block - Adds a new block after the selected node.
+#'   \item Create stack - Creates a new workflow stack.
+#'   \item Remove stack - Removes an entire workflow stack.
+#'   \item Edit stack - Opens stack editing interface.
+#'   \item Add block - Adds a new block to the canvas.
+#' }
 #'
 #' @rdname ctx
 #' @export
+#' @return
+#' \describe{
+#'   \item{`new_context_menu_entry()`}{A context menu
+#' entry object of class "context_menu_entry" containing
+#' condition, action, and js functions, with name and id attributes.}
+#'   \item{`is_context_menu_entry()`}{`TRUE` if `x` is
+#' a context menu entry, `FALSE` otherwise.}
+#'   \item{`context_menu_items()`}{A list of context
+#' menu items for the given object.}
+#' }
 new_context_menu_entry <- function(
   name,
   js,
@@ -61,11 +98,14 @@ context_menu_entry_condition <- function(x, ...) {
   x[["condition"]](...)
 }
 
-context_menu_entry_action <- function(x, board, update, ...,
-                                      domain = get_session()) {
-
+context_menu_entry_action <- function(
+  x,
+  board,
+  update,
+  ...,
+  domain = get_session()
+) {
   if (!is_context_menu_entry(x)) {
-
     validate_context_menu_entries(x)
 
     for (i in x) {
@@ -100,9 +140,7 @@ context_menu_entry_action <- function(x, board, update, ...,
 }
 
 context_menu_entry_js <- function(x, ns = NULL) {
-
   if (!is_context_menu_entry(x)) {
-
     validate_context_menu_entries(x)
 
     res <- paste(
@@ -131,9 +169,7 @@ context_menu_entry_js <- function(x, ns = NULL) {
 }
 
 build_context_menu <- function(x, ...) {
-
   if (!is_context_menu_entry(x)) {
-
     validate_context_menu_entries(x)
 
     res <- Filter(not_null, lapply(x, build_context_menu, ...))

@@ -4,7 +4,7 @@
 \alias{new_context_menu_entry}
 \alias{is_context_menu_entry}
 \alias{context_menu_items}
-\title{Create a context menu entry}
+\title{Context menu functions}
 \usage{
 new_context_menu_entry(
   name,
@@ -19,19 +19,56 @@ is_context_menu_entry(x)
 context_menu_items(x)
 }
 \arguments{
-\item{name}{Name of the context menu entry}
+\item{name}{Name of the context menu entry.}
 
-\item{js}{JavaScript code to execute when the entry is selected}
+\item{js}{JavaScript code to execute when the entry is selected.}
 
-\item{action}{Action to perform when the entry is selected}
+\item{action}{Action to perform when the entry is selected.}
 
-\item{condition}{Condition to determine if the entry should be shown}
+\item{condition}{Condition to determine if the entry should be shown.}
 
-\item{id}{Unique identifier for the context menu entry
-Infered from \code{name} if not provided}
+\item{id}{Unique identifier for the context menu entry.
+Inferred from \code{name} if not provided}
 
 \item{x}{Object}
 }
+\value{
+\describe{
+\item{\code{new_context_menu_entry()}}{A context menu
+entry object of class "context_menu_entry" containing
+condition, action, and js functions, with name and id attributes.}
+\item{\code{is_context_menu_entry()}}{\code{TRUE} if \code{x} is
+a context menu entry, \code{FALSE} otherwise.}
+\item{\code{context_menu_items()}}{A list of context
+menu items for the given object.}
+}
+}
 \description{
-Adds a new entry to the context menu of a board.
+Functions for creating and working with context
+menu entries.
+}
+\details{
+\describe{
+\item{\code{new_context_menu_entry()}}{Creates a new context menu
+entry with the specified name, JavaScript code, action function,
+and display condition.}
+\item{\code{is_context_menu_entry()}}{
+Tests whether an object is a valid context menu entry.}
+\item{\code{context_menu_items()}}{Generic function to
+extract context menu items from various
+objects like dock extensions, boards, or lists.}
+}
+
+The \code{context_menu_items.dag_extension()} method
+provides the following actions:
+\itemize{
+\item Create link - Creates connections between workflow nodes.
+\item Remove block - Removes individual blocks from the workflow.
+\item Remove link - Removes connections between workflow nodes.
+\item Append block - Adds a new block after the selected node.
+\item Create stack - Creates a new workflow stack.
+\item Remove stack - Removes an entire workflow stack.
+\item Edit stack - Opens stack editing interface.
+\item Add block - Adds a new block to the canvas.
+}
 }

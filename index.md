@@ -1,3 +1,5 @@
+# blockr.dag
+
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -56,39 +58,9 @@ serve(
 )
 ```
 
-<figure>
-<img src="man/figures/demo-app.png"
-alt="blockr.dag demo application with stacks" />
-<figcaption aria-hidden="true">blockr.dag demo application with
-stacks</figcaption>
-</figure>
+> **Note**
+>
+> The demo below runs with shinylive. Not all feature may work as
+> expected due to compatibility issues with webR.
 
-To start up the dag extension with dummy nodes and edges:
-
-``` r
-library(blockr.dag)
-library(blockr.dock)
-library(blockr.core)
-
-graph <- new_graph(
-  nodes = list(
-    list(id = 1, style = list(labelText = "Node 1")),
-    list(id = 2, style = list(labelText = "Node 2"))
-  ),
-  edges = list(
-    list(
-      source = 1,
-      target = 2,
-      style = list(
-        labelText = "Edge from 1 to 2"
-      )
-    )
-  )
-)
-
-serve(
-  new_dock_board(
-    extensions = new_dag_extension(graph)
-  )
-)
-```
+<iframe class="border border-5 rounded shadow-lg" src="https://shinylive.io/r/app/#h=0&amp;code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAdzgCMAnRRAVwhiLdIAoAdMAPQsAzgwEAbAJZ0BWCdIZQGATwF1xRAgGsGGYgzj8AlLwi1GzSRGGko48XzDrNOvUQP9cAAgOoiwrwBeL34AC1JSVGFEAQECZQgdKAwAc0lSUJY6DEkiNQ1tXXM5Y1NzJkQrGzsHfmdCjAATKBTPHzg-AOCwiKiYuISk1PTM7Nz8lyL6ErATCClGJWVuetdmlLmFxRUVgtd9OE2FJd3Jppc50yJUUlzrPggvELAUgDYsDA5GwzAg5++AG6eUxPADE-DeH3EUGUnFIAH0SPDmrZ4QRQlAICkfn8ACpYACqAFFcCDnpCMKgDMI4AwAXB4XBxHB4GRhPDOuk7vw8YSiaZLtZafSHk8IHBqMiXPC6EQlI1RU8vKsul4CIqlV4oH9xZKUVAaQjVo5JAxJMJjKTHprlTqJfDhAQoBFaTK9twAB5-fgAZQ6dgwABkKCkMm1lN6wH7UAGAOqSRph2Zkp5GK2aqSJVVSGzcABmDCIMEjUDapCIkbobSsqBYpEj+stKa81W0qvVzaera08IAjHa9dLu9wOyg2nVLWqiBoGJHQQAGRfzgBiy6b1s13fhACYB1LtA7bNpuHNNWnm3APeRrHdVbrkS1GVeKMI7ieyXMjGAAL4AXSAA" style="zoom: 0.75;" width="100%" height="1100px"></iframe>

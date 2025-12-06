@@ -1,0 +1,123 @@
+---
+title: "blockr.dag"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{blockr.dag}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(blockr.dag)
+library(blockr.core)
+library(blockr.dock)
+```
+
+## Basic Usage
+
+### Starting a DAG Board
+
+We create an empty board from [blockr.dock](https://github.com/BristolMyersSquibb/blockr.dock) and serve it with the `new_dag_extension()` extension:
+
+```{r}
+# Create an empty board.
+serve(new_dock_board(extensions = new_dag_extension()))
+```
+
+### Start from a graph object
+
+You can also start with a custom graph structure:
+
+```{r}
+graph <- new_graph(
+  nodes = list(
+    list(id = 1),
+    list(id = 2)
+  ),
+  edges = list(
+    list(
+      source = 1,
+      target = 2,
+      style = list(labelText = "1-2")
+    )
+  )
+)
+
+serve(
+  new_dock_board(
+    extensions = new_dag_extension(graph)
+  )
+)
+```
+
+## User Interface Elements
+
+### Quick tour
+
+TBD
+
+### Keyboard Shortcuts
+
+- **Shift + Drag**: Create connections between blocks.
+- **Ctrl + Backspace**: Remove selected elements.
+- **Alt/Option(Mac) + Drag**: Multi-select elements.
+
+## Developer Guide
+
+### Observer Pattern
+
+Server-side observers handle state synchronization. `update` and `board` are inherited from `blockr.core`:
+
+`update` is composed of:
+
+| Category | Operation | Description |
+|----------|-----------|-------------|
+| `blocks` | `add` | New blocks to add (blocks object) |
+|          | `mod` | Modified blocks (blocks object) |
+|          | `rm` | Deleted blocks (block IDS, character) |
+| `stacks` | `add` | New stacks to add (stacks object) |
+|          | `mod` | Modified stacks (stacks object) |
+|          | `rm` | Deleted stacks (stacks IDS, character) |
+| `links`  | `add` | New links to add (links object) |
+|          | `mod` | Modified links (links object) |
+|          | `rm` | Deleted links (links IDS, character()) |
+
+We listen to `update()` and apply the necessary changes to the `g6R` widget via its proxy functions:
+
+```{r}
+# Update observer handles board changes
+update_observer <- function(update, board, proxy) {
+  observeEvent(update(), {
+    upd <- update()
+
+    if (length(upd$blocks$add)) {
+      add_nodes(upd$blocks$add, board$board, proxy)
+    }
+
+    if (length(upd$stacks$mod)) {
+      update_combos(upd$stacks$mod, board$board, proxy)
+    }
+
+    # Handle other update types...
+  })
+}
+```
+
+## Extending the Package
+
+### Custom Context Menu and Toolbar Items
+
+You can create custom context menu and toolbar items by defining functions in your extension.
+
+### Extension block callback
+
+TBD
+

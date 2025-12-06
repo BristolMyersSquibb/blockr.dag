@@ -4,7 +4,7 @@
 \alias{new_toolbar_item}
 \alias{is_toolbar_item}
 \alias{toolbar_items}
-\title{Create a toolbar item}
+\title{Toolbar item functions}
 \usage{
 new_toolbar_item(id, icon, js, action = NULL, tooltip = NULL)
 
@@ -13,18 +13,54 @@ is_toolbar_item(x)
 toolbar_items(x)
 }
 \arguments{
-\item{id}{Unique identifier for the toolbar item}
+\item{id}{Unique identifier for the toolbar item.}
 
-\item{icon}{Name of an icon to show in the toolbar}
+\item{icon}{Name of an icon to show in the toolbar.}
 
-\item{js}{JavaScript code to execute when the entry is selected}
+\item{js}{JavaScript code to execute when the entry is selected.}
 
-\item{action}{Action to perform when the entry is selected}
+\item{action}{Action to perform when the entry is selected.}
 
 \item{tooltip}{Optional tooltip text for the entry.}
 
 \item{x}{Object}
 }
+\value{
+\describe{
+\item{\code{new_toolbar_item()}}{A toolbar
+item object of class "toolbar_item" containing
+action and js functions, with id, icon, and tooltip attributes.}
+\item{\code{is_toolbar_item()}}{\code{TRUE} if \code{x} is
+a toolbar item, \code{FALSE} otherwise.}
+\item{\code{toolbar_items()}}{A list of toolbar
+items for the given object.}
+}
+}
 \description{
-Utilities to create tooblbar items for working with the DAG.
+Functions for creating and working with toolbar
+items for the DAG interface.
+}
+\details{
+\describe{
+\item{\code{new_toolbar_item()}}{Creates a new toolbar
+item with the specified id, icon, JavaScript code, action function,
+and tooltip text.}
+\item{\code{is_toolbar_item()}}{
+Tests whether an object is a valid toolbar item.}
+\item{\code{toolbar_items()}}{Generic function to
+extract toolbar items from various
+objects like dock extensions, boards, or lists.}
+}
+
+The \code{toolbar_items.dag_extension()} method provides
+the following actions:
+\itemize{
+\item Zoom in - Increases the graph zoom level.
+\item Zoom out - Decreases the graph zoom level.
+\item Auto fit - Automatically fits the entire graph within the viewport.
+\item Layout - Reapplies the graph layout algorithm to reorganize nodes.
+\item Add block - Opens interface to add a new block to the workflow.
+\item Add stack - Creates a new workflow stack.
+\item Remove selected - Removes currently selected elements from the graph.
+}
 }
