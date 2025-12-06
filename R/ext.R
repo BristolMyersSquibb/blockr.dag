@@ -242,7 +242,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
            session = get_session()) {
 
     n_cnd <- reactive(
-      sum(lengths(conditions()))
+      sum(lengths(conditions()$error))
     )
 
     badge_count <- reactiveVal(0L)
