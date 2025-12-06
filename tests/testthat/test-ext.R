@@ -55,7 +55,8 @@ test_board <- blockr.dock::new_dock_board(
   blocks = c(
     a = new_dataset_block("iris"),
     b = new_scatter_block(x = "Sepal.Length", y = "Sepal.Width"),
-    c = new_head_block()
+    c = new_head_block(),
+    d = new_subset_block()
   ),
   links = list(from = "a", to = "b", input = "data"),
   stacks = c(
@@ -114,6 +115,39 @@ testServer(
     session$setInputs(
       "graph-batch_delete" = TRUE
     )
+
+    # Remove node from combo
+    stacks <- board_stacks(board$board)
+    tmp_stack_1 <- stacks[[1]]
+    stack_blocks(tmp_stack_1) <- stack_blocks(tmp_stack_1)[1]
+    # Add node to combo
+    tmp_stack_2 <- stacks[[2]]
+    stack_blocks(tmp_stack_2) <- "d"
+    mod_stacks <- as_stacks(set_names(
+      list(tmp_stack_1, tmp_stack_2),
+      board_stack_ids(board$board)
+    ))
+
+    # Update block title
+    mod_blocks <- set_names(board_blocks(board$board), c("a_new", "b_new"))
+
+    update(
+      list(
+        blocks = list(
+          add = as_blocks(new_dataset_block()),
+          mod = mod_blocks
+        ),
+        stacks = list(
+          add = as_stacks(blockr.dock::new_dock_stack("c", color = "#0000FF")),
+          mod = mod_stacks,
+          rm = c("stack_1")
+        ),
+        links = list(
+          rm = "ab"
+        )
+      )
+    )
+    session$flushReact()
   }
 )
 
