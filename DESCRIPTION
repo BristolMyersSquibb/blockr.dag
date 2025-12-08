@@ -9,7 +9,13 @@ Authors@R:
       person(given = "Nicolas",
              family = "Bennett",
              role = c("aut"),
-             email = "nicolas@cynkra.com")
+             email = "nicolas@cynkra.com"),
+      person(given = "Christoph",
+             family = "Sax",
+             role = c("aut"),
+             email = "christoph@cynkra.com"),
+      person(family = "Bristol Myers Squibb",
+             role = "fnd")
     )
 Description: Using the docking layout manager provided by blockr.dock, this
     provides an extension that allows for visualizing and manipulating a blockr
