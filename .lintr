@@ -10,5 +10,6 @@ exclusions: list(
   "vignettes/blockr.dag.qmd",
   "vignettes/context-menu.qmd",
   "vignettes/toolbar.qmd",
-  "vignettes/graph-class.qmd"
+  "vignettes/graph-class.qmd",
+  "vignettes/block-callback.qmd"
   )
