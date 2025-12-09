@@ -133,7 +133,14 @@ test_that("sample_app works", {
   # when shinytest2 0.5.0 lands ...
   #local_app_support(appdir)
 
-  app <- AppDriver$new(appdir, name = "empty-app", seed = 4323)
+  app <- AppDriver$new(
+    appdir,
+    name = "empty-app",
+    seed = 4323,
+    width = 992,
+    height = 1323,
+    variant = platform_variant()
+  )
   expect_values(app)
 
   # Add a new block: with custom id
