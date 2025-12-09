@@ -161,7 +161,7 @@ test_that("extension_block_callback works", {
           errors = input$errors
         )
       })
-      ext_cb(
+      res <- ext_cb(
         id = "test",
         board = test_board,
         update = reactiveVal(NULL),
@@ -176,6 +176,7 @@ test_that("extension_block_callback works", {
       )
     },
     {
+      expect_null(res)
       session$setInputs(errors = c("error1", "error2"))
       session$setInputs(errors = character(0))
     }

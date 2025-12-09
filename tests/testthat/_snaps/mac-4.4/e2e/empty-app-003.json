@@ -9,23 +9,17 @@
       "type": "canvas"
     },
     "board-dag_extension-graph-initialized": true,
-    "board-dag_extension-graph-mouse_position": {
-      "x": 144,
-      "y": 661.5
-    },
+    "board-dag_extension-graph-mouse_position": "<shinytest2:preprocessed>",
     "board-dag_extension-graph-state": {
       "nodes": [
         {
           "id": "node-super_data_block",
           "type": "image",
           "style": {
-            "src": "[image data hash: Error hashing image data]",
+            "src": "<shinytest2:preprocessed>",
             "labelText": "Dataset",
             "size": 48,
             "zIndex": 0,
-            "x": 150,
-            "y": 150,
-            "z": 0,
             "badges": [
 
             ]
@@ -38,18 +32,21 @@
           "id": "node-super_head_block",
           "type": "image",
           "style": {
-            "src": "[image data hash: Error hashing image data]",
+            "src": "<shinytest2:preprocessed>",
             "labelText": "Head",
             "size": 48,
             "zIndex": 0,
-            "x": 348,
-            "y": 150,
-            "z": 0,
             "badges": [
               {
-                "text": "1",
+                "text": "",
                 "placement": "right-top",
-                "backgroundFill": "#000"
+                "backgroundFill": "#dc2626",
+                "stroke": "#fff",
+                "lineWidth": 2,
+                "padding": [
+                  5,
+                  5
+                ]
               }
             ]
           },

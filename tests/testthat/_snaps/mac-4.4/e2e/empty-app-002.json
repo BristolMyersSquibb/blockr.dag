@@ -7,13 +7,10 @@
           "id": "node-super_data_block",
           "type": "image",
           "style": {
-            "src": "[image data hash: Error hashing image data]",
+            "src": "<shinytest2:preprocessed>",
             "labelText": "Dataset",
             "size": 48,
             "zIndex": 0,
-            "x": 150,
-            "y": 150,
-            "z": 0,
             "badges": [
 
             ]

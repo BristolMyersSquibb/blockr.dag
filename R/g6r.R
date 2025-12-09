@@ -252,6 +252,10 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 
+  # For shinytest2 e2e
+  preprocess_graph_state()
+  preprocess_mouse_position()
+
   session$output[[graph_id()]] <- render_g6(res)
 
   invisible(res)

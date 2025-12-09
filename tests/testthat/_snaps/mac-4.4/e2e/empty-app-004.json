@@ -15,23 +15,17 @@
       "id": "node-super_data_block"
     },
     "board-dag_extension-graph-initialized": true,
-    "board-dag_extension-graph-mouse_position": {
-      "x": 150.5,
-      "y": 162
-    },
+    "board-dag_extension-graph-mouse_position": "<shinytest2:preprocessed>",
     "board-dag_extension-graph-state": {
       "nodes": [
         {
           "id": "node-super_data_block",
           "type": "image",
           "style": {
-            "src": "[image data hash: Error hashing image data]",
+            "src": "<shinytest2:preprocessed>",
             "labelText": "Dataset",
             "size": 48,
             "zIndex": 0,
-            "x": 150,
-            "y": 150,
-            "z": 0,
             "badges": [
 
             ]
@@ -44,13 +38,10 @@
           "id": "node-super_head_block",
           "type": "image",
           "style": {
-            "src": "[image data hash: Error hashing image data]",
+            "src": "<shinytest2:preprocessed>",
             "labelText": "Head",
             "size": 48,
             "zIndex": 0,
-            "x": 150,
-            "y": 298,
-            "z": 0,
             "badges": [
 
             ]
@@ -77,7 +68,8 @@
               ]
             ],
             "sourceNode": "node-super_data_block",
-            "targetNode": "node-super_head_block"
+            "targetNode": "node-super_head_block",
+            "src": "<shinytest2:preprocessed>"
           },
           "data": {
 
