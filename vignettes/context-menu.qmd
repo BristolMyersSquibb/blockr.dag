@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 library(blockr.dag)
 ```
 
-The context menu provides actions based on what element is right-clicked in the graph.
+The __context menu__ provides __actions__ based on what element is __right-clicked__ in the graph.
 
 ## Available Actions
 

@@ -1,0 +1,122 @@
+---
+title: "Extension block callback"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Extension block callback}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(blockr.dag)
+```
+
+## Introduction
+
+An __extension block callback__ is run in the block context, that is part of blockr.dock. blockr.dock
+exposes a generic, namely `extension_block_callback()`. Each blockr extension, like blockr.dag, can provide its own method.
+
+## Add badge status to DAG nodes
+
+The motivation behind this mechanism is to update node state according to any block status change. For instance, if a block needs incoming data but does not have incoming connections, we may want to display an error badge on the node. If any error occurs during the block execution, we display a badge.
+
+The `extension_block_callback()` DAG method returns a function with the following signature:
+
+- `x` is the extension object.
+- `id` is the block id.
+- `board` is the board object.
+- `update` contains reactive values describing the board current actions.
+- `conditions` contains reactive values that return a list of conditions associated with the block state.
+- `dag_extension` is the extension instance. It is what is returned by the extension at the bottom
+of the main server function:
+
+```r
+list(
+  state = list(
+    graph = reactive(
+      input[[paste0(graph_id(), "-state")]]
+    )
+  ),
+  proxy = proxy
+)
+```
+In the callback we need it to get the DAG proxy object containing the correct __namespace__, which allows to update the DAG from another module.
+
+- `session` is the current block session, a different namespace as the DAG extension.
+
+This callback function returns `NULL`.
+
+```r
+extension_block_callback.dag_extension <- function(x, ...) {
+  function(
+    id,
+    board,
+    update,
+    conditions,
+    dag_extension,
+    ...,
+    session = get_session()
+  ) {
+    n_cnd <- reactive(
+      sum(lengths(conditions()$error))
+    )
+
+    badge_count <- reactiveVal(0L)
+
+    observeEvent(
+      req(n_cnd() > 0L, n_cnd() != badge_count()),
+      {
+        n <- n_cnd()
+
+        badge <- list(
+          text = "",
+          placement = "right-top",
+          backgroundFill = "#dc2626",
+          stroke = "#fff",
+          lineWidth = 2,
+          padding = c(5, 5)
+        )
+
+        node_config <- list(
+          list(
+            id = to_g6_node_id(id),
+            style = list(
+              badges = list(badge)
+            )
+          )
+        )
+
+        g6_update_nodes(dag_extension$proxy, node_config)
+        badge_count(n)
+      }
+    )
+
+    observeEvent(
+      req(n_cnd() == 0L, badge_count() > 0L),
+      {
+        node_config <- list(
+          list(
+            id = to_g6_node_id(id),
+            style = list(
+              badges = list()
+            )
+          )
+        )
+
+        g6_update_nodes(dag_extension$proxy, node_config)
+        badge_count(0L)
+      }
+    )
+
+    NULL
+  }
+}
+```
