@@ -134,6 +134,7 @@
         "animation": false,
         "autoResize": false,
         "cursor": "default",
+        "renderer": "() => new SVGRenderer()",
         "rotation": 0,
         "zoom": 1,
         "zoomRange": [
@@ -266,6 +267,7 @@
         ]
       },
       "evals": [
+        "renderer",
         "behaviors.1.enable",
         "behaviors.2.enable",
         "behaviors.4.enable",

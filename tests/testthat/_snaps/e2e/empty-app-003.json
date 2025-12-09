@@ -14,9 +14,102 @@
     "board-block_super_data_block-edit_block-collapse_blk_sections2": true,
     "board-block_super_data_block-edit_block-delete_block": 0,
     "board-block_super_data_block-expr-dataset": "BOD",
+    "board-block_super_data_block-result_cell_clicked": {
+
+    },
+    "board-block_super_data_block-result_cells_selected": [
+
+    ],
+    "board-block_super_data_block-result_columns_selected": null,
+    "board-block_super_data_block-result_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "board-block_super_data_block-result_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "board-block_super_data_block-result_rows_selected": null,
+    "board-block_super_data_block-result_search": "",
+    "board-block_super_data_block-result_state": {
+      "start": 0,
+      "length": 5,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "board-block_super_head_block-edit_block-append_block": 0,
+    "board-block_super_head_block-edit_block-blk_accordion": [
+      "inputs",
+      "outputs"
+    ],
+    "board-block_super_head_block-edit_block-block_name_in": "Head",
+    "board-block_super_head_block-edit_block-collapse_blk_sections": [
+      "inputs",
+      "outputs"
+    ],
+    "board-block_super_head_block-edit_block-collapse_blk_sections1": true,
+    "board-block_super_head_block-edit_block-collapse_blk_sections2": true,
+    "board-block_super_head_block-edit_block-delete_block": 0,
+    "board-block_super_head_block-expr-n": 6,
+    "board-block_super_head_block-expr-tail": false,
     "board-board_name": "Board",
     "board-board_options": null,
+    "board-dag_extension-ctx_add_block-add_block": true,
+    "board-dag_extension-ctx_add_block-add_block_confirm": 1,
+    "board-dag_extension-ctx_add_block-add_block_id": "super_head_block",
+    "board-dag_extension-ctx_add_block-add_block_name": "Head",
+    "board-dag_extension-ctx_add_block-add_block_selection": "head_block",
+    "board-dag_extension-graph-contextmenu": {
+      "type": "canvas"
+    },
     "board-dag_extension-graph-initialized": true,
+    "board-dag_extension-graph-mouse_position": {
+      "x": 144,
+      "y": 661.5
+    },
     "board-dag_extension-graph-state": {
       "nodes": [
         {
@@ -37,6 +130,29 @@
           "data": {
 
           }
+        },
+        {
+          "id": "node-super_head_block",
+          "type": "image",
+          "style": {
+            "src": "[image data hash: Error hashing image data]",
+            "labelText": "Head",
+            "size": 48,
+            "zIndex": 0,
+            "x": 348,
+            "y": 150,
+            "z": 0,
+            "badges": [
+              {
+                "text": "1",
+                "placement": "right-top",
+                "backgroundFill": "#000"
+              }
+            ]
+          },
+          "data": {
+
+          }
         }
       ],
       "edges": [
@@ -52,11 +168,11 @@
     "board-dag_extension-tool_add_block-add_block_name": "Dataset",
     "board-dag_extension-tool_add_block-add_block_selection": "dataset_block",
     "board-dock_active-group": "2",
-    "board-dock_active-panel": "block_panel-super_data_block",
-    "board-dock_added-panel": "block_panel-super_data_block",
+    "board-dock_active-panel": "block_panel-super_head_block",
+    "board-dock_added-panel": "block_panel-super_head_block",
     "board-dock_initialized": true,
     "board-dock_n-groups": 2,
-    "board-dock_n-panels": 2,
+    "board-dock_n-panels": 3,
     "board-dock_restored": true,
     "board-dock_state": {
       "grid": {
@@ -78,9 +194,10 @@
               "type": "leaf",
               "data": {
                 "views": [
-                  "block_panel-super_data_block"
+                  "block_panel-super_data_block",
+                  "block_panel-super_head_block"
                 ],
-                "activeView": "block_panel-super_data_block",
+                "activeView": "block_panel-super_head_block",
                 "id": "2"
               },
               "size": 481
@@ -124,6 +241,22 @@
             }
           },
           "title": "Dataset"
+        },
+        "block_panel-super_head_block": {
+          "id": "block_panel-super_head_block",
+          "contentComponent": "default",
+          "tabComponent": "manual",
+          "params": {
+            "content": {
+              "html": ""
+            },
+            "style": "overflow:auto;height:100%;",
+            "removeCallback": {
+              "__IS_FUNCTION__": true,
+              "source": "(config) => {\n      Shiny.setInputValue(`${config.dockId}_panel-to-remove`, config.api.id, { priority: 'event' });\n    }"
+            }
+          },
+          "title": "Head"
         }
       },
       "activeGroup": "2"
@@ -289,6 +422,12 @@
           "attachment": null,
           "all_files": true
         }
+      ]
+    },
+    "board-block_super_head_block-edit_block-block_name_out": {
+      "html": "<span class=\"blockr-title\">Head<\/span>",
+      "deps": [
+
       ]
     },
     "board-dag_extension-graph": {
@@ -560,7 +699,8 @@
           15.6,
           19.8
         ]
-      }
+      },
+      "super_head_block": null
     }
   }
 }

@@ -1,3 +1,3 @@
-# blockr.dag 0.0.1
+# blockr.dag 0.1.0
 
 * Initial CRAN submission.

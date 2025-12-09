@@ -14,24 +14,194 @@
     "board-block_super_data_block-edit_block-collapse_blk_sections2": true,
     "board-block_super_data_block-edit_block-delete_block": 0,
     "board-block_super_data_block-expr-dataset": "BOD",
+    "board-block_super_data_block-result_cell_clicked": {
+
+    },
+    "board-block_super_data_block-result_cells_selected": [
+
+    ],
+    "board-block_super_data_block-result_columns_selected": null,
+    "board-block_super_data_block-result_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "board-block_super_data_block-result_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "board-block_super_data_block-result_rows_selected": null,
+    "board-block_super_data_block-result_search": "",
+    "board-block_super_data_block-result_state": {
+      "start": 0,
+      "length": 5,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "board-block_super_head_block-edit_block-append_block": 0,
+    "board-block_super_head_block-edit_block-blk_accordion": [
+      "inputs",
+      "outputs"
+    ],
+    "board-block_super_head_block-edit_block-block_name_in": "Head",
+    "board-block_super_head_block-edit_block-collapse_blk_sections": [
+      "inputs",
+      "outputs"
+    ],
+    "board-block_super_head_block-edit_block-collapse_blk_sections1": true,
+    "board-block_super_head_block-edit_block-collapse_blk_sections2": true,
+    "board-block_super_head_block-edit_block-delete_block": 0,
+    "board-block_super_head_block-expr-n": 6,
+    "board-block_super_head_block-expr-tail": false,
+    "board-block_super_head_block-result_cell_clicked": {
+
+    },
+    "board-block_super_head_block-result_cells_selected": [
+
+    ],
+    "board-block_super_head_block-result_columns_selected": null,
+    "board-block_super_head_block-result_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "board-block_super_head_block-result_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "board-block_super_head_block-result_rows_selected": null,
+    "board-block_super_head_block-result_search": "",
+    "board-block_super_head_block-result_state": {
+      "start": 0,
+      "length": 5,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "board-board_name": "Board",
     "board-board_options": null,
+    "board-dag_extension-ctx_add_block-add_block": true,
+    "board-dag_extension-ctx_add_block-add_block_confirm": 1,
+    "board-dag_extension-ctx_add_block-add_block_id": "super_head_block",
+    "board-dag_extension-ctx_add_block-add_block_name": "Head",
+    "board-dag_extension-ctx_add_block-add_block_selection": "head_block",
+    "board-dag_extension-ctx_create_link-add_link": "super_data_block",
+    "board-dag_extension-ctx_create_link-add_link_confirm": 1,
+    "board-dag_extension-ctx_create_link-add_link_id": "super_link",
+    "board-dag_extension-ctx_create_link-add_link_input": "data",
+    "board-dag_extension-ctx_create_link-create_link": "super_head_block",
+    "board-dag_extension-graph-contextmenu": {
+      "type": "node",
+      "id": "node-super_data_block"
+    },
     "board-dag_extension-graph-initialized": true,
+    "board-dag_extension-graph-mouse_position": {
+      "x": 150.5,
+      "y": 162
+    },
+    "board-dag_extension-graph-selected_node": "node-super_data_block",
     "board-dag_extension-graph-state": {
       "nodes": [
         {
-          "id": "node-super_data_block",
+          "id": "node-super_head_block",
           "type": "image",
           "style": {
             "src": "[image data hash: Error hashing image data]",
-            "labelText": "Dataset",
+            "labelText": "Head",
             "size": 48,
             "zIndex": 0,
             "x": 150,
             "y": 150,
             "z": 0,
             "badges": [
-
+              {
+                "text": "1",
+                "placement": "right-top",
+                "backgroundFill": "#000"
+              }
             ]
           },
           "data": {
@@ -51,12 +221,14 @@
     "board-dag_extension-tool_add_block-add_block_id": "super_data_block",
     "board-dag_extension-tool_add_block-add_block_name": "Dataset",
     "board-dag_extension-tool_add_block-add_block_selection": "dataset_block",
+    "board-dag_extension-tool_remove_selected-rm_selected": true,
     "board-dock_active-group": "2",
-    "board-dock_active-panel": "block_panel-super_data_block",
-    "board-dock_added-panel": "block_panel-super_data_block",
+    "board-dock_active-panel": "block_panel-super_head_block",
+    "board-dock_added-panel": "block_panel-super_head_block",
     "board-dock_initialized": true,
     "board-dock_n-groups": 2,
     "board-dock_n-panels": 2,
+    "board-dock_removed-panel": "block_panel-super_data_block",
     "board-dock_restored": true,
     "board-dock_state": {
       "grid": {
@@ -78,9 +250,9 @@
               "type": "leaf",
               "data": {
                 "views": [
-                  "block_panel-super_data_block"
+                  "block_panel-super_head_block"
                 ],
-                "activeView": "block_panel-super_data_block",
+                "activeView": "block_panel-super_head_block",
                 "id": "2"
               },
               "size": 481
@@ -109,8 +281,8 @@
           },
           "title": "Workflow"
         },
-        "block_panel-super_data_block": {
-          "id": "block_panel-super_data_block",
+        "block_panel-super_head_block": {
+          "id": "block_panel-super_head_block",
           "contentComponent": "default",
           "tabComponent": "manual",
           "params": {
@@ -123,7 +295,7 @@
               "source": "(config) => {\n      Shiny.setInputValue(`${config.dockId}_panel-to-remove`, config.api.id, { priority: 'event' });\n    }"
             }
           },
-          "title": "Dataset"
+          "title": "Head"
         }
       },
       "activeGroup": "2"
@@ -136,12 +308,28 @@
   },
   "output": {
     "board-block_super_data_block-edit_block-block_name_out": {
-      "html": "<span class=\"blockr-title\">Dataset<\/span>",
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "board-block_super_data_block-result": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "board-block_super_head_block-edit_block-block_name_out": {
+      "html": "<span class=\"blockr-title\">Head<\/span>",
       "deps": [
 
       ]
     },
-    "board-block_super_data_block-result": {
+    "board-block_super_head_block-result": {
       "x": {
         "style": "bootstrap5",
         "filter": "none",
@@ -543,24 +731,7 @@
   },
   "export": {
     "result": {
-      "super_data_block": {
-        "Time": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          7
-        ],
-        "demand": [
-          8.300000000000001,
-          10.3,
-          19,
-          16,
-          15.6,
-          19.8
-        ]
-      }
+      "super_head_block": null
     }
   }
 }

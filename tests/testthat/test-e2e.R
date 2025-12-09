@@ -54,6 +54,7 @@ create_new_link <- function(app, context, id, target) {
       context
     )
   )
+  app$wait_for_idle()
 }
 
 right_click <- function(target, app, init = FALSE) {
@@ -109,7 +110,7 @@ right_click <- function(target, app, init = FALSE) {
     clickCount = 1
   )
 
-  app$wait_for_idle()
+  Sys.sleep(2)
 }
 
 test_that("sample_app works", {
@@ -119,7 +120,6 @@ test_that("sample_app works", {
   #local_app_support(appdir)
 
   app <- AppDriver$new(appdir, name = "empty-app", seed = 4323)
-
   app$expect_values()
 
   # Add a new block: with custom id
@@ -137,7 +137,7 @@ test_that("sample_app works", {
   # Right click on dataset block + add link with head block
   right_click("g#node-super_data_block", app)
   app$click(selector = ".g6-contextmenu-li[value=\"create_link\"]")
-  create_new_link(app, "ctx", "super_head_block", "super_link")
+  create_new_link(app, "ctx", "super_link", "super_head_block")
   app$expect_values()
 
   # Select new block and remove
@@ -155,6 +155,7 @@ test_that("sample_app works", {
 
   # Remove element
   app$click(selector = ".g6-toolbar-item[value=\"remove_selected\"")
+  app$expect_values()
 
   app$stop()
 })
