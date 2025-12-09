@@ -142,7 +142,10 @@ test_that("sample_app works", {
 
   # Select new block and remove
   app$run_js(
-    "HTMLWidgets.find('#board-dag_extension-graph').getWidget().setElementState('node-super_data_block', 'selected', false);"
+    "HTMLWidgets
+      .find('#board-dag_extension-graph')
+      .getWidget()
+      .setElementState('node-super_data_block', 'selected', false);"
   )
   app$set_inputs(
     `board-dag_extension-graph-selected_node` = "node-super_data_block",
