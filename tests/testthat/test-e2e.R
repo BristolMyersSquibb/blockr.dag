@@ -136,10 +136,7 @@ test_that("sample_app works", {
   app <- AppDriver$new(
     appdir,
     name = "empty-app",
-    seed = 4323,
-    width = 992,
-    height = 1323,
-    variant = platform_variant()
+    seed = 4323
   )
   expect_values(app)
 
