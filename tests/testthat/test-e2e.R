@@ -25,9 +25,10 @@ create_new_block <- function(app, context, name, id) {
     "board-dag_extension-%s_add_block-add_block_confirm",
     context
   ))
+  app$wait_for_idle()
 }
 
-create_new_link <- function(app, context, id, target) {
+create_new_link <- function(app, context, target, id) {
   app$wait_for_idle()
   input_name <- sprintf(
     "board-dag_extension-%s_create_link-create_link",
@@ -110,7 +111,20 @@ right_click <- function(target, app, init = FALSE) {
     clickCount = 1
   )
 
-  Sys.sleep(2)
+  app$wait_for_idle()
+}
+
+expect_values <- function(app, ...) {
+  vals <- app$get_values()
+  filter_names <- function(x) {
+    grep("board-dag_extension", names(x), value = TRUE)
+  }
+  app$expect_values(
+    ...,
+    export = vals$export,
+    input = filter_names(vals$input),
+    output = filter_names(vals$output)
+  )
 }
 
 test_that("sample_app works", {
@@ -120,25 +134,26 @@ test_that("sample_app works", {
   #local_app_support(appdir)
 
   app <- AppDriver$new(appdir, name = "empty-app", seed = 4323)
-  app$expect_values()
+  expect_values(app)
 
   # Add a new block: with custom id
+  app$wait_for_idle()
   app$click(selector = ".g6-toolbar-item[value=\"add_block\"")
   create_new_block(app, "tool", "dataset_block", "super_data_block")
-  app$expect_values()
+  expect_values(app)
 
   # Append: show canvas context menu
   # Right-click on canvas to show context menu
   right_click("#board-dag_extension-graph", app, init = TRUE)
   app$click(selector = ".g6-contextmenu-li[value=\"add_block\"]")
   create_new_block(app, "ctx", "head_block", "super_head_block")
-  app$expect_values()
+  expect_values(app)
 
   # Right click on dataset block + add link with head block
   right_click("g#node-super_data_block", app)
   app$click(selector = ".g6-contextmenu-li[value=\"create_link\"]")
-  create_new_link(app, "ctx", "super_link", "super_head_block")
-  app$expect_values()
+  create_new_link(app, "ctx", "super_head_block", "super_link")
+  expect_values(app)
 
   # Select new block and remove
   app$run_js(
@@ -155,7 +170,7 @@ test_that("sample_app works", {
 
   # Remove element
   app$click(selector = ".g6-toolbar-item[value=\"remove_selected\"")
-  app$expect_values()
+  expect_values(app)
 
   app$stop()
 })

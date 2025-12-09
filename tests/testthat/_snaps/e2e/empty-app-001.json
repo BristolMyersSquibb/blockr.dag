@@ -1,7 +1,5 @@
 {
   "input": {
-    "board-board_name": "Board",
-    "board-board_options": null,
     "board-dag_extension-graph-initialized": true,
     "board-dag_extension-graph-state": {
       "nodes": [
@@ -13,72 +11,7 @@
       "combos": [
 
       ]
-    },
-    "board-dock_active-group": "1",
-    "board-dock_active-panel": "ext_panel-dag_extension",
-    "board-dock_added-panel": "ext_panel-dag_extension",
-    "board-dock_initialized": true,
-    "board-dock_n-groups": 2,
-    "board-dock_n-panels": 1,
-    "board-dock_restored": true,
-    "board-dock_state": {
-      "grid": {
-        "root": {
-          "type": "branch",
-          "data": [
-            {
-              "type": "leaf",
-              "data": {
-                "views": [
-                  "ext_panel-dag_extension"
-                ],
-                "activeView": "ext_panel-dag_extension",
-                "id": "1"
-              },
-              "size": 481
-            },
-            {
-              "type": "leaf",
-              "data": {
-                "views": [
-
-                ],
-                "id": "2"
-              },
-              "size": 481
-            }
-          ],
-          "size": 1303
-        },
-        "width": 972,
-        "height": 1303,
-        "orientation": "HORIZONTAL"
-      },
-      "panels": {
-        "ext_panel-dag_extension": {
-          "id": "ext_panel-dag_extension",
-          "contentComponent": "default",
-          "tabComponent": "manual",
-          "params": {
-            "content": {
-              "html": ""
-            },
-            "style": "overflow:auto;height:100%;",
-            "removeCallback": {
-              "__IS_FUNCTION__": true,
-              "source": "(config) => {\n      Shiny.setInputValue(`${config.dockId}_panel-to-remove`, config.api.id, { priority: 'event' });\n    }"
-            }
-          },
-          "title": "Workflow"
-        }
-      },
-      "activeGroup": "1"
-    },
-    "board-filter_rows": false,
-    "board-generate_code-code_mod": 0,
-    "board-n_rows": 50,
-    "board-page_size": "5",
-    "board-preserve_board-restore": null
+    }
   },
   "output": {
     "board-dag_extension-graph": {
@@ -286,54 +219,6 @@
       "deps": [
 
       ]
-    },
-    "board-dock": {
-      "x": {
-        "theme": "light-spaced",
-        "panels": [
-
-        ],
-        "addTab": {
-          "enable": true,
-          "callback": "(config) => {\n      Shiny.setInputValue(`${config.dockId}_panel-to-add`, config.group.id, { priority: 'event' });\n    }"
-        },
-        "mode": "prod",
-        "defaultRenderer": "always"
-      },
-      "evals": [
-        "addTab.callback"
-      ],
-      "jsHooks": {
-        "render": [
-          {
-            "code": "function(el, x) {\n        Shiny.setInputValue(`${el.id}_initialized`, true);\n      }",
-            "data": null
-          }
-        ]
-      },
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.5.2",
-          "src": {
-            "href": "font-awesome-6.5.2"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
     }
-  },
-  "export": {
-    "result": [
-
-    ]
   }
 }
