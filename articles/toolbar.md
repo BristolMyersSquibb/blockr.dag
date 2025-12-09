@@ -1,0 +1,60 @@
+# Toolbar Items
+
+``` r
+library(blockr.dag)
+```
+
+The **toolbar** provides quick access to common graph operations.
+
+## Available Actions
+
+The toolbar includes several default operations:
+
+- **Zoom in/out** - Navigate large workflows.
+- **Auto fit** - Fit entire graph to view.
+- **Layout** - Reset graph layout.
+- **Add block** - Trigger create new blocks.
+- **Add stack** - Trigger create stack.
+- **Remove selected** - Delete selected elements (can be stacks, blocks
+  and links)
+
+## Creating Toolbar Items
+
+Toolbar items are declared via
+[`new_toolbar_item()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/tool.md):
+
+``` r
+# Toolbar item
+item <- new_toolbar_item(
+  id = "custom_tool",
+  icon = "icon-custom",
+  js = "console.log('Custom tool clicked')",
+  action = function(board, update, ...) {
+    # Server-side logic
+  }
+)
+```
+
+`js` can be a string representing a JavaScript function or an R function
+that takes the namespace `ns` as input and returns a string:
+
+``` r
+function(ns) {
+  sprintf(
+    "(value, target, current) => {
+      Shiny.setInputValue('%s', true, {priority: 'event'});
+    }",
+    ns("add_block")
+  )
+}
+```
+
+Any new item has to go inside `toolbar_items.dag_extension` for
+registration:
+
+``` r
+toolbar_items.dag_extension <- function(x) {
+  list(
+    item
+  )
+```

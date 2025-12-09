@@ -1,13 +1,19 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>/404.html</loc></url>
-<url><loc>/LICENSE.html</loc></url>
-<url><loc>/authors.html</loc></url>
-<url><loc>/index.html</loc></url>
-<url><loc>/reference/ctx.html</loc></url>
-<url><loc>/reference/dag.html</loc></url>
-<url><loc>/reference/g6r.html</loc></url>
-<url><loc>/reference/graph.html</loc></url>
-<url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/tool.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/404.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/LICENSE.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/articles/block-callback.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/articles/blockr.dag.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/articles/context-menu.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/articles/index.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/articles/toolbar.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/authors.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/index.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/news/index.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/ctx.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/dag.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/g6r.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/index.html</loc></url>
+<url><loc>https://bristolmyerssquibb.github.io/blockr.dag/reference/tool.html</loc></url>
 </urlset>
 
