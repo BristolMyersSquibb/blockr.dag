@@ -70,10 +70,9 @@ serve(
 
 ### Where does blockr.dag fit in?
 
-In the blockr ecosystem, blockr.dag is a high level extension that usually comes at the end of the stack. It depends on blockr.core for core functionalities and blockr.dock for the user interface. It also relies on external packages like g6R for rendering and interaction, as well as extra block packages like blockr.dplyr and blockr.ggplot for additional block types:
+In the blockr [ecosystem](https://bristolmyerssquibb.github.io/blockr/), blockr.dag is a high level extension that usually comes at the end of the stack. It depends on blockr.core for core functionalities and blockr.dock for the user interface. It also relies on external packages like g6R for rendering and interaction, as well as extra block packages like blockr.dplyr and blockr.ggplot for additional block types:
 
 ```{mermaid}
-%%| theme: default
 graph TD
     subgraph Core Layer
         blockr.core[blockr.core]
