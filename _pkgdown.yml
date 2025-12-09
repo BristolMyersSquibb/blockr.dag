@@ -1,0 +1,55 @@
+url: https://bristolmyerssquibb.github.io/blockr.dag/
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, extend]
+    right: [search, reference, news, github]
+  components:
+    home: ~
+
+    intro:
+      text: Get started
+      href: articles/blockr.dag.html
+    
+    extend:
+      text: Extend
+      menu:
+        - text: Context Menu Items
+          href: articles/context-menu.html
+        - text: Toolbar Items
+          href: articles/toolbar.html
+        - text: Block callbacks
+          href: articles/block-callback.html
+
+reference:
+  - title: Initialize
+    desc: Initialize a DAG extension
+    contents:
+      - new_dag_extension
+  
+  - title: Graph
+    desc: Create and manipulate graph objects
+    contents:
+      - new_graph
+      - is_graph
+      - as_graph
+      - graph_nodes
+      - graph_edges
+      - graph_combos
+  
+  - title: User Interface
+    desc: UI components and interactions
+  - subtitle: Context Menu
+    desc: Context menu functionality
+    contents:
+      - new_context_menu_entry
+      - is_context_menu_entry
+      - context_menu_items
+  - subtitle: Toolbar
+    desc: Toolbar functionality
+    contents:
+      - new_toolbar_item
+      - is_toolbar_item
+      - toolbar_items

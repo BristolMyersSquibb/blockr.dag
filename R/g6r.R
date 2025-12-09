@@ -1,5 +1,4 @@
 to_g6_node_id <- function(x) {
-
   if (length(x)) {
     x <- paste0("node-", x)
   }
@@ -12,7 +11,6 @@ from_g6_node_id <- function(x) {
 }
 
 to_g6_edge_id <- function(x) {
-
   if (length(x)) {
     x <- paste0("edge-", x)
   }
@@ -25,7 +23,6 @@ from_g6_edge_id <- function(x) {
 }
 
 to_g6_combo_id <- function(x) {
-
   if (length(x)) {
     x <- paste0("combo-", x)
   }
@@ -38,7 +35,6 @@ from_g6_combo_id <- function(x) {
 }
 
 g6_from_board <- function(board) {
-
   stopifnot(is_board(board))
 
   graph <- g6_data_from_board(board)
@@ -64,6 +60,9 @@ set_g6_options <- function(graph, ...) {
   g6_options(
     graph,
     ...,
+    # Required so that elements are in the DOM
+    # for shinytest2 e2e
+    renderer = JS("() => new SVGRenderer()"),
     animation = FALSE,
     node = list(
       style = list(
@@ -282,7 +281,6 @@ g6_edges_from_links <- function(links) {
 #' @param stacks Board stacks.
 #' @keywords internal
 g6_nodes_from_blocks <- function(blocks, stacks) {
-
   stk_blks <- lapply(stacks, stack_blocks)
 
   stk_blks <- set_names(
@@ -375,7 +373,6 @@ g6_data_from_board <- function(board) {
 }
 
 remove_nodes <- function(nodes, asis = FALSE, proxy = blockr_g6_proxy()) {
-
   if (!isTRUE(asis)) {
     nodes <- to_g6_node_id(nodes)
   }
@@ -386,7 +383,6 @@ remove_nodes <- function(nodes, asis = FALSE, proxy = blockr_g6_proxy()) {
 }
 
 remove_edges <- function(edges, asis = FALSE, proxy = blockr_g6_proxy()) {
-
   if (!isTRUE(asis)) {
     edges <- to_g6_edge_id(edges)
   }
@@ -397,7 +393,6 @@ remove_edges <- function(edges, asis = FALSE, proxy = blockr_g6_proxy()) {
 }
 
 remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
-
   if (!isTRUE(asis)) {
     combos <- to_g6_combo_id(combos)
   }

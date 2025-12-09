@@ -1,0 +1,247 @@
+{
+  "input": {
+    "board-dag_extension-graph-initialized": true,
+    "board-dag_extension-graph-state": {
+      "nodes": [
+        {
+          "id": "node-super_data_block",
+          "type": "image",
+          "style": {
+            "src": "[image data hash: Error hashing image data]",
+            "labelText": "Dataset",
+            "size": 48,
+            "zIndex": 0,
+            "x": 150,
+            "y": 150,
+            "z": 0,
+            "badges": [
+
+            ]
+          },
+          "data": {
+
+          }
+        }
+      ],
+      "edges": [
+
+      ],
+      "combos": [
+
+      ]
+    },
+    "board-dag_extension-tool_add_block-add_block": true,
+    "board-dag_extension-tool_add_block-add_block_confirm": 1,
+    "board-dag_extension-tool_add_block-add_block_id": "super_data_block",
+    "board-dag_extension-tool_add_block-add_block_name": "Dataset",
+    "board-dag_extension-tool_add_block-add_block_selection": "dataset_block"
+  },
+  "output": {
+    "board-dag_extension-graph": {
+      "x": {
+        "data": {
+          "nodes": [
+
+          ],
+          "edges": [
+
+          ],
+          "combos": [
+
+          ]
+        },
+        "jsonUrl": null,
+        "iconsUrl": "//at.alicdn.com/t/font_2678727_za4qjydwkkh.js",
+        "mode": "dev",
+        "preservePosition": false,
+        "node": {
+          "style": {
+            "labelBackground": true,
+            "labelBackgroundRadius": 4,
+            "labelFontFamily": "Arial",
+            "labelPadding": [
+              0,
+              4
+            ],
+            "labelPlacement": "bottom",
+            "labelOffsetY": 8
+          }
+        },
+        "edge": {
+          "animation": false,
+          "style": {
+            "endArrow": true,
+            "stroke": "#D1D5DB"
+          }
+        },
+        "combo": {
+          "animation": false,
+          "badge": true,
+          "type": "rect",
+          "style": {
+            "padding": [
+              20,
+              20,
+              40,
+              20
+            ]
+          }
+        },
+        "animation": false,
+        "autoResize": false,
+        "cursor": "default",
+        "renderer": "() => new SVGRenderer()",
+        "rotation": 0,
+        "zoom": 1,
+        "zoomRange": [
+          0.01,
+          10
+        ],
+        "theme": "light",
+        "layout": {
+          "type": "antv-dagre",
+          "rankdir": "TB",
+          "align": "UL",
+          "nodesep": 50,
+          "ranksep": 50,
+          "ranker": "network-simplex",
+          "controlPoints": false,
+          "begin": [
+            150,
+            150
+          ],
+          "sortByCombo": true,
+          "edgeLabelSpace": true,
+          "radial": false
+        },
+        "behaviors": [
+          {
+            "key": "zoom-canvas",
+            "animation": {
+              "duration": 200
+            },
+            "enable": true,
+            "preventDefault": true,
+            "sensitivity": 1,
+            "type": "zoom-canvas"
+          },
+          {
+            "key": "drag-canvas",
+            "enable": "(e) => {\n          return e.targetType === 'canvas' && !e.shiftKey && !e.altKey;\n        }",
+            "direction": "both",
+            "sensitivity": 10,
+            "type": "drag-canvas"
+          },
+          {
+            "key": "drag-element",
+            "enable": "(e) => {\n          return !e.shiftKey && !e.altKey;\n        }",
+            "animation": true,
+            "state": "selected",
+            "dropEffect": "move",
+            "hideEdge": "none",
+            "shadow": false,
+            "type": "drag-element"
+          },
+          {
+            "key": "click-select",
+            "animation": true,
+            "degree": 0,
+            "enable": true,
+            "multiple": true,
+            "state": "selected",
+            "neighborState": "selected",
+            "trigger": [
+              "shift"
+            ],
+            "type": "click-select"
+          },
+          {
+            "key": "brush-select",
+            "animation": false,
+            "enable": "(e) => {\n      return true;\n    }",
+            "enableElements": [
+              "node",
+              "edge",
+              "combo"
+            ],
+            "immediately": true,
+            "mode": "default",
+            "onSelect": "(states) => {\n          const selected = Object.getOwnPropertyNames(states);\n          const nodes = [];\n          const edges = [];\n          const combos = [];\n          const widget = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n          if (selected.length === 0) return states;\n          selected.forEach(id => {\n            const type = widget.getElementType(id);\n            if (type === 'node') nodes.push(id);\n            else if (type === 'edge') edges.push(id);\n            else if (type === 'combo') combos.push(id);\n          });\n          Shiny.setInputValue('board-dag_extension-graph-selected_node:g6R.brush_select', nodes, {priority: 'event'});\n          Shiny.setInputValue('board-dag_extension-graph-selected_edge:g6R.brush_select', edges, {priority: 'event'});\n          Shiny.setInputValue('board-dag_extension-graph-selected_combo:g6R.brush_select', combos, {priority: 'event'});\n          return states;\n        }",
+            "state": "selected",
+            "trigger": "Alt",
+            "outputId": "board-dag_extension-graph",
+            "type": "brush-select"
+          },
+          {
+            "key": "collapse-expand",
+            "animation": true,
+            "enable": true,
+            "trigger": "dblclick",
+            "align": true,
+            "type": "collapse-expand"
+          },
+          {
+            "key": "create-edge",
+            "trigger": "drag",
+            "enable": "(e) => {\n          return e.shiftKey;\n        }",
+            "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType\n                }\n              );\n            }\n          }",
+            "notify": false,
+            "type": "create-edge"
+          }
+        ],
+        "plugins": [
+          {
+            "key": "contextmenu",
+            "className": "g6-contextmenu",
+            "trigger": "contextmenu",
+            "offset": [
+              4,
+              4
+            ],
+            "onClick": "(value, target, current) => {\nif (value === 'create_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_create_link-add_link', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_block') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_block-remove_block', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_link-remove_link', current.id.replace(/^edge-/, ''));\n          })(value, target, current)\n} else if (value === 'append_block') {\n((value, target, current) => {\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_append_block-append_block',\n              current.id.replace(/^node-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'create_stack') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_create_stack-create_stack', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_stack-remove_stack', current.id.replace(/^combo-/, ''));\n          })(value, target, current)\n} else if (value === 'edit_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_edit_stack-edit_stack',\n              current.id.replace(/^combo-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'add_block') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_add_block-add_block', true, {priority: 'event'});\n          })(value, target, current)\n}\n}",
+            "getItems": "async (e) => {\n            var body;\n            if (e.targetType === 'canvas') {\n              body = {type: e.targetType};\n            } else {\n              body = {\n                id: e.target.id.replace(/^(node|edge|combo)-/, ''),\n                type: e.targetType\n              };\n            }\n            const response = await fetch(\n              'session/9a744a1bdf8658afbd8fbc6fbe9d2f6e/dataobj/board-dag_extension-context-menu-items?w=&nonce=07f72b4e4cafa5e9',\n              {\n                method: 'POST',\n                headers: {\n                  'Accept': 'application/json',\n                  'Content-Type': 'application/json'\n                },\n                body: JSON.stringify(body)\n              }\n            );\n            const items = await response.json();\n            return items;\n          }",
+            "enable": "(e) => {\n          let cond = e.targetType === 'edge' ||\n            e.targetType === 'node' ||\n            e.targetType === 'canvas' ||\n            e.targetType === 'combo';\n          return cond;\n        }",
+            "type": "contextmenu"
+          },
+          {
+            "getItems": "( ) => [\n{ id : 'zoom-in' , value : 'zoom_in', title: 'Zoom in' },\n{ id : 'zoom-out' , value : 'zoom_out', title: 'Zoom out' },\n{ id : 'auto-fit' , value : 'auto_fit', title: 'Auto fit' },\n{ id : 'reset' , value : 'layout', title: 'Layout' },\n{ id : 'icon-roundaddfill' , value : 'add_block', title: 'Add block' },\n{ id : 'icon-cascades' , value : 'add_stack', title: 'Add stack' },\n{ id : 'icon-delete' , value : 'remove_selected', title: 'Remove selected' }\n]",
+            "key": "toolbar",
+            "position": "left",
+            "style": {
+              "backgroundColor": "#f5f5f5",
+              "padding": "8px",
+              "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.15)",
+              "borderRadius": "8px",
+              "border": "1px solid #e8e8e8",
+              "opacity": "0.9",
+              "marginTop": "12px",
+              "marginLeft": "12px"
+            },
+            "onClick": "(value, target, current) => {\nif (value === 'zoom_in') {\n((value, target, current) => {\n        const graph = HTMLWidgets.find(\n          `#${target.closest('.g6').id}`\n        ).getWidget();\n        graph.zoomTo(graph.getZoom() + 0.1);\n      })(value, target, current)\n} else if (value === 'zoom_out') {\n((value, target, current) => {\n        const graph = HTMLWidgets.find(\n          `#${target.closest('.g6').id}`\n        ).getWidget();\n        graph.zoomTo (graph.getZoom() - 0.1);\n      })(value, target, current)\n} else if (value === 'auto_fit') {\n((value, target, current) => {\n        const graph = HTMLWidgets.find(\n          `#${target.closest('.g6').id}`\n        ).getWidget();\n        graph.fitView();\n      })(value, target, current)\n} else if (value === 'layout') {\n((value, target, current) => {\n        const graph = HTMLWidgets.find(\n          `#${target.closest('.g6').id}`\n        ).getWidget();\n        graph.layout();\n      })(value, target, current)\n} else if (value === 'add_block') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-tool_add_block-add_block', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'add_stack') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-tool_add_stack-add_stack', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_selected') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-tool_remove_selected-rm_selected', true, {priority: 'event'});\n          })(value, target, current)\n}\n}",
+            "type": "toolbar"
+          }
+        ]
+      },
+      "evals": [
+        "renderer",
+        "behaviors.1.enable",
+        "behaviors.2.enable",
+        "behaviors.4.enable",
+        "behaviors.4.onSelect",
+        "behaviors.6.enable",
+        "behaviors.6.onFinish",
+        "plugins.0.onClick",
+        "plugins.0.getItems",
+        "plugins.0.enable",
+        "plugins.1.getItems",
+        "plugins.1.onClick"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+
+      ]
+    }
+  }
+}

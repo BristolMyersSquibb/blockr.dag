@@ -1,17 +1,52 @@
-#' Create a toolbar item
+#' Toolbar item functions
 #'
-#' Utilities to create tooblbar items for working with the DAG.
+#' Functions for creating and working with toolbar
+#' items for the DAG interface.
 #'
-#' @param id Unique identifier for the toolbar item
-#' @param icon Name of an icon to show in the toolbar
-#' @param js JavaScript code to execute when the entry is selected
+#' @param id Unique identifier for the toolbar item.
+#' @param icon Name of an icon to show in the toolbar.
+#' @param js JavaScript code to execute when the entry is selected.
 #' @param tooltip Optional tooltip text for the entry.
-#' @param action Action to perform when the entry is selected
+#' @param action Action to perform when the entry is selected.
+#' @param x Object to test or extract toolbar items from.
+#'
+#' @details
+#' \describe{
+#'   \item{`new_toolbar_item()`}{Creates a new toolbar
+#' item with the specified id, icon, JavaScript code, action function,
+#' and tooltip text.}
+#'   \item{`is_toolbar_item()`}{
+#' Tests whether an object is a valid toolbar item.}
+#'   \item{`toolbar_items()`}{Generic function to
+#' extract toolbar items from various
+#' objects like dock extensions, boards, or lists.}
+#' }
+#'
+#' The `toolbar_items.dag_extension()` method provides
+#' the following actions:
+#' \itemize{
+#'   \item Zoom in - Increases the graph zoom level.
+#'   \item Zoom out - Decreases the graph zoom level.
+#'   \item Auto fit - Automatically fits the entire graph within the viewport.
+#'   \item Layout - Reapplies the graph layout algorithm to reorganize nodes.
+#'   \item Add block - Opens interface to add a new block to the workflow.
+#'   \item Add stack - Creates a new workflow stack.
+#'   \item Remove selected - Removes currently selected elements from the graph.
+#' }
 #'
 #' @rdname tool
 #' @export
+#' @return
+#' \describe{
+#'   \item{`new_toolbar_item()`}{A toolbar
+#' item object of class "toolbar_item" containing
+#' action and js functions, with id, icon, and tooltip attributes.}
+#'   \item{`is_toolbar_item()`}{`TRUE` if `x` is
+#' a toolbar item, `FALSE` otherwise.}
+#'   \item{`toolbar_items()`}{A list of toolbar
+#' items for the given object.}
+#' }
 new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
-
   if (is_string(js)) {
     js_string <- js
     js <- function(...) js_string
@@ -46,7 +81,6 @@ is_toolbar_item <- function(x) {
 }
 
 validate_toolbar_items <- function(x) {
-
   stopifnot(
     is.list(x),
     all(lgl_ply(x, is_toolbar_item)),
@@ -63,9 +97,7 @@ toolbar_item_icon <- function(x) attr(x, "icon")
 toolbar_item_tooltip <- function(x) attr(x, "tooltip")
 
 toolbar_item_action <- function(x, board, update, ..., domain = get_session()) {
-
   if (!is_toolbar_item(x)) {
-
     validate_toolbar_items(x)
 
     for (i in x) {
@@ -100,9 +132,7 @@ toolbar_item_action <- function(x, board, update, ..., domain = get_session()) {
 }
 
 toolbar_item_js <- function(x, ns = NULL) {
-
   if (!is_toolbar_item(x)) {
-
     validate_toolbar_items(x)
 
     res <- paste(
@@ -131,9 +161,7 @@ toolbar_item_js <- function(x, ns = NULL) {
 }
 
 build_toolbar <- function(x, ...) {
-
   if (!is_toolbar_item(x)) {
-
     validate_toolbar_items(x)
 
     res <- paste(
@@ -167,7 +195,6 @@ toolbar_items.dock_extension <- function(x) {
 
 #' @export
 toolbar_items.list <- function(x) {
-
   res <- lapply(x, toolbar_items)
 
   for (x in res) {
