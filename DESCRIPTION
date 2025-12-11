@@ -1,5 +1,5 @@
 Package: blockr.dag
-Title: A DAG extension for 'blockr.dock'
+Title: A Directed Acyclic Graph Extension For 'blockr'
 Version: 0.1.0
 Authors@R: 
     c(person(given = "David",
@@ -18,8 +18,9 @@ Authors@R:
              role = "fnd")
     )
 Description: Building on the docking layout manager provided by 'blockr.dock', this
-    provides an extension that allows for visualizing and manipulating a blockr
-    board using a DAG-based user interface powered by 'g6R'.
+    provides an extension that allows for visualizing and manipulating a 'blockr'
+    board using a DAG-based user interface powered by the 'g6R' 
+    graph visualisation HTML widget.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -31,8 +32,6 @@ Imports:
     g6R (>= 0.5.0),
     jsonlite,
     htmltools
-Remotes:
-    BristolMyersSquibb/blockr.dock
 Suggests: 
     knitr,
     rmarkdown,
