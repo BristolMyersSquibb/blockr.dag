@@ -1,5 +1,5 @@
 Package: blockr.dag
-Title: A Directed Acyclic Graph Extension For 'blockr'
+Title: A Directed Acyclic Graph Extension for 'blockr'
 Version: 0.1.0
 Authors@R: 
     c(person(given = "David",
