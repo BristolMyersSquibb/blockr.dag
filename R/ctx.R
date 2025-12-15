@@ -98,22 +98,21 @@ context_menu_entry_condition <- function(x, ...) {
   x[["condition"]](...)
 }
 
-context_menu_entry_action <- function(
-  x,
-  board,
-  update,
-  ...,
-  domain = get_session()
-) {
+context_menu_entry_action <- function(x, actions, session = get_session()) {
+
   if (!is_context_menu_entry(x)) {
-    validate_context_menu_entries(x)
 
-    for (i in x) {
-      context_menu_entry_action(i, board, update, ..., domain = domain)
-    }
+    res <- lapply(
+      validate_context_menu_entries(x),
+      context_menu_entry_action,
+      actions,
+      session
+    )
 
-    return(invisible(NULL))
+    return(invisible(res))
   }
+
+  stopifnot(is_context_menu_entry(x))
 
   fun <- x[["action"]]
 
@@ -121,17 +120,12 @@ context_menu_entry_action <- function(
     return(invisible(NULL))
   }
 
-  id <- context_menu_entry_id(x)
+  res <- fun(actions, session)
 
-  res <- moduleServer(
-    paste0("ctx_", id),
-    fun(board, update, ..., domain = domain),
-    domain
-  )
-
-  if (not_null(res)) {
+  if (!inherits(res, "Observer")) {
     blockr_abort(
-      "Expecting context menu item server {id} to return `NULL`.",
+      "Expecting context menu item server {context_menu_entry_id(x)} to ",
+      "return an observer.",
       class = "context_menu_item_return_invalid"
     )
   }
@@ -155,8 +149,6 @@ context_menu_entry_js <- function(x, ns = NULL) {
 
   if (is.null(ns)) {
     ns <- NS(NULL)
-  } else {
-    ns <- NS(ns(paste0("ctx_", context_menu_entry_id(x))))
   }
 
   paste0(

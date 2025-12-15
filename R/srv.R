@@ -1,5 +1,5 @@
 dag_ext_srv <- function(graph) {
-  function(id, board, update, dock, ...) {
+  function(id, board, update, dock, actions, ...) {
     dot_args <- list(...)
 
     moduleServer(
@@ -41,56 +41,14 @@ dag_ext_srv <- function(graph) {
 
         proxy <- blockr_g6_proxy(session)
 
-        action_args <- c(
-          list(board = board, update = update, dock = dock),
-          dot_args,
-          list(domain = session)
-        )
-
-        do.call(
-          context_menu_entry_action,
-          c(list(context_menu), action_args)
-        )
-
-        do.call(
-          toolbar_item_action,
-          c(list(toolbar), action_args)
-        )
-
-        update_observer(update, board, proxy)
+        context_menu_entry_action(context_menu, actions, session)
+        toolbar_item_action(toolbar, actions, session)
 
         setup_remove_elements_kbd()
 
-        do.call(
-          remove_selected_action(
-            reactive(req(input[[paste0(graph_id(), "-batch_delete")]])),
-            as_module = FALSE
-          ),
-          action_args
-        )
+        actions_observers(actions, input)
 
-        do.call(
-          draw_link_action(
-            reactive(
-              req(input$added_edge, input$added_edge$targetType != "canvas")
-            ),
-            as_module = FALSE
-          ),
-          action_args
-        )
-
-        do.call(
-          blockr.dock::append_block_action(
-            reactive(
-              req(
-                input$added_edge$source,
-                input$added_edge$targetType == "canvas"
-              )
-            ),
-            as_module = FALSE
-          ),
-          action_args
-        )
+        update_observer(update, board, proxy)
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
@@ -115,6 +73,10 @@ dag_ext_srv <- function(graph) {
             graph = reactive(
               input[[paste0(graph_id(), "-state")]]
             )
+          ),
+          actions = list(
+            draw_link_action = draw_link_action(proxy),
+            remove_selected_action = remove_selected_action
           ),
           proxy = proxy
         )
@@ -161,6 +123,25 @@ update_observer <- function(update, board, proxy) {
         remove_nodes(upd$blocks$rm, proxy)
       }
     }
+  )
+}
+
+actions_observers <- function(actions, input) {
+  observeEvent(
+    input[[paste0(graph_id(), "-batch_delete")]],
+    actions[["remove_selected_action"]](
+      input[[paste0(graph_id(), "-batch_delete")]]
+    )
+  )
+
+  observeEvent(
+    req(input$added_edge$targetType != "canvas"),
+    actions[["draw_link_action"]](input$added_edge)
+  )
+
+  observeEvent(
+    req(input$added_edge$targetType == "canvas"),
+    actions[["append_block_action"]](input$added_edge$source)
   )
 }
 

@@ -497,14 +497,18 @@ setup_remove_elements_kbd <- function(
 ) {
   input <- session$input
   ns <- session$ns
-  observeEvent(req(input[[paste0(graph_id(), "-initialized")]]), {
-    session$sendCustomMessage(
-      "setup-remove-selected-elements",
-      # TBD: key can be a board option
-      list(
-        key = key,
-        id = graph_id(ns)
+  observeEvent(
+    req(input[[paste0(graph_id(), "-initialized")]]),
+    {
+      session$sendCustomMessage(
+        "setup-remove-selected-elements",
+        # TBD: key can be a board option
+        list(
+          key = key,
+          id = graph_id(ns)
+        )
       )
-    )
-  })
+    },
+    once = TRUE
+  )
 }
