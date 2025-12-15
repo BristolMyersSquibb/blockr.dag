@@ -56,7 +56,6 @@ remove_selected_action <- function(trigger, board, update) {
       observeEvent(
         trigger(),
         {
-          input <- domain$input
           update(
             list(
               blocks = list(
