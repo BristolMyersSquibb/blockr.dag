@@ -43,7 +43,8 @@ draw_link_action <- function(proxy) {
         )
 
         NULL
-      }
+      },
+      id = "draw_link_action"
     )
   }
 }
@@ -79,7 +80,8 @@ remove_selected_action <- function(trigger, board, update) {
       )
 
       NULL
-    }
+    },
+    id = "remove_selected_action"
   )
 }
 
