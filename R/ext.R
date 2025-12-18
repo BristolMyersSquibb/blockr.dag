@@ -34,12 +34,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_add_link")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_add_link,
-          actions[["add_link_action"]](session$input$ctx_add_link)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "add_link_action",
+        input_name = "ctx_add_link"
+      ),
       condition = function(board, target) target$type == "node",
       id = "create_link"
     ),
@@ -54,12 +52,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_remove_block")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_remove_block,
-          actions[["remove_block_action"]](session$input$ctx_remove_block)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "remove_block_action",
+        input_name = "ctx_remove_block"
+      ),
       condition = function(board, target) target$type == "node",
       id = "remove_block"
     ),
@@ -74,12 +70,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_remove_link")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_remove_link,
-          actions[["remove_link_action"]](session$input$ctx_remove_link)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "remove_link_action",
+        input_name = "ctx_remove_link"
+      ),
       condition = function(board, target) target$type == "edge",
       id = "remove_link"
     ),
@@ -97,12 +91,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_append_block")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_append_block,
-          actions[["append_block_action"]](session$input$ctx_append_block)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "append_block_action",
+        input_name = "ctx_append_block"
+      ),
       condition = function(board, target) target$type == "node",
       id = "append_block"
     ),
@@ -116,12 +108,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_create_stack")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_create_stack,
-          actions[["add_stack_action"]](session$input$ctx_create_stack)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "add_stack_action",
+        input_name = "ctx_create_stack"
+      ),
       condition = function(board, target) target$type == "canvas",
       id = "create_stack"
     ),
@@ -136,12 +126,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_remove_stack")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_remove_stack,
-          actions[["remove_stack_action"]](session$input$ctx_remove_stack)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "remove_stack_action",
+        input_name = "ctx_remove_stack"
+      ),
       condition = function(board, target) target$type == "combo",
       id = "remove_stack"
     ),
@@ -160,12 +148,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_edit_stack")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_edit_stack,
-          actions[["edit_stack_action"]](session$input$ctx_edit_stack)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "edit_stack_action",
+        input_name = "ctx_edit_stack"
+      ),
       condition = function(board, target) target$type == "combo",
       id = "edit_stack"
     ),
@@ -179,12 +165,10 @@ context_menu_items.dag_extension <- function(x) {
           ns("ctx_add_block")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$ctx_add_block,
-          actions[["add_block_action"]](session$input$ctx_add_block)
-        )
-      },
+      action = update_action_trigger(
+        action_name = "add_block_action",
+        input_name = "ctx_add_block"
+      ),
       condition = function(board, target) target$type == "canvas",
       id = "add_block"
     )
@@ -245,12 +229,10 @@ toolbar_items.dag_extension <- function(x) {
           ns("tool_add_block")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$tool_add_block,
-          actions[["add_block_action"]](session$input$tool_add_block)
-        )
-      }
+      action = update_action_trigger(
+        action_name = "add_block_action",
+        input_name = "tool_add_block"
+      )
     ),
     new_toolbar_item(
       id = "add_stack",
@@ -263,12 +245,10 @@ toolbar_items.dag_extension <- function(x) {
           ns("tool_add_stack")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$tool_add_stack,
-          actions[["add_stack_action"]](session$input$tool_add_stack)
-        )
-      }
+      action = update_action_trigger(
+        action_name = "add_stack_action",
+        input_name = "tool_add_stack"
+      )
     ),
     new_toolbar_item(
       id = "remove_selected",
@@ -281,12 +261,10 @@ toolbar_items.dag_extension <- function(x) {
           ns("tool_rm_selected")
         )
       },
-      action = function(actions, session = get_session()) {
-        observeEvent(
-          session$input$tool_rm_selected,
-          actions[["remove_selected_action"]](session$input$tool_rm_selected)
-        )
-      }
+      action = update_action_trigger(
+        action_name = "remove_selected_action",
+        input_name = "tool_rm_selected"
+      )
     )
   )
 }
