@@ -82,11 +82,11 @@ remove_selected_action <- function(trigger, board, update, ...) {
   )
 }
 
-#' @importFrom blockr.dock board_action_triggers
+#' @importFrom blockr.dock board_actions
 #' @export
-board_action_triggers.dag_extension <- function(x, ...) {
+board_actions.dag_extension <- function(x, ...) {
   list(
-    draw_link_action = reactiveVal(),
-    remove_selected_action = reactiveVal()
+    draw_link_action,
+    remove_selected_action
   )
 }

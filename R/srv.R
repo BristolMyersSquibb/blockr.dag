@@ -74,10 +74,6 @@ dag_ext_srv <- function(graph) {
               input[[paste0(graph_id(), "-state")]]
             )
           ),
-          actions = list(
-            draw_link_action,
-            remove_selected_action
-          ),
           proxy = proxy
         )
       }
