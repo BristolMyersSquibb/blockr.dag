@@ -75,7 +75,7 @@ dag_ext_srv <- function(graph) {
             )
           ),
           actions = list(
-            draw_link_action(proxy),
+            draw_link_action,
             remove_selected_action
           ),
           proxy = proxy

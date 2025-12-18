@@ -1,55 +1,52 @@
-draw_link_action <- function(proxy) {
+draw_link_action <- function(trigger, board, update, dag_extension, ...) {
 
-  function(trigger, board, update) {
+  blockr.dock::new_action(
+    function(input, output, session) {
 
-    blockr.dock::new_action(
-      function(input, output, session) {
+      observeEvent(
+        trigger(),
+        {
+          new <- trigger()
 
-        observeEvent(
-          trigger(),
-          {
-            new <- trigger()
+          blocks <- board_blocks(board$board)
 
-            blocks <- board_blocks(board$board)
+          inps <- blockr.dock::block_input_select(
+            blocks[[new$target]],
+            new$target,
+            board_links(board$board),
+            mode = "inputs"
+          )
 
-            inps <- blockr.dock::block_input_select(
-              blocks[[new$target]],
-              new$target,
-              board_links(board$board),
-              mode = "inputs"
+          if (length(inps) == 0L) {
+            notify(
+              "No inputs are available for block {new$target}.",
+              type = "warning"
             )
 
-            if (length(inps) == 0L) {
-              notify(
-                "No inputs are available for block {new$target}.",
-                type = "warning"
-              )
+            remove_edges(new$id, asis = TRUE, proxy = dag_extension[["proxy"]])
 
-              remove_edges(new$id, asis = TRUE, proxy = proxy)
-
-              return()
-            }
-
-            remove_edges(new$id, asis = TRUE, proxy = proxy)
-
-            new_lnk <- new_link(
-              from = new$source,
-              to = new$target,
-              input = inps[1L]
-            )
-
-            update(list(links = list(add = as_links(new_lnk))))
+            return()
           }
-        )
 
-        NULL
-      },
-      id = "draw_link_action"
-    )
-  }
+          remove_edges(new$id, asis = TRUE, proxy = dag_extension[["proxy"]])
+
+          new_lnk <- new_link(
+            from = new$source,
+            to = new$target,
+            input = inps[1L]
+          )
+
+          update(list(links = list(add = as_links(new_lnk))))
+        }
+      )
+
+      NULL
+    },
+    id = "draw_link_action"
+  )
 }
 
-remove_selected_action <- function(trigger, board, update) {
+remove_selected_action <- function(trigger, board, update, ...) {
 
   blockr.dock::new_action(
     function(input, output, session) {
