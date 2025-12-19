@@ -81,6 +81,14 @@ testServer(
         session = MockShinySession$new()
       ),
       prev_active_group = reactiveVal(NULL)
+    ),
+    actions = blockr.dock::action_triggers(
+      unlst(
+        c(
+          list(board_actions(test_board)),
+          board_actions(new_dag_extension())
+        )
+      )
     )
   ),
   {
