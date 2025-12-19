@@ -1,8 +1,6 @@
 draw_link_action <- function(trigger, board, update, dag_extension, ...) {
-
   blockr.dock::new_action(
     function(input, output, session) {
-
       observeEvent(
         trigger(),
         {
@@ -46,11 +44,10 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
-remove_selected_action <- function(trigger, board, update, ...) {
-
+remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-
+      input <- dag_extension[["proxy"]]$session$input
       observeEvent(
         trigger(),
         {
