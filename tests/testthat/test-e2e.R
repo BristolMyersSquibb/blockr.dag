@@ -1,60 +1,39 @@
 library(shinytest2)
 
-create_new_block <- function(app, context, name, id) {
+create_new_block <- function(app, name, id) {
   app$wait_for_idle()
-  input_name <- sprintf(
-    "board-dag_extension-%s_add_block-add_block_selection",
-    context
-  )
-  do.call(app$set_inputs, setNames(list(name), input_name))
-  app$wait_for_idle()
-  app$click(
-    selector = sprintf(
-      "#board-dag_extension-%s_add_block-block-advanced-toggle",
-      context
-    )
+  do.call(
+    app$set_inputs,
+    setNames(list(name), "board-add_block_action-add_block_selection")
   )
   app$wait_for_idle()
-  input_name <- sprintf(
-    "board-dag_extension-%s_add_block-add_block_id",
-    context
-  )
-  do.call(app$set_inputs, setNames(list(id), input_name))
+  app$click(selector = "#board-add_block_action-block-advanced-toggle")
   app$wait_for_idle()
-  app$click(sprintf(
-    "board-dag_extension-%s_add_block-add_block_confirm",
-    context
-  ))
+
+  do.call(
+    app$set_inputs,
+    setNames(list(id), "board-add_block_action-add_block_id")
+  )
+  app$wait_for_idle()
+  app$click("board-add_block_action-add_block_confirm")
   app$wait_for_idle()
 }
 
-create_new_link <- function(app, context, target, id) {
+create_new_link <- function(app, target, id) {
   app$wait_for_idle()
-  input_name <- sprintf(
-    "board-dag_extension-%s_create_link-create_link",
-    context
-  )
-  do.call(app$set_inputs, setNames(list(target), input_name))
-
-  app$click(
-    selector = sprintf(
-      "#board-dag_extension-%s_create_link-link-advanced-toggle",
-      context
-    )
+  do.call(
+    app$set_inputs,
+    setNames(list(target), "board-add_link_action-create_link")
   )
 
-  input_name <- sprintf(
-    "board-dag_extension-%s_create_link-add_link_id",
-    context
-  )
-  do.call(app$set_inputs, setNames(list(id), input_name))
+  app$click(selector = "#board-add_link_action-link-advanced-toggle")
 
-  app$click(
-    sprintf(
-      "board-dag_extension-%s_create_link-add_link_confirm",
-      context
-    )
+  do.call(
+    app$set_inputs,
+    setNames(list(id), "board-add_link_action-add_link_id")
   )
+
+  app$click("board-add_link_action-add_link_confirm")
   app$wait_for_idle()
 }
 
@@ -143,20 +122,20 @@ test_that("sample_app works", {
   # Add a new block: with custom id
   app$wait_for_idle()
   app$click(selector = ".g6-toolbar-item[value=\"add_block\"")
-  create_new_block(app, "tool", "dataset_block", "super_data_block")
+  create_new_block(app, "dataset_block", "super_data_block")
   expect_values(app)
 
   # Append: show canvas context menu
   # Right-click on canvas to show context menu
   right_click("#board-dag_extension-graph", app, init = TRUE)
   app$click(selector = ".g6-contextmenu-li[value=\"add_block\"]")
-  create_new_block(app, "ctx", "head_block", "super_head_block")
+  create_new_block(app, "head_block", "super_head_block")
   expect_values(app)
 
   # Right click on dataset block + add link with head block
   right_click("g#node-super_data_block", app)
   app$click(selector = ".g6-contextmenu-li[value=\"create_link\"]")
-  create_new_link(app, "ctx", "super_head_block", "super_link")
+  create_new_link(app, "super_head_block", "super_link")
   expect_values(app)
 
   # Select new block and remove

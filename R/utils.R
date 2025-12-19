@@ -55,3 +55,12 @@ preprocess_mouse_position <- function() {
     }
   )
 } # nocov end
+
+update_action_trigger <- function(action_name, input_name) {
+  function(actions, session = get_session()) {
+    observeEvent(
+      session$input[[input_name]],
+      actions[[action_name]](session$input[[input_name]])
+    )
+  }
+}

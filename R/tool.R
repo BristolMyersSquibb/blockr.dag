@@ -96,16 +96,21 @@ toolbar_item_icon <- function(x) attr(x, "icon")
 
 toolbar_item_tooltip <- function(x) attr(x, "tooltip")
 
-toolbar_item_action <- function(x, board, update, ..., domain = get_session()) {
+toolbar_item_action <- function(x, actions, session = get_session()) {
+
   if (!is_toolbar_item(x)) {
-    validate_toolbar_items(x)
 
-    for (i in x) {
-      toolbar_item_action(i, board, update, ..., domain = domain)
-    }
+    res <- lapply(
+      validate_toolbar_items(x),
+      toolbar_item_action,
+      actions,
+      session
+    )
 
-    return(invisible(NULL))
+    return(invisible(res))
   }
+
+  stopifnot(is_toolbar_item(x))
 
   fun <- x[["action"]]
 
@@ -113,22 +118,17 @@ toolbar_item_action <- function(x, board, update, ..., domain = get_session()) {
     return(invisible(NULL))
   }
 
-  id <- toolbar_item_id(x)
+  res <- fun(actions, session)
 
-  res <- moduleServer(
-    paste0("tool_", id),
-    fun(board, update, ..., domain = domain),
-    domain
-  )
-
-  if (not_null(res)) {
+  if (!inherits(res, "Observer")) {
     blockr_abort(
-      "Expecting toolbar item server {id} to return `NULL`.",
+      "Expecting toolbar item server {toolbar_item_id(x)} to return an ",
+      "observer.",
       class = "toolbar_item_return_invalid"
     )
   }
 
-  invisible(NULL)
+  invisible(res)
 }
 
 toolbar_item_js <- function(x, ns = NULL) {
@@ -147,8 +147,6 @@ toolbar_item_js <- function(x, ns = NULL) {
 
   if (is.null(ns)) {
     ns <- NS(NULL)
-  } else {
-    ns <- NS(ns(paste0("tool_", toolbar_item_id(x))))
   }
 
   paste0(

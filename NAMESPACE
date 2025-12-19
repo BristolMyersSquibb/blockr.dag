@@ -2,6 +2,7 @@
 
 S3method(as_graph,graph)
 S3method(as_graph,list)
+S3method(board_actions,dag_extension)
 S3method(context_menu_items,dag_extension)
 S3method(context_menu_items,dock_board)
 S3method(context_menu_items,dock_extension)
@@ -29,4 +30,5 @@ export(toolbar_items)
 import(blockr.core)
 import(g6R)
 import(shiny)
+importFrom(blockr.dock,board_actions)
 importFrom(blockr.dock,extension_block_callback)
