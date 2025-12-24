@@ -284,13 +284,17 @@ g6_edges_from_links <- function(links) {
 #' @param blocks Board blocks.
 #' @param stacks Board stacks.
 #' @keywords internal
-g6_nodes_from_blocks <- function(blocks, stacks) {
+g6_nodes_from_blocks <- function(blocks, stacks, x = NULL, y = NULL) {
   stk_blks <- lapply(stacks, stack_blocks)
 
   stk_blks <- set_names(
     as.list(rep(names(stk_blks), lengths(stk_blks))),
     do.call("c", stk_blks)
   )
+
+  style_args <- list(size = 48)
+  if (!is.null(x)) style_args$x <- x
+  if (!is.null(y)) style_args$y <- y
 
   res <- map(
     g6_node,
@@ -305,7 +309,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
         MoreArgs = list(size = 48)
       ),
       labelText = chr_ply(blocks, block_name),
-      MoreArgs = list(size = 48)
+      MoreArgs = style_args
     ),
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id)
   )
@@ -407,7 +411,7 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 }
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), x = 400, y = 300)
   g6_add_nodes(proxy, nodes)
   invisible()
 }

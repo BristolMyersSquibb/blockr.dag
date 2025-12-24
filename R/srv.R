@@ -131,6 +131,14 @@ update_observer <- function(update, board, proxy) {
 
       if (length(upd$blocks$add)) {
         add_nodes(upd$blocks$add, board$board, proxy)
+        # Reposition new node after layout settles
+        node_ids <- to_g6_node_id(names(upd$blocks$add))
+        later::later(function() {
+          updates <- lapply(node_ids, function(id) {
+            list(id = id, style = list(x = 400, y = 400))
+          })
+          g6_update_nodes(proxy, updates)
+        }, delay = 0.3)
       }
 
       if (length(upd$blocks$mod)) {
