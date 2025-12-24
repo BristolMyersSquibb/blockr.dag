@@ -9,7 +9,7 @@
 \usage{
 g6_edges_from_links(links)
 
-g6_nodes_from_blocks(blocks, stacks)
+g6_nodes_from_blocks(blocks, stacks, x = NULL, y = NULL)
 
 g6_combos_data_from_stacks(stacks)
 
