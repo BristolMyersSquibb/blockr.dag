@@ -13,16 +13,20 @@ my_board <- new_board(
 )
 
 test_draw_link_action <- function(edge, expected_updates) {
-  ap_action <- draw_link_action(reactive(edge))
-
   testServer(
     function(id, ...) {
       moduleServer(
         id,
-        module = ap_action(
+        module = draw_link_action(
+          trigger = reactive(edge),
           board = reactiveValues(board = my_board),
           update = reactiveVal(list()),
-          session = MockShinySession$new()
+          dag_extension = list(
+            proxy = g6_proxy(
+              "graph",
+              session = MockShinySession$new()
+            )
+          )
         )
       )
     },
@@ -58,22 +62,26 @@ test_that("draw link action with invalid target", {
 
 
 test_that("remove_selected_action works", {
-  ap_action <- remove_selected_action(reactive(TRUE))
-
   testServer(
     function(id, ...) {
       moduleServer(
         id,
-        module = ap_action(
+        module = remove_selected_action(
+          trigger = reactive(TRUE),
           board = reactiveValues(board = my_board),
           update = reactiveVal(list()),
-          session = MockShinySession$new()
+          dag_extension = list(
+            proxy = g6_proxy(
+              "graph",
+              session = MockShinySession$new()
+            )
+          )
         )
       )
     },
     {
       expect_length(update(), 0L)
-      session$setInputs(
+      dag_extension$proxy$session$setInputs(
         "graph-selected_node" = c("a", "b"),
         "graph-selected_edge" = "c-d"
       )
