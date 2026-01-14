@@ -65,12 +65,13 @@ set_g6_options <- function(graph, ...) {
     renderer = JS("() => new SVGRenderer()"),
     animation = FALSE,
     node = list(
+      type = "custom-image-node",
       style = list(
         labelBackground = TRUE,
         labelBackgroundRadius = 4,
         labelFontFamily = "Arial",
         labelPadding = c(0, 4),
-        labelPlacement = "bottom",
+        labelPlacement = "top-left",
         labelOffsetY = 8
       )
     ),
@@ -109,7 +110,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
   g6_behaviors(
     graph,
     ...,
-    "zoom-canvas",
+    zoom_canvas(),
     drag_canvas(
       enable = JS(
         "(e) => {
@@ -158,7 +159,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   id: edge.id,
                   source: edge.source.replace(/^node-/, ''),
                   target: edge.target.replace(/^node-/, ''),
-                  targetType: edge.targetType
+                  targetType: edge.targetType,
+                  sourcePort: edge.style.sourcePort,
+                  targetPort: edge.style.targetPort
                 }
               );
             }
@@ -263,13 +266,24 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 
 #' @rdname g6r
 #' @param links Board links.
-g6_edges_from_links <- function(links) {
+#' @param blocks Board blocks.
+g6_edges_from_links <- function(links, blocks) {
+  target_id <- to_g6_node_id(links$to)
+
   res <- map(
     g6_edge,
     id = to_g6_edge_id(names(links)),
     source = to_g6_node_id(links$from),
-    target = to_g6_node_id(links$to),
-    style = map(list, labelText = links$input),
+    target = target_id,
+    style = map(
+      list,
+      labelText = links$input,
+      sourcePort = attr(links$from, "port"),
+      # Note: targetPort label is built in create_block_ports()
+      # from the link input name so if we prefix by the
+      # node id, we are good to go!
+      targetPort = paste0(target_id, "-", links$input)
+    ),
     MoreArgs = list(type = "line")
   )
 
@@ -278,6 +292,82 @@ g6_edges_from_links <- function(links) {
   } else {
     res
   }
+}
+
+#' Create block ports for g6 node
+#' @param block Block object.
+#' @param id Block ID.
+#' @keywords internal
+create_block_ports <- function(block, id) {
+  inputs <- blockr.core::block_inputs(block)
+  arity <- blockr.core::block_arity(block)
+  input_ports <- list()
+  fill_col <- blockr.dock::blk_color(blk_category(block))
+
+  # all blocks have 1 output but may have 0 an input with various arity.
+  # From g6R point of view, all blocks have one output port with infinity
+  # arity. For 2 inputs, we can design 2 input ports of arity 1.
+  # For variadic, we can design
+  # a single input port but with infinite arity.
+
+  # Q: what do we do with plot block: do we show
+  # and output port?
+
+  if (length(inputs) == 0) {
+    if (is.na(arity)) {
+      input_ports <- list(g6_input_port(
+        key = sprintf("%s-in", id),
+        arity = Inf,
+        placement = "top",
+        fill = fill_col
+      ))
+    }
+    # else arity == 0: entry, no input ports
+  } else if (length(inputs) == 1 && arity == 1) {
+    input_ports <- list(g6_input_port(
+      key = sprintf("%s-%s", id, inputs[1]),
+      label = inputs[1],
+      arity = 1,
+      placement = "top",
+      fill = fill_col
+    ))
+  } else if (length(inputs) > 1) {
+    n <- length(inputs)
+    if (n == 1) {
+      xs <- 0.5
+    } else {
+      xs <- seq(0.3, 0.7, length.out = n)
+    }
+    input_ports <- lapply(seq_along(inputs), function(i) {
+      g6_input_port(
+        key = sprintf("%s-%s", id, inputs[i]),
+        label = inputs[i],
+        arity = 1,
+        placement = c(xs[i], 0),
+        fill = fill_col,
+        r = 2
+      )
+    })
+  } else if (length(inputs) == 1 && is.na(arity)) {
+    input_ports <- list(g6_input_port(
+      key = sprintf("%s-%s", id, inputs[1]),
+      label = inputs[1],
+      arity = Inf,
+      placement = "top",
+      fill = fill_col
+    ))
+  }
+
+  ports <- c(
+    input_ports,
+    list(g6_output_port(
+      key = sprintf("%s-out", id),
+      arity = Inf,
+      placement = "bottom",
+      fill = fill_col
+    ))
+  )
+  do.call(g6_ports, ports)
 }
 
 #' @rdname g6r
@@ -292,10 +382,11 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     do.call("c", stk_blks)
   )
 
+  ids <- to_g6_node_id(names(blocks))
+
   res <- map(
     g6_node,
-    id = to_g6_node_id(names(blocks)),
-    type = rep("image", length(blocks)),
+    id = ids,
     style = map(
       list,
       src = map(
@@ -307,7 +398,8 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
       labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
-    combo = lapply(stk_blks[names(blocks)], to_g6_combo_id)
+    combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
+    ports = map(create_block_ports, blocks, ids)
   )
 
   if (length(res)) {
@@ -365,7 +457,7 @@ g6_data_from_board <- function(board) {
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
-  edges_data <- g6_edges_from_links(links)
+  edges_data <- g6_edges_from_links(links, blocks)
   combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 

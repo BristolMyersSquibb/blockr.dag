@@ -132,13 +132,33 @@ actions_observers <- function(actions, input) {
 
   observeEvent(
     req(input$added_edge$targetType != "canvas"),
-    actions[["draw_link_action"]](input$added_edge)
+    {
+      actions[["draw_link_action"]](input$added_edge)
+    }
   )
 
   observeEvent(
-    req(input$added_edge$targetType == "canvas"),
-    actions[["append_block_action"]](input$added_edge$source)
+    {
+      req(
+        input$added_edge$targetType == "canvas",
+        # Make sure we don't trigger when targetPort is invalid
+        input$added_edge$targetPort
+      )
+    },
+    {
+      source <- from_g6_node_id(input$added_edge$source)
+      attr(source, "port") <- input$added_edge$sourcePort
+      actions[["append_block_action"]](source)
+    }
   )
+
+  observeEvent(input[[paste0(graph_id(), "-selected_port")]], {
+    source <- from_g6_node_id(
+      input[[paste0(graph_id(), "-selected_port")]]$node
+    )
+    attr(source, "port") <- input[[paste0(graph_id(), "-selected_port")]]$port
+    actions[["append_block_action"]](source)
+  })
 }
 
 empty_state_observer <- function(board, session) {
