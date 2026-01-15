@@ -266,9 +266,16 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 
 #' @rdname g6r
 #' @param links Board links.
-#' @param blocks Board blocks.
-g6_edges_from_links <- function(links, blocks) {
+#' @param proxy G6 proxy object.
+g6_edges_from_links <- function(links, proxy = NULL) {
+  if (length(links) == 0) {
+    return()
+  }
   target_id <- to_g6_node_id(links$to)
+  if (!is.null(proxy)) {
+    output_ports <- g6_get_output_ports(proxy)
+    source_port <- output_ports[[to_g6_node_id(links$from)]][[1]]$key
+  }
 
   res <- map(
     g6_edge,
@@ -278,7 +285,7 @@ g6_edges_from_links <- function(links, blocks) {
     style = map(
       list,
       labelText = links$input,
-      sourcePort = attr(links$from, "port"),
+      sourcePort = source_port,
       # Note: targetPort label is built in create_block_ports()
       # from the link input name so if we prefix by the
       # node id, we are good to go!
@@ -457,7 +464,7 @@ g6_data_from_board <- function(board) {
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
-  edges_data <- g6_edges_from_links(links, blocks)
+  edges_data <- g6_edges_from_links(links)
   combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
@@ -511,7 +518,7 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 add_edges <- function(links, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links)
+  edges <- g6_edges_from_links(links, proxy)
   g6_add_edges(proxy, edges)
   invisible()
 }

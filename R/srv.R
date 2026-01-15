@@ -46,7 +46,7 @@ dag_ext_srv <- function(graph) {
 
         setup_remove_elements_kbd()
 
-        actions_observers(actions, input)
+        actions_observers(actions, proxy)
 
         update_observer(update, board, proxy)
 
@@ -122,7 +122,9 @@ update_observer <- function(update, board, proxy) {
   )
 }
 
-actions_observers <- function(actions, input) {
+actions_observers <- function(actions, proxy) {
+  input <- proxy$session$input
+
   observeEvent(
     input[[paste0(graph_id(), "-batch_delete")]],
     actions[["remove_selected_action"]](
@@ -131,33 +133,28 @@ actions_observers <- function(actions, input) {
   )
 
   observeEvent(
-    req(input$added_edge$targetType != "canvas"),
+    {
+      req(
+        input$added_edge$targetType != "canvas",
+        # Make sure we don't trigger when targetPort is invalid
+        input$added_edge$targetPort
+      )
+    },
     {
       actions[["draw_link_action"]](input$added_edge)
     }
   )
 
   observeEvent(
+    req(input$added_edge$targetType == "canvas"),
     {
-      req(
-        input$added_edge$targetType == "canvas",
-        # Make sure we don't trigger when targetPort is invalid
-        input$added_edge$targetPort
-      )
-    },
-    {
-      source <- from_g6_node_id(input$added_edge$source)
-      attr(source, "port") <- input$added_edge$sourcePort
-      actions[["append_block_action"]](source)
+      actions[["append_block_action"]](input$added_edge$source)
     }
   )
 
   observeEvent(input[[paste0(graph_id(), "-selected_port")]], {
-    source <- from_g6_node_id(
-      input[[paste0(graph_id(), "-selected_port")]]$node
-    )
-    attr(source, "port") <- input[[paste0(graph_id(), "-selected_port")]]$port
-    actions[["append_block_action"]](source)
+    el <- input[[paste0(graph_id(), "-selected_port")]]
+    actions[["append_block_action"]](from_g6_node_id(el$node))
   })
 }
 

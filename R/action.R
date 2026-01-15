@@ -35,8 +35,6 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
               input = inps[1L]
             )
           )
-          # Pass the sourcePort for g6_edges_from_links
-          attr(new_lnk$from, "port") <- new$sourcePort
 
           update(list(links = list(add = new_lnk)))
         }
