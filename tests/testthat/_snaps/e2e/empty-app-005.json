@@ -10,26 +10,46 @@
     "board-dag_extension-graph-mouse_position": "<shinytest2:preprocessed>",
     "board-dag_extension-graph-selected_node": "node-super_data_block",
     "board-dag_extension-graph-state": {
-      "nodes": [
-        {
+      "nodes": {
+        "node-super_head_block": {
           "id": "node-super_head_block",
-          "type": "image",
           "style": {
             "src": "<shinytest2:preprocessed>",
             "labelText": "Head",
             "size": 48,
+            "ports": {
+              "node-super_head_block-data": {
+                "key": "node-super_head_block-data",
+                "type": "input",
+                "label": "data",
+                "arity": 1,
+                "showGuides": true,
+                "fill": "#009E73",
+                "placement": "top",
+                "r": 4
+              },
+              "node-super_head_block-out": {
+                "key": "node-super_head_block-out",
+                "type": "output",
+                "label": "super_head_block-out",
+                "arity": "Infinity",
+                "showGuides": true,
+                "fill": "#009E73",
+                "placement": "bottom",
+                "r": 4
+              }
+            },
             "zIndex": 0,
             "badges": [
               {
-                "text": "",
+                "text": "⚠",
+                "textAlign": "center",
                 "placement": "right-top",
                 "backgroundFill": "#dc2626",
-                "stroke": "#fff",
-                "lineWidth": 2,
-                "padding": [
-                  5,
-                  5
-                ]
+                "stroke": "#dc2626",
+                "lineWidth": 1,
+                "fontWeight": 300,
+                "textDecorationColor": "#fff"
               }
             ]
           },
@@ -37,13 +57,13 @@
 
           }
         }
-      ],
-      "edges": [
+      },
+      "edges": {
 
-      ],
-      "combos": [
+      },
+      "combos": {
 
-      ]
+      }
     },
     "board-dag_extension-tool_add_block": true,
     "board-dag_extension-tool_rm_selected": true
@@ -55,9 +75,6 @@
           "nodes": [
 
           ],
-          "edges": [
-
-          ],
           "combos": [
 
           ]
@@ -67,6 +84,7 @@
         "mode": "dev",
         "preservePosition": false,
         "node": {
+          "type": "custom-image-node",
           "style": {
             "labelBackground": true,
             "labelBackgroundRadius": 4,
@@ -75,7 +93,7 @@
               0,
               4
             ],
-            "labelPlacement": "bottom",
+            "labelPlacement": "top-left",
             "labelOffsetY": 8
           }
         },
@@ -196,7 +214,7 @@
             "key": "create-edge",
             "trigger": "drag",
             "enable": "(e) => {\n          return e.shiftKey;\n        }",
-            "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType\n                }\n              );\n            }\n          }",
+            "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType,\n                  sourcePort: edge.style.sourcePort,\n                  targetPort: edge.style.targetPort\n                }\n              );\n            }\n          }",
             "notify": false,
             "type": "create-edge"
           }
@@ -211,7 +229,7 @@
               4
             ],
             "onClick": "(value, target, current) => {\nif (value === 'create_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_add_link', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_block') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_block', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_link', current.id.replace(/^edge-/, ''));\n          })(value, target, current)\n} else if (value === 'append_block') {\n((value, target, current) => {\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_append_block',\n              current.id.replace(/^node-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'create_stack') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_create_stack', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_stack', current.id.replace(/^combo-/, ''));\n          })(value, target, current)\n} else if (value === 'edit_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_edit_stack',\n              current.id.replace(/^combo-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'add_block') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_add_block', true, {priority: 'event'});\n          })(value, target, current)\n}\n}",
-            "getItems": "async (e) => {\n            var body;\n            if (e.targetType === 'canvas') {\n              body = {type: e.targetType};\n            } else {\n              body = {\n                id: e.target.id.replace(/^(node|edge|combo)-/, ''),\n                type: e.targetType\n              };\n            }\n            const response = await fetch(\n              'session/9a744a1bdf8658afbd8fbc6fbe9d2f6e/dataobj/board-dag_extension-context-menu-items?w=&nonce=270e6f1afa088fee',\n              {\n                method: 'POST',\n                headers: {\n                  'Accept': 'application/json',\n                  'Content-Type': 'application/json'\n                },\n                body: JSON.stringify(body)\n              }\n            );\n            const items = await response.json();\n            return items;\n          }",
+            "getItems": "async (e) => {\n            var body;\n            if (e.targetType === 'canvas') {\n              body = {type: e.targetType};\n            } else {\n              body = {\n                id: e.target.id.replace(/^(node|edge|combo)-/, ''),\n                type: e.targetType\n              };\n            }\n            const response = await fetch(\n              'session/9a744a1bdf8658afbd8fbc6fbe9d2f6e/dataobj/board-dag_extension-context-menu-items?w=&nonce=97c5f08262501467',\n              {\n                method: 'POST',\n                headers: {\n                  'Accept': 'application/json',\n                  'Content-Type': 'application/json'\n                },\n                body: JSON.stringify(body)\n              }\n            );\n            const items = await response.json();\n            return items;\n          }",
             "enable": "(e) => {\n          let cond = e.targetType === 'edge' ||\n            e.targetType === 'node' ||\n            e.targetType === 'canvas' ||\n            e.targetType === 'combo';\n          return cond;\n        }",
             "type": "contextmenu"
           },

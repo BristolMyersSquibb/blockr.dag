@@ -40,7 +40,7 @@ from_g6_port_id <- function(x, node) {
 
 to_g6_port_id <- function(x, node) {
   if (length(x)) {
-    paste0(node, "-", x)
+    x <- paste0(node, "-", x)
   }
   x
 }
