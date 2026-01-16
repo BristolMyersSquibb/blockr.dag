@@ -34,6 +34,17 @@ from_g6_combo_id <- function(x) {
   sub("^combo-", "", x)
 }
 
+from_g6_port_id <- function(x, node) {
+  sub(paste0("^", node, "-"), "", x)
+}
+
+to_g6_port_id <- function(x, node) {
+  if (length(x)) {
+    paste0(node, "-", x)
+  }
+  x
+}
+
 g6_from_board <- function(board) {
   stopifnot(is_board(board))
 
@@ -266,16 +277,12 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 
 #' @rdname g6r
 #' @param links Board links.
-#' @param proxy G6 proxy object.
-g6_edges_from_links <- function(links, proxy = NULL) {
+g6_edges_from_links <- function(links) {
   if (length(links) == 0) {
     return()
   }
   target_id <- to_g6_node_id(links$to)
-  if (!is.null(proxy)) {
-    output_ports <- g6_get_output_ports(proxy)
-    source_port <- output_ports[[to_g6_node_id(links$from)]][[1]]$key
-  }
+  source_id <- to_g6_node_id(links$from)
 
   res <- map(
     g6_edge,
@@ -285,7 +292,8 @@ g6_edges_from_links <- function(links, proxy = NULL) {
     style = map(
       list,
       labelText = links$input,
-      sourcePort = source_port,
+      # Currently all nodes only have 1 output that is called out
+      sourcePort = paste0(source_id, "-out"),
       # Note: targetPort label is built in create_block_ports()
       # from the link input name so if we prefix by the
       # node id, we are good to go!
@@ -310,15 +318,6 @@ create_block_ports <- function(block, id) {
   arity <- blockr.core::block_arity(block)
   input_ports <- list()
   fill_col <- blockr.dock::blk_color(blk_category(block))
-
-  # all blocks have 1 output but may have 0 an input with various arity.
-  # From g6R point of view, all blocks have one output port with infinity
-  # arity. For 2 inputs, we can design 2 input ports of arity 1.
-  # For variadic, we can design
-  # a single input port but with infinite arity.
-
-  # Q: what do we do with plot block: do we show
-  # and output port?
 
   if (length(inputs) == 0) {
     if (is.na(arity)) {
@@ -365,10 +364,13 @@ create_block_ports <- function(block, id) {
     ))
   }
 
+  out_id <- sprintf("%s-out", id)
+
   ports <- c(
     input_ports,
     list(g6_output_port(
-      key = sprintf("%s-out", id),
+      key = out_id,
+      label = sub("node-", "", out_id),
       arity = Inf,
       placement = "bottom",
       fill = fill_col
@@ -518,7 +520,7 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 add_edges <- function(links, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links, proxy)
+  edges <- g6_edges_from_links(links)
   g6_add_edges(proxy, edges)
   invisible()
 }

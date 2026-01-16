@@ -7,7 +7,7 @@
 \alias{g6_data_from_board}
 \title{Create network data from board}
 \usage{
-g6_edges_from_links(links, proxy = NULL)
+g6_edges_from_links(links)
 
 g6_nodes_from_blocks(blocks, stacks)
 
@@ -17,8 +17,6 @@ g6_data_from_board(board)
 }
 \arguments{
 \item{links}{Board links.}
-
-\item{proxy}{G6 proxy object.}
 
 \item{blocks}{Board blocks.}
 
