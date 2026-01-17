@@ -43,7 +43,7 @@ Suggests:
     shinytest2,
     colorspace
 Remotes:
-    BristolMyersSquibb/blockr.dock (>=0.1.1)
+    BristolMyersSquibb/blockr.dock@feat-prepend-block
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
