@@ -133,13 +133,7 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    {
-      req(
-        input$added_edge$targetType != "canvas",
-        # Make sure we don't trigger when targetPort is invalid
-        input$added_edge$targetPort
-      )
-    },
+    req(input$added_edge$targetType != "canvas"),
     {
       actions[["draw_link_action"]](input$added_edge)
     }

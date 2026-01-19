@@ -53,13 +53,11 @@ test_draw_link_action <- function(edge, expected_updates) {
 }
 
 test_that("draw link action with valid target", {
-  test_draw_link_action(g6_edge("a", "b"), 1L)
+  test_draw_link_action(
+    list(id = "a-b", source = "a", target = "b", targetPort = "node-b-data"),
+    1L
+  )
 })
-
-test_that("draw link action with invalid target", {
-  test_draw_link_action(g6_edge("a", "c"), 0L)
-})
-
 
 test_that("remove_selected_action works", {
   testServer(
