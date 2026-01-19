@@ -28,11 +28,13 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
 
           remove_edges(new$id, asis = TRUE, proxy = dag_extension[["proxy"]])
 
+          input_id <- from_g6_port_id(new$targetPort, to_g6_node_id(new$target))
+
           new_lnk <- as_links(
             new_link(
               from = new$source,
               to = new$target,
-              input = inps[1L]
+              input = input_id
             )
           )
 
