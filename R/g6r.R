@@ -351,7 +351,7 @@ create_block_ports <- function(block, id) {
         arity = 1,
         placement = c(xs[i], 0),
         fill = fill_col,
-        r = 2
+        r = 4
       )
     })
   } else if (length(inputs) == 1 && is.na(arity)) {
