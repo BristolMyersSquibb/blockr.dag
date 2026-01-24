@@ -43,8 +43,8 @@ Suggests:
     shinytest2,
     colorspace
 Remotes:
-    BristolMyersSquibb/blockr.dock@feat-prepend-block,
-    cynkra/g6R@feat-enhanced-ports
+    BristolMyersSquibb/blockr.dock@feature/sidebar-panels-clean,
+    cynkra/g6R@experiment/subtle-ports
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
