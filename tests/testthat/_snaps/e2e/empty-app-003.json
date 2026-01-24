@@ -68,7 +68,7 @@
               {
                 "text": "⚠",
                 "textAlign": "center",
-                "placement": "right-top",
+                "placement": "bottom-right",
                 "backgroundFill": "#dc2626",
                 "stroke": "#dc2626",
                 "lineWidth": 1,
@@ -112,12 +112,8 @@
             "labelBackground": true,
             "labelBackgroundRadius": 4,
             "labelFontFamily": "Arial",
-            "labelPadding": [
-              0,
-              4
-            ],
-            "labelPlacement": "top-left",
-            "labelOffsetY": 8
+            "labelOffsetY": -1,
+            "labelPlacement": "left"
           }
         },
         "edge": {
