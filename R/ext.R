@@ -295,7 +295,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
         badge <- list(
           text = "\u26A0",
           textAlign = "center",
-          placement = "right-top",
+          placement = "bottom-right",
           backgroundFill = "#dc2626",
           stroke = "#dc2626",
           lineWidth = 1,
