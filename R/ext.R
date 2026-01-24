@@ -293,14 +293,11 @@ extension_block_callback.dag_extension <- function(x, ...) {
         n <- n_cnd()
 
         badge <- list(
-          text = "\u26A0",
-          textAlign = "center",
+          text = "",
           placement = "right-top",
           backgroundFill = "#dc2626",
-          stroke = "#dc2626",
-          lineWidth = 1,
-          fontWeight = 300,
-          textDecorationColor = "#fff"
+          backgroundWidth = 10,
+          backgroundHeight = 10
         )
 
         node_config <- list(

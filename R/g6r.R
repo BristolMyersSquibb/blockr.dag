@@ -78,11 +78,9 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        labelBackground = TRUE,
-        labelBackgroundRadius = 4,
+        labelBackground = FALSE,
         labelFontFamily = "Arial",
-        labelPadding = c(0, 4),
-        labelPlacement = "top-left",
+        labelPlacement = "bottom",
         labelOffsetY = 8
       )
     ),
