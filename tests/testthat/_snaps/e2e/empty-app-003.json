@@ -112,8 +112,12 @@
             "labelBackground": true,
             "labelBackgroundRadius": 4,
             "labelFontFamily": "Arial",
-            "labelOffsetY": -1,
-            "labelPlacement": "left"
+            "labelPadding": [
+              0,
+              4
+            ],
+            "labelPlacement": "top-left",
+            "labelOffsetY": 8
           }
         },
         "edge": {

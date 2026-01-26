@@ -81,8 +81,9 @@ set_g6_options <- function(graph, ...) {
         labelBackground = TRUE,
         labelBackgroundRadius = 4,
         labelFontFamily = "Arial",
-        labelOffsetY = -1,
-        labelPlacement = "left"
+        labelPadding = c(0, 4),
+        labelPlacement = "top-left",
+        labelOffsetY = 8
       )
     ),
     combo = list(
