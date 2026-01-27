@@ -63,3 +63,8 @@
   font-family: inherit;
   color: #6b7280;
 }
+
+/* G6 edge label transitions - target all child elements */
+g[id^="edge-"] * {
+  transition: opacity 0.3s ease-in-out, fill-opacity 0.3s ease-in-out !important;
+}

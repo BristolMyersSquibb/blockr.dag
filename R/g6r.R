@@ -78,10 +78,15 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        labelBackground = FALSE,
+        labelBackground = TRUE,
+        labelBackgroundFill = "#FFFFFF",
+        labelBackgroundRadius = 2,
+        labelBackgroundOpacity = 1,
+        labelPadding = c(0, 2),
         labelFontFamily = "Arial",
         labelPlacement = "bottom",
-        labelOffsetY = 8
+        labelOffsetY = 4,
+        labelZIndex = 10
       )
     ),
     combo = list(
@@ -94,10 +99,24 @@ set_g6_options <- function(graph, ...) {
       )
     ),
     edge = list(
-      animation = FALSE,
+      type = "cubic-vertical",
       style = list(
         endArrow = TRUE,
-        stroke = "#D1D5DB"
+        stroke = "#D1D5DB",
+        lineWidth = 2,
+        curveOffset = list(50, -50),
+        labelOpacity = 0,
+        labelBackground = TRUE,
+        labelBackgroundFill = "#FFFFFF",
+        labelBackgroundRadius = 4,
+        labelBackgroundOpacity = 0,
+        labelPadding = c(4, 8)
+      ),
+      state = list(
+        active = list(
+          labelOpacity = 1,
+          labelBackgroundOpacity = 1
+        )
       )
     )
   )
@@ -146,6 +165,22 @@ set_g6_behaviors <- function(graph, ..., ns) {
       outputId = graph_id(ns)
     ),
     collapse_expand(),
+    # Show edge labels on hover with custom animation
+    hover_activate(
+      animation = FALSE,
+      onHover = JS("(event) => {
+        const el = event.target;
+        if (el && el.id && el.id.startsWith('edge-')) {
+          const label = document.querySelector(`g[id='${el.id}'] text`);
+          const bg = document.querySelector(`g[id='${el.id}'] rect`);
+          if (label) label.style.transition = 'opacity 0.3s ease-in-out';
+          if (bg) bg.style.transition = 'opacity 0.3s ease-in-out';
+        }
+      }"),
+      onHoverEnd = JS("(event) => {
+        // CSS handles the fade out
+      }")
+    ),
     # avoid conflict with internal function
     g6R::create_edge(
       enable = JS(
@@ -297,7 +332,7 @@ g6_edges_from_links <- function(links) {
       # node id, we are good to go!
       targetPort = paste0(target_id, "-", links$input)
     ),
-    MoreArgs = list(type = "line")
+    MoreArgs = list(type = "cubic-vertical")
   )
 
   if (length(res)) {
@@ -340,7 +375,7 @@ create_block_ports <- function(block, id) {
     if (n == 1) {
       xs <- 0.5
     } else {
-      xs <- seq(0.3, 0.7, length.out = n)
+      xs <- seq(0.15, 0.85, length.out = n)
     }
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(

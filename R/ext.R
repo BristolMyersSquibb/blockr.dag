@@ -294,7 +294,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
 
         badge <- list(
           text = "",
-          placement = "right-top",
+          placement = "right-bottom",
           backgroundFill = "#dc2626",
           backgroundWidth = 10,
           backgroundHeight = 10
