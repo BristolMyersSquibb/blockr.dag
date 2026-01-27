@@ -78,15 +78,10 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        labelBackground = TRUE,
-        labelBackgroundFill = "#FFFFFF",
-        labelBackgroundRadius = 2,
-        labelBackgroundOpacity = 1,
-        labelPadding = c(0, 2),
-        labelFontFamily = "Arial",
+        zIndex = 10,
         labelPlacement = "bottom",
-        labelOffsetY = 4,
-        labelZIndex = 10
+        labelOffsetY = 8,
+        labelFontFamily = "Open Sans, system-ui, sans-serif"
       )
     ),
     combo = list(
@@ -101,19 +96,26 @@ set_g6_options <- function(graph, ...) {
     edge = list(
       type = "cubic-vertical",
       style = list(
+        zIndex = 0,
         endArrow = TRUE,
         stroke = "#D1D5DB",
         lineWidth = 2,
-        curveOffset = list(50, -50),
+        curveOffset = list(15, -15),
         labelOpacity = 0,
+        labelFill = "#6b7280",
         labelBackground = TRUE,
         labelBackgroundFill = "#FFFFFF",
         labelBackgroundRadius = 4,
         labelBackgroundOpacity = 0,
-        labelPadding = c(4, 8)
+        labelPadding = c(2, 4)
       ),
       state = list(
         active = list(
+          stroke = "#D1D5DB",
+          lineWidth = 2,
+          shadowBlur = 0,
+          shadowColor = "transparent",
+          halo = FALSE,
           labelOpacity = 1,
           labelBackgroundOpacity = 1
         )
