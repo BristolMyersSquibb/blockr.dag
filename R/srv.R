@@ -46,7 +46,7 @@ dag_ext_srv <- function(graph) {
 
         setup_remove_elements_kbd()
 
-        actions_observers(actions, input)
+        actions_observers(actions, proxy)
 
         update_observer(update, board, proxy)
 
@@ -122,7 +122,9 @@ update_observer <- function(update, board, proxy) {
   )
 }
 
-actions_observers <- function(actions, input) {
+actions_observers <- function(actions, proxy) {
+  input <- proxy$session$input
+
   observeEvent(
     input[[paste0(graph_id(), "-batch_delete")]],
     actions[["remove_selected_action"]](
@@ -132,12 +134,38 @@ actions_observers <- function(actions, input) {
 
   observeEvent(
     req(input$added_edge$targetType != "canvas"),
-    actions[["draw_link_action"]](input$added_edge)
+    {
+      actions[["draw_link_action"]](input$added_edge)
+    }
   )
 
   observeEvent(
     req(input$added_edge$targetType == "canvas"),
-    actions[["append_block_action"]](input$added_edge$source)
+    {
+      actions[["append_block_action"]](input$added_edge$source)
+    }
+  )
+
+  # Append when output port guide is clicked
+  observeEvent(
+    req(input[[paste0(graph_id(), "-selected_port")]]$type == "output"),
+    {
+      el <- input[[paste0(graph_id(), "-selected_port")]]
+      actions[["append_block_action"]](from_g6_node_id(el$node))
+    }
+  )
+
+  # Prepend when input guide is clicked
+  observeEvent(
+    req(input[[paste0(graph_id(), "-selected_port")]]$type == "input"),
+    {
+      el <- input[[paste0(graph_id(), "-selected_port")]]
+      trigger <- list(
+        target = from_g6_node_id(el$node),
+        input = from_g6_port_id(el$port, el$node)
+      )
+      actions[["prepend_block_action"]](trigger)
+    }
   )
 }
 

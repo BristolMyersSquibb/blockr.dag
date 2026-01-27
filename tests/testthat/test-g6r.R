@@ -74,6 +74,33 @@ test_that("from_g6_combo_id works correctly", {
   expect_equal(from_g6_combo_id("combo-combo-test"), "combo-test")
 })
 
+test_that("to_g6_port_id works correctly", {
+  expect_equal(to_g6_port_id("in1", "node1"), "node1-in1")
+  expect_equal(
+    to_g6_port_id(c("in1", "out1"), "node1"),
+    c("node1-in1", "node1-out1")
+  )
+  expect_equal(
+    to_g6_port_id("in1", c("node1", "node2")),
+    c("node1-in1", "node2-in1")
+  )
+  expect_equal(to_g6_port_id(character(0), "node1"), character(0))
+  expect_equal(to_g6_port_id(NULL, "node1"), NULL)
+  expect_equal(to_g6_port_id("in1", ""), "-in1")
+})
+
+test_that("from_g6_port_id works correctly", {
+  expect_equal(from_g6_port_id("node1-in1", "node1"), "in1")
+  expect_equal(
+    from_g6_port_id(c("node1-in1", "node1-out1"), "node1"),
+    c("in1", "out1")
+  )
+  expect_equal(from_g6_port_id("node2-in2", "node2"), "in2")
+  expect_equal(from_g6_port_id("in1", "node1"), "in1")
+  expect_equal(from_g6_port_id("", "node1"), "")
+  expect_equal(from_g6_port_id("node1-", "node1"), "")
+})
+
 test_that("roundtrip conversions work correctly", {
   original_nodes <- c("node1", "node2", "node3")
   expect_equal(from_g6_node_id(to_g6_node_id(original_nodes)), original_nodes)
