@@ -29,7 +29,11 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''));
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^node-/, ''),
+              {priority: 'event'}
+            );
           }",
           ns("ctx_add_link")
         )
