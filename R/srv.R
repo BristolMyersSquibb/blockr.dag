@@ -142,6 +142,10 @@ actions_observers <- function(actions, proxy) {
   observeEvent(
     req(input$added_edge$targetType == "canvas"),
     {
+      # Store the drop position for placing the new node
+      if (!is.null(input$added_edge$dropPosition)) {
+        set_pending_node_position(input$added_edge$dropPosition)
+      }
       actions[["append_block_action"]](input$added_edge$source)
     }
   )

@@ -1,3 +1,23 @@
+# Storage for pending node position when dragging edge to canvas
+.dag_env <- new.env(parent = emptyenv())
+.dag_env$pending_position <- NULL
+
+#' Set pending position for next added node
+#' @param position List with x and y coordinates
+#' @keywords internal
+set_pending_node_position <- function(position) {
+  .dag_env$pending_position <- position
+}
+
+#' Get and clear pending position for added node
+#' @return List with x and y coordinates, or NULL
+#' @keywords internal
+get_pending_node_position <- function() {
+  pos <- .dag_env$pending_position
+  .dag_env$pending_position <- NULL
+  pos
+}
+
 to_g6_node_id <- function(x) {
   if (length(x)) {
     x <- paste0("node-", x)
@@ -211,7 +231,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   target: edge.target.replace(/^node-/, ''),
                   targetType: edge.targetType,
                   sourcePort: edge.style.sourcePort,
-                  targetPort: edge.style.targetPort
+                  targetPort: edge.style.targetPort,
+                  dropPosition: edge.dropPosition
                 }
               );
             }
@@ -553,6 +574,18 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+
+  # Check if we have a pending position from edge drop
+  pending_pos <- get_pending_node_position()
+  if (!is.null(pending_pos) && length(nodes) > 0) {
+    # Apply position to the first (newly added) node
+    # nodes is a list of node objects, each with $style
+    if (length(nodes) == 1) {
+      nodes[[1]]$style$x <- pending_pos$x
+      nodes[[1]]$style$y <- pending_pos$y
+    }
+  }
+
   g6_add_nodes(proxy, nodes)
   invisible()
 }

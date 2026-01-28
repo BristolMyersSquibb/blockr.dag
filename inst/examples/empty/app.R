@@ -5,10 +5,10 @@ library(blockr.dock)
 pkgload::load_all()
 pkgload::load_all("../g6r")
 
-options(
-  "g6R.mode" = "dev",
-  "g6R.layout_on_data_change" = TRUE
-)
+# options(
+#   "g6R.mode" = "dev",
+#   "g6R.layout_on_data_change" = TRUE
+# )
 
 serve(
   id = "board",
