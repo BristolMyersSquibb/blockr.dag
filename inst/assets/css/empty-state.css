@@ -68,3 +68,12 @@
 g[id^="edge-"] * {
   transition: opacity 0.3s ease-in-out, fill-opacity 0.3s ease-in-out !important;
 }
+
+/* Prevent browser text selection on G6 canvas and dag container when dragging */
+.dag-canvas-container,
+.dag-canvas-container *,
+.g6-component,
+.g6-component * {
+  user-select: none;
+  -webkit-user-select: none;
+}
