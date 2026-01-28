@@ -138,6 +138,13 @@ set_g6_options <- function(graph, ...) {
           halo = FALSE,
           labelOpacity = 1,
           labelBackgroundOpacity = 1
+        ),
+        selected = list(
+          stroke = "#9ca3af",
+          lineWidth = 2,
+          shadowBlur = 4,
+          shadowColor = "rgba(156, 163, 175, 0.5)",
+          halo = FALSE
         )
       )
     )
