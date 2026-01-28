@@ -120,6 +120,7 @@ set_g6_options <- function(graph, ...) {
         endArrow = TRUE,
         stroke = "#D1D5DB",
         lineWidth = 2,
+        increasedLineWidthForHitTesting = 25,
         curveOffset = list(15, -15),
         labelOpacity = 0,
         labelFill = "#6b7280",
