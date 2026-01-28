@@ -239,8 +239,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   target: edge.target.replace(/^node-/, ''),
                   targetType: edge.targetType,
                   sourcePort: edge.style.sourcePort,
-                  targetPort: edge.style.targetPort,
-                  dropPosition: edge.dropPosition
+                  targetPort: edge.style.targetPort
                 }
               );
             }
@@ -401,7 +400,6 @@ create_block_ports <- function(block, id) {
   } else if (length(inputs) == 1 && arity == 1) {
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
-      label = inputs[1],
       arity = 1,
       visibility = "hover",
       placement = "top",
@@ -417,7 +415,6 @@ create_block_ports <- function(block, id) {
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(
         key = sprintf("%s-%s", id, inputs[i]),
-        label = inputs[i],
         arity = 1,
         visibility = "hover",
         placement = c(xs[i], 0),
@@ -428,7 +425,6 @@ create_block_ports <- function(block, id) {
   } else if (length(inputs) == 1 && is.na(arity)) {
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
-      label = inputs[1],
       arity = Inf,
       visibility = "hover",
       placement = "top",
@@ -442,7 +438,6 @@ create_block_ports <- function(block, id) {
     input_ports,
     list(g6_output_port(
       key = out_id,
-      label = sub("node-", "", out_id),
       arity = Inf,
       visibility = "hover",
       placement = "bottom",

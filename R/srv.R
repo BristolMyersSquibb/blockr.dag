@@ -142,9 +142,10 @@ actions_observers <- function(actions, proxy) {
   observeEvent(
     req(input$added_edge$targetType == "canvas"),
     {
-      # Store the drop position for placing the new node
-      if (!is.null(input$added_edge$dropPosition)) {
-        set_pending_node_position(input$added_edge$dropPosition)
+      # Use g6R's built-in mouse_position input for drop location
+      mouse_pos <- input[[paste0(graph_id(), "-mouse_position")]]
+      if (!is.null(mouse_pos)) {
+        set_pending_node_position(mouse_pos)
       }
       actions[["append_block_action"]](input$added_edge$source)
     }
