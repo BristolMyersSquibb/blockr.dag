@@ -29,11 +29,7 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue(
-              '%s',
-              current.id.replace(/^node-/, ''),
-              {priority: 'event'}
-            );
+            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''));
           }",
           ns("ctx_add_link")
         )
@@ -297,14 +293,11 @@ extension_block_callback.dag_extension <- function(x, ...) {
         n <- n_cnd()
 
         badge <- list(
-          text = "\u26A0",
-          textAlign = "center",
-          placement = "bottom-right",
+          text = "",
+          placement = "right-bottom",
           backgroundFill = "#dc2626",
-          stroke = "#dc2626",
-          lineWidth = 1,
-          fontWeight = 300,
-          textDecorationColor = "#fff"
+          backgroundWidth = 10,
+          backgroundHeight = 10
         )
 
         node_config <- list(
