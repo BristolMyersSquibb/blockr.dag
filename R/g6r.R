@@ -149,10 +149,14 @@ set_g6_behaviors <- function(graph, ..., ns) {
       )
     ),
     # So we can add node to stack from the UI by drag and drop
+    # Disable drag when edge creation from port is active
     drag_element(
       enable = JS(
         "(e) => {
-          return !e.shiftKey && !e.altKey;
+          if (e.shiftKey || e.altKey) return false;
+          // Disable drag when edge creation from port is active
+          if (window._g6EdgeCreationActive) return false;
+          return true;
         }"
       ),
       # For now, we prevent nodes from being dropped outside combo.
@@ -187,7 +191,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     g6R::create_edge(
       enable = JS(
         "(e) => {
-          return e.shiftKey;
+          return true;
         }"
       ),
       onFinish = JS(

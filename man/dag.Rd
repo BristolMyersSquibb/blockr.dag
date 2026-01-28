@@ -9,7 +9,7 @@ new_dag_extension(graph = NULL, ...)
 \arguments{
 \item{graph}{A \code{graph} object (or \code{NULL}).}
 
-\item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
+\item{...}{Forwarded to \code{\link[blockr.dock:new_dock_extension]{blockr.dock::new_dock_extension()}}.}
 }
 \value{
 A \code{dag_extension} object that extends the dock extension system
