@@ -363,6 +363,7 @@ create_block_ports <- function(block, id) {
       input_ports <- list(g6_input_port(
         key = sprintf("%s-in", id),
         arity = Inf,
+        visibility = "hover",
         placement = "top",
         fill = fill_col
       ))
@@ -373,6 +374,7 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
       arity = 1,
+      visibility = "hover",
       placement = "top",
       fill = fill_col
     ))
@@ -388,6 +390,7 @@ create_block_ports <- function(block, id) {
         key = sprintf("%s-%s", id, inputs[i]),
         label = inputs[i],
         arity = 1,
+        visibility = "hover",
         placement = c(xs[i], 0),
         fill = fill_col,
         r = 4
@@ -398,6 +401,7 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
       arity = Inf,
+      visibility = "hover",
       placement = "top",
       fill = fill_col
     ))
@@ -411,6 +415,7 @@ create_block_ports <- function(block, id) {
       key = out_id,
       label = sub("node-", "", out_id),
       arity = Inf,
+      visibility = "hover",
       placement = "bottom",
       fill = fill_col
     ))
