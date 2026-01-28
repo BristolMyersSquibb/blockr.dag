@@ -1,3 +1,23 @@
+# Storage for pending node position when dragging edge to canvas
+.dag_env <- new.env(parent = emptyenv())
+.dag_env$pending_position <- NULL
+
+#' Set pending position for next added node
+#' @param position List with x and y coordinates
+#' @keywords internal
+set_pending_node_position <- function(position) {
+  .dag_env$pending_position <- position
+}
+
+#' Get and clear pending position for added node
+#' @return List with x and y coordinates, or NULL
+#' @keywords internal
+get_pending_node_position <- function() {
+  pos <- .dag_env$pending_position
+  .dag_env$pending_position <- NULL
+  pos
+}
+
 to_g6_node_id <- function(x) {
   if (length(x)) {
     x <- paste0("node-", x)
@@ -78,12 +98,10 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        labelBackground = TRUE,
-        labelBackgroundRadius = 4,
-        labelFontFamily = "Arial",
-        labelPadding = c(0, 4),
-        labelPlacement = "top-left",
-        labelOffsetY = 8
+        zIndex = 10,
+        labelPlacement = "bottom",
+        labelOffsetY = 8,
+        labelFontFamily = "Open Sans, system-ui, sans-serif"
       )
     ),
     combo = list(
@@ -96,10 +114,39 @@ set_g6_options <- function(graph, ...) {
       )
     ),
     edge = list(
-      animation = FALSE,
+      type = "cubic-vertical",
       style = list(
+        zIndex = 0,
         endArrow = TRUE,
-        stroke = "#D1D5DB"
+        stroke = "#D1D5DB",
+        lineWidth = 2,
+        increasedLineWidthForHitTesting = 25,
+        curveOffset = list(15, -15),
+        labelOpacity = 0,
+        labelFill = "#6b7280",
+        labelBackground = TRUE,
+        labelBackgroundFill = "#FFFFFF",
+        labelBackgroundRadius = 4,
+        labelBackgroundOpacity = 0,
+        labelPadding = c(2, 4)
+      ),
+      state = list(
+        active = list(
+          stroke = "#D1D5DB",
+          lineWidth = 2,
+          shadowBlur = 0,
+          shadowColor = "transparent",
+          halo = FALSE,
+          labelOpacity = 1,
+          labelBackgroundOpacity = 1
+        ),
+        selected = list(
+          stroke = "#9ca3af",
+          lineWidth = 2,
+          shadowBlur = 4,
+          shadowColor = "rgba(156, 163, 175, 0.5)",
+          halo = FALSE
+        )
       )
     )
   )
@@ -130,10 +177,14 @@ set_g6_behaviors <- function(graph, ..., ns) {
       )
     ),
     # So we can add node to stack from the UI by drag and drop
+    # Disable drag when edge creation from port is active
     drag_element(
       enable = JS(
         "(e) => {
-          return !e.shiftKey && !e.altKey;
+          if (e.shiftKey || e.altKey) return false;
+          // Disable drag when edge creation from port is active
+          if (window._g6EdgeCreationActive) return false;
+          return true;
         }"
       ),
       # For now, we prevent nodes from being dropped outside combo.
@@ -148,11 +199,27 @@ set_g6_behaviors <- function(graph, ..., ns) {
       outputId = graph_id(ns)
     ),
     collapse_expand(),
+    # Show edge labels on hover with custom animation
+    hover_activate(
+      animation = FALSE,
+      onHover = JS("(event) => {
+        const el = event.target;
+        if (el && el.id && el.id.startsWith('edge-')) {
+          const label = document.querySelector(`g[id='${el.id}'] text`);
+          const bg = document.querySelector(`g[id='${el.id}'] rect`);
+          if (label) label.style.transition = 'opacity 0.3s ease-in-out';
+          if (bg) bg.style.transition = 'opacity 0.3s ease-in-out';
+        }
+      }"),
+      onHoverEnd = JS("(event) => {
+        // CSS handles the fade out
+      }")
+    ),
     # avoid conflict with internal function
     g6R::create_edge(
       enable = JS(
         "(e) => {
-          return e.shiftKey;
+          return true;
         }"
       ),
       onFinish = JS(
@@ -299,7 +366,7 @@ g6_edges_from_links <- function(links) {
       # node id, we are good to go!
       targetPort = paste0(target_id, "-", links$input)
     ),
-    MoreArgs = list(type = "line")
+    MoreArgs = list(type = "cubic-vertical")
   )
 
   if (length(res)) {
@@ -324,6 +391,7 @@ create_block_ports <- function(block, id) {
       input_ports <- list(g6_input_port(
         key = sprintf("%s-in", id),
         arity = Inf,
+        visibility = "hover",
         placement = "top",
         fill = fill_col
       ))
@@ -332,8 +400,8 @@ create_block_ports <- function(block, id) {
   } else if (length(inputs) == 1 && arity == 1) {
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
-      label = inputs[1],
       arity = 1,
+      visibility = "hover",
       placement = "top",
       fill = fill_col
     ))
@@ -342,13 +410,13 @@ create_block_ports <- function(block, id) {
     if (n == 1) {
       xs <- 0.5
     } else {
-      xs <- seq(0.3, 0.7, length.out = n)
+      xs <- seq(0.15, 0.85, length.out = n)
     }
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(
         key = sprintf("%s-%s", id, inputs[i]),
-        label = inputs[i],
         arity = 1,
+        visibility = "hover",
         placement = c(xs[i], 0),
         fill = fill_col,
         r = 4
@@ -357,8 +425,8 @@ create_block_ports <- function(block, id) {
   } else if (length(inputs) == 1 && is.na(arity)) {
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
-      label = inputs[1],
       arity = Inf,
+      visibility = "hover",
       placement = "top",
       fill = fill_col
     ))
@@ -370,8 +438,8 @@ create_block_ports <- function(block, id) {
     input_ports,
     list(g6_output_port(
       key = out_id,
-      label = sub("node-", "", out_id),
       arity = Inf,
+      visibility = "hover",
       placement = "bottom",
       fill = fill_col
     ))
@@ -509,6 +577,18 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+
+  # Check if we have a pending position from edge drop
+  pending_pos <- get_pending_node_position()
+  if (!is.null(pending_pos) && length(nodes) > 0) {
+    # Apply position to the first (newly added) node
+    # nodes is a list of node objects, each with $style
+    if (length(nodes) == 1) {
+      nodes[[1]]$style$x <- pending_pos$x
+      nodes[[1]]$style$y <- pending_pos$y
+    }
+  }
+
   g6_add_nodes(proxy, nodes)
   invisible()
 }
