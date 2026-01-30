@@ -180,10 +180,13 @@ set_g6_behaviors <- function(graph, ..., ns) {
     # Disable drag when edge creation from port is active
     drag_element(
       enable = JS(
-        "(e) => {
+        "function(e) {
           if (e.shiftKey || e.altKey) return false;
           // Disable drag when edge creation from port is active
-          if (window._g6EdgeCreationActive) return false;
+          // Access create-edge behavior via graph to check if edge creation is active
+          const behaviors = this.context.graph.getBehaviors();
+          const createEdge = behaviors.find(b => b[0] === 'create-edge');
+          if (createEdge && createEdge[1]?.isCreatingEdge) return false;
           return true;
         }"
       ),
@@ -228,6 +231,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const graph = HTMLWidgets.find('#%s').getWidget();
             // For canvas drops, the assist node is already removed, so check targetType first
             if (edge.targetType === 'canvas') {
+              // Get mouse position from Shiny input (captured by g6R on pointer up)
+              const mousePos = Shiny.shinyapp.$inputValues['%s-mouse_position'];
               Shiny.setInputValue(
                 '%s',
                 {
@@ -236,7 +241,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   target: null,
                   targetType: 'canvas',
                   sourcePort: edge.style?.sourcePort,
-                  dropPosition: edge.dropPosition
+                  dropPosition: mousePos
                 }
               );
               return;
@@ -259,6 +264,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
               );
             }
           }",
+          graph_id(ns),
           graph_id(ns),
           ns("added_edge"),
           ns("added_edge")
