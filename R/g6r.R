@@ -1,23 +1,3 @@
-# Storage for pending node position when dragging edge to canvas
-.dag_env <- new.env(parent = emptyenv())
-.dag_env$pending_position <- NULL
-
-#' Set pending position for next added node
-#' @param position List with x and y coordinates
-#' @keywords internal
-set_pending_node_position <- function(position) {
-  .dag_env$pending_position <- position
-}
-
-#' Get and clear pending position for added node
-#' @return List with x and y coordinates, or NULL
-#' @keywords internal
-get_pending_node_position <- function() {
-  pos <- .dag_env$pending_position
-  .dag_env$pending_position <- NULL
-  pos
-}
-
 to_g6_node_id <- function(x) {
   if (length(x)) {
     x <- paste0("node-", x)
@@ -202,21 +182,10 @@ set_g6_behaviors <- function(graph, ..., ns) {
       outputId = graph_id(ns)
     ),
     collapse_expand(),
-    # Show edge labels on hover with custom animation
+    # Show edge labels on hover (CSS handles the transition animation)
     hover_activate(
       animation = FALSE,
-      onHover = JS("(event) => {
-        const el = event.target;
-        if (el && el.id && el.id.startsWith('edge-')) {
-          const label = document.querySelector(`g[id='${el.id}'] text`);
-          const bg = document.querySelector(`g[id='${el.id}'] rect`);
-          if (label) label.style.transition = 'opacity 0.3s ease-in-out';
-          if (bg) bg.style.transition = 'opacity 0.3s ease-in-out';
-        }
-      }"),
-      onHoverEnd = JS("(event) => {
-        // CSS handles the fade out
-      }")
+      enable = JS("(e) => e.targetType === 'edge'")
     ),
     # avoid conflict with internal function
     g6R::create_edge(
@@ -600,14 +569,12 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
 
-  # Check if we have a pending position from edge drop
-  pending_pos <- get_pending_node_position()
-  if (!is.null(pending_pos) && length(nodes) > 0) {
-    # Apply position to the first (newly added) node
-    # nodes is a list of node objects, each with $style
-    if (length(nodes) == 1) {
-      nodes[[1]]$style$x <- pending_pos$x
-      nodes[[1]]$style$y <- pending_pos$y
+  # Apply mouse position for single node additions (e.g., edge drop to canvas)
+  if (length(blocks) == 1 && length(nodes) == 1) {
+    mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
+    if (!is.null(mouse_pos)) {
+      nodes[[1]]$style$x <- mouse_pos$x
+      nodes[[1]]$style$y <- mouse_pos$y
     }
   }
 
