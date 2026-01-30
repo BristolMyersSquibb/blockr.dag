@@ -210,8 +210,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   source: edge.source.replace(/^node-/, ''),
                   target: null,
                   targetType: 'canvas',
-                  sourcePort: edge.style?.sourcePort,
-                  dropPosition: mousePos
+                  sourcePort: edge.style?.sourcePort
                 }
               );
               return;
