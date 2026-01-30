@@ -226,6 +226,21 @@ set_g6_behaviors <- function(graph, ..., ns) {
         sprintf(
           "(edge) => {
             const graph = HTMLWidgets.find('#%s').getWidget();
+            // For canvas drops, the assist node is already removed, so check targetType first
+            if (edge.targetType === 'canvas') {
+              Shiny.setInputValue(
+                '%s',
+                {
+                  id: edge.id,
+                  source: edge.source.replace(/^node-/, ''),
+                  target: null,
+                  targetType: 'canvas',
+                  sourcePort: edge.style?.sourcePort,
+                  dropPosition: edge.dropPosition
+                }
+              );
+              return;
+            }
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType === 'combo') {
@@ -245,6 +260,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
             }
           }",
           graph_id(ns),
+          ns("added_edge"),
           ns("added_edge")
         )
       )
