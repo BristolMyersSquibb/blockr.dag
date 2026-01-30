@@ -160,10 +160,14 @@ set_g6_behaviors <- function(graph, ..., ns) {
     # Disable drag when edge creation from port is active
     drag_element(
       enable = JS(
-        "function(e) {
+        "(e) => {
           if (e.shiftKey || e.altKey) return false;
-          // Disable drag when edge creation from port is active
-          if (window._g6EdgeCreationActive) return false;
+          // Access graph via HTMLWidgets and check if edge creation is in progress
+          const target = e.nativeEvent?.target;
+          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
+          try {
+            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
+          } catch (err) {}
           return true;
         }"
       ),
