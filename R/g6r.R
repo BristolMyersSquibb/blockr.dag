@@ -163,10 +163,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
         "function(e) {
           if (e.shiftKey || e.altKey) return false;
           // Disable drag when edge creation from port is active
-          // Access create-edge behavior via graph to check if edge creation is active
-          const behaviors = this.context.graph.getBehaviors();
-          const createEdge = behaviors.find(b => b[0] === 'create-edge');
-          if (createEdge && createEdge[1]?.isCreatingEdge) return false;
+          if (window._g6EdgeCreationActive) return false;
           return true;
         }"
       ),
