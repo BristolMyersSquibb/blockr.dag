@@ -149,7 +149,7 @@ actions_observers <- function(actions, proxy) {
     }
   )
 
-  # FIXME: broken shit
+  # Prepend from drag
   observeEvent(
     req(
       input$added_edge$targetType == "canvas",
@@ -158,8 +158,8 @@ actions_observers <- function(actions, proxy) {
     {
       el <- input$added_edge
       trigger <- list(
-        target = from_g6_node_id(el$id),
-        input = from_g6_port_id(el$sourcePort, el$id)
+        target = el$source,
+        input = from_g6_port_id(el$sourcePort, to_g6_node_id(el$source))
       )
       actions[["prepend_block_action"]](trigger)
     }
