@@ -78,8 +78,11 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
+        zIndex = 10,
         labelFill = "#6b7280",
         labelBackground = TRUE,
+        labelBackgroundFill = "#f3f4f6",
+        labelBackgroundStroke = "#e5e7eb",
         labelBackgroundRadius = 4,
         labelPlacement = "bottom",
         labelOffsetY = 8,
@@ -89,6 +92,13 @@ set_g6_options <- function(graph, ...) {
         labelPadding = c(1, 6, 1, 6),
         labelFontSize = 11,
         labelFontFamily = "Open Sans, system-ui, sans-serif"
+      ),
+      state = list(
+        selected = list(
+          labelBackgroundFill = "#dbeafe",
+          labelBackgroundStroke = "#0D99FF",
+          labelFontWeight = 700
+        )
       )
     ),
     combo = list(
