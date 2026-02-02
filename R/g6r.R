@@ -78,9 +78,16 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        zIndex = 10,
+        labelFill = "#6b7280",
+        labelBackground = TRUE,
+        labelBackgroundRadius = 4,
         labelPlacement = "bottom",
         labelOffsetY = 8,
+        labelBackgroundLineWidth = 1,
+        labelBackgroundRadius = 4,
+        labelBackgroundOpacity = 1,
+        labelPadding = c(1, 6, 1, 6),
+        labelFontSize = 11,
         labelFontFamily = "Open Sans, system-ui, sans-serif"
       )
     ),
@@ -96,7 +103,7 @@ set_g6_options <- function(graph, ...) {
     edge = list(
       type = "cubic-vertical",
       style = list(
-        zIndex = 0,
+        zIndex = -1,
         endArrow = TRUE,
         stroke = "#D1D5DB",
         lineWidth = 2,
@@ -201,8 +208,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const graph = HTMLWidgets.find('#%s').getWidget();
             // For canvas drops, the assist node is already removed, so check targetType first
             if (edge.targetType === 'canvas') {
-              // Get mouse position from Shiny input (captured by g6R on pointer up)
-              const mousePos = Shiny.shinyapp.$inputValues['%s-mouse_position'];
               Shiny.setInputValue(
                 '%s',
                 {
@@ -210,7 +215,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   source: edge.source.replace(/^node-/, ''),
                   target: null,
                   targetType: 'canvas',
-                  sourcePort: edge.style?.sourcePort
+                  sourcePort: edge.style?.sourcePort,
+                  portType: edge.style?.portType
                 }
               );
               return;
@@ -233,7 +239,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
               );
             }
           }",
-          graph_id(ns),
           graph_id(ns),
           ns("added_edge"),
           ns("added_edge")

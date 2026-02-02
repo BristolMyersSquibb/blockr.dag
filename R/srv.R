@@ -140,9 +140,28 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    req(input$added_edge$targetType == "canvas"),
+    req(
+      input$added_edge$targetType == "canvas",
+      input$added_edge$portType == "output"
+    ),
     {
       actions[["append_block_action"]](input$added_edge$source)
+    }
+  )
+
+  # FIXME: broken shit
+  observeEvent(
+    req(
+      input$added_edge$targetType == "canvas",
+      input$added_edge$portType == "input"
+    ),
+    {
+      el <- input$added_edge
+      trigger <- list(
+        target = from_g6_node_id(el$id),
+        input = from_g6_port_id(el$sourcePort, el$id)
+      )
+      actions[["prepend_block_action"]](trigger)
     }
   )
 
@@ -154,6 +173,10 @@ actions_observers <- function(actions, proxy) {
       actions[["append_block_action"]](from_g6_node_id(el$node))
     }
   )
+
+  observeEvent(input[[paste0(graph_id(), "-selected_port")]], {
+    browser()
+  })
 
   # Prepend when input guide is clicked
   observeEvent(
