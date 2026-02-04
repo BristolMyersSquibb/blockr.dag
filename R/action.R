@@ -8,13 +8,27 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
 
           remove_edges(new$id, asis = TRUE, proxy = dag_extension[["proxy"]])
 
-          input_id <- from_g6_port_id(new$targetPort, to_g6_node_id(new$target))
+          target_id <- new$target
+          source_id <- new$source
+          input_name <- from_g6_port_id(
+            new$targetPort,
+            to_g6_node_id(new$target)
+          )
 
+          # For variadic blocks, make input name unique
+          target_block <- board_blocks(board$board)[[target_id]]
+          if (is.na(blockr.core::block_arity(target_block))) {
+            existing <- board_links(board$board)
+            n_existing <- sum(existing$to == target_id)
+            if (n_existing > 0) {
+              input_name <- paste0(input_name, "_", n_existing + 1)
+            }
+          }
           new_lnk <- as_links(
             new_link(
-              from = new$source,
-              to = new$target,
-              input = input_id
+              from = source_id,
+              to = target_id,
+              input = input_name
             )
           )
 
