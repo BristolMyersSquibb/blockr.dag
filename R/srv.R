@@ -174,10 +174,6 @@ actions_observers <- function(actions, proxy) {
     }
   )
 
-  observeEvent(input[[paste0(graph_id(), "-selected_port")]], {
-    browser()
-  })
-
   # Prepend when input guide is clicked
   observeEvent(
     req(input[[paste0(graph_id(), "-selected_port")]]$type == "input"),

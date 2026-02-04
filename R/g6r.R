@@ -78,7 +78,6 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
-        zIndex = 10,
         labelFill = "#6b7280",
         labelBackground = TRUE,
         labelBackgroundFill = "#f3f4f6",
@@ -247,6 +246,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetPort: edge.style.targetPort
                 }
               );
+              // We will recreate the edge from the R side with correct ID
+              graph.removeEdgeData([edge.id]);
             }
           }",
           graph_id(ns),
@@ -360,7 +361,7 @@ g6_edges_from_links <- function(links) {
   res <- map(
     g6_edge,
     id = to_g6_edge_id(names(links)),
-    source = to_g6_node_id(links$from),
+    source = source_id,
     target = target_id,
     style = map(
       list,
@@ -396,6 +397,7 @@ create_block_ports <- function(block, id) {
     if (is.na(arity)) {
       input_ports <- list(g6_input_port(
         key = sprintf("%s-in", id),
+        label = "in",
         arity = Inf,
         visibility = "hover",
         placement = "top",
@@ -406,6 +408,7 @@ create_block_ports <- function(block, id) {
   } else if (length(inputs) == 1 && arity == 1) {
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
+      label = inputs[1],
       arity = 1,
       visibility = "hover",
       placement = "top",
@@ -421,21 +424,13 @@ create_block_ports <- function(block, id) {
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(
         key = sprintf("%s-%s", id, inputs[i]),
+        label = inputs[i],
         arity = 1,
         visibility = "hover",
         placement = c(xs[i], 0),
-        fill = fill_col,
-        r = 4
+        fill = fill_col
       )
     })
-  } else if (length(inputs) == 1 && is.na(arity)) {
-    input_ports <- list(g6_input_port(
-      key = sprintf("%s-%s", id, inputs[1]),
-      arity = Inf,
-      visibility = "hover",
-      placement = "top",
-      fill = fill_col
-    ))
   }
 
   out_id <- sprintf("%s-out", id)
@@ -444,6 +439,7 @@ create_block_ports <- function(block, id) {
     input_ports,
     list(g6_output_port(
       key = out_id,
+      label = "out",
       arity = Inf,
       visibility = "hover",
       placement = "bottom",
