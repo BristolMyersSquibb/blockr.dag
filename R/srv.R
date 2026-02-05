@@ -139,51 +139,33 @@ actions_observers <- function(actions, proxy) {
     }
   )
 
+  # Append/prepend from canvas drop
   observeEvent(
-    req(
-      input$added_edge$targetType == "canvas",
-      input$added_edge$portType == "output"
-    ),
+    req(input$added_edge$targetType == "canvas"),
     {
-      actions[["append_block_action"]](input$added_edge$source)
-    }
-  )
+      edge <- input$added_edge
+      req(edge$portType)
 
-  # Prepend from drag
-  observeEvent(
-    req(
-      input$added_edge$targetType == "canvas",
-      input$added_edge$portType == "input"
-    ),
-    {
-      el <- input$added_edge
-      trigger <- list(
-        target = el$source,
-        input = from_g6_port_id(el$sourcePort, to_g6_node_id(el$source))
+      switch(
+        edge$portType,
+        output = actions[["append_block_action"]](edge$source),
+        input = actions[["prepend_block_action"]](edge$source)
       )
-      actions[["prepend_block_action"]](trigger)
     }
   )
 
-  # Append when output port guide is clicked
+  # Append/prepend on port click
   observeEvent(
-    req(input[[paste0(graph_id(), "-selected_port")]]$type == "output"),
+    input[[paste0(graph_id(), "-selected_port")]],
     {
       el <- input[[paste0(graph_id(), "-selected_port")]]
-      actions[["append_block_action"]](from_g6_node_id(el$node))
-    }
-  )
+      req(el$type)
 
-  # Prepend when input guide is clicked
-  observeEvent(
-    req(input[[paste0(graph_id(), "-selected_port")]]$type == "input"),
-    {
-      el <- input[[paste0(graph_id(), "-selected_port")]]
-      trigger <- list(
-        target = from_g6_node_id(el$node),
-        input = from_g6_port_id(el$port, el$node)
+      switch(
+        el$type,
+        output = actions[["append_block_action"]](from_g6_node_id(el$node)),
+        input = actions[["prepend_block_action"]](from_g6_node_id(el$node))
       )
-      actions[["prepend_block_action"]](trigger)
     }
   )
 }

@@ -439,7 +439,7 @@ create_block_ports <- function(block, id) {
     input_ports,
     list(g6_output_port(
       key = out_id,
-      label = "out",
+      label = NULL,
       arity = Inf,
       visibility = "hover",
       placement = "bottom",
