@@ -139,34 +139,36 @@ actions_observers <- function(actions, proxy) {
     }
   )
 
+  # Append/prepend from canvas drop
   observeEvent(
     req(input$added_edge$targetType == "canvas"),
     {
-      actions[["append_block_action"]](input$added_edge$source)
-    }
-  )
+      edge <- input$added_edge
+      req(edge$portType)
 
-  # Append when output port guide is clicked
-  observeEvent(
-    req(input[[paste0(graph_id(), "-selected_port")]]$type == "output"),
-    {
-      el <- input[[paste0(graph_id(), "-selected_port")]]
-      actions[["append_block_action"]](from_g6_node_id(el$node))
-    }
-  )
-
-  # Prepend when input guide is clicked
-  observeEvent(
-    req(input[[paste0(graph_id(), "-selected_port")]]$type == "input"),
-    {
-      el <- input[[paste0(graph_id(), "-selected_port")]]
-      trigger <- list(
-        target = from_g6_node_id(el$node),
-        input = from_g6_port_id(el$port, el$node)
+      switch(
+        edge$portType,
+        output = actions[["append_block_action"]](edge$source),
+        input = actions[["prepend_block_action"]](edge$source)
       )
-      actions[["prepend_block_action"]](trigger)
     }
   )
+
+  # Append/prepend on port click: FIXME -> disabled due to critical issue
+  # with input ports which cannot be clicked :)
+  # observeEvent(
+  #   input[[paste0(graph_id(), "-selected_port")]],
+  #   {
+  #     el <- input[[paste0(graph_id(), "-selected_port")]]
+  #     req(el$type)
+
+  #     switch(
+  #       el$type,
+  #       output = actions[["append_block_action"]](from_g6_node_id(el$node)),
+  #       input = actions[["prepend_block_action"]](from_g6_node_id(el$node))
+  #     )
+  #   }
+  # )
 }
 
 empty_state_observer <- function(board, session) {

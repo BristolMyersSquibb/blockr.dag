@@ -13,9 +13,8 @@
               "node-super_data_block-out": {
                 "key": "node-super_data_block-out",
                 "type": "output",
-                "label": "super_data_block-out",
                 "arity": "Infinity",
-                "showGuides": true,
+                "visibility": "hover",
                 "fill": "#0072B2",
                 "placement": "bottom",
                 "r": 4
@@ -58,22 +57,73 @@
         "node": {
           "type": "custom-image-node",
           "style": {
+            "labelFill": "#6b7280",
             "labelBackground": true,
+            "labelBackgroundFill": "#f3f4f6",
+            "labelBackgroundStroke": "#e5e7eb",
             "labelBackgroundRadius": 4,
-            "labelFontFamily": "Arial",
+            "labelPlacement": "bottom",
+            "labelOffsetY": 8,
+            "labelBackgroundLineWidth": 1,
+            "labelBackgroundRadius.1": 4,
+            "labelBackgroundOpacity": 1,
             "labelPadding": [
-              0,
-              4
+              1,
+              6,
+              1,
+              6
             ],
-            "labelPlacement": "top-left",
-            "labelOffsetY": 8
+            "labelFontSize": 11,
+            "labelFontFamily": "Open Sans, system-ui, sans-serif"
+          },
+          "state": {
+            "selected": {
+              "labelBackgroundFill": "#dbeafe",
+              "labelBackgroundStroke": "#0D99FF",
+              "labelFontWeight": 700
+            }
           }
         },
         "edge": {
-          "animation": false,
+          "type": "cubic-vertical",
           "style": {
+            "zIndex": -1,
             "endArrow": true,
-            "stroke": "#D1D5DB"
+            "stroke": "#D1D5DB",
+            "lineWidth": 2,
+            "increasedLineWidthForHitTesting": 25,
+            "curveOffset": [
+              15,
+              -15
+            ],
+            "labelOpacity": 0,
+            "labelFill": "#6b7280",
+            "labelBackground": true,
+            "labelBackgroundFill": "#FFFFFF",
+            "labelBackgroundRadius": 4,
+            "labelBackgroundOpacity": 0,
+            "labelPadding": [
+              2,
+              4
+            ]
+          },
+          "state": {
+            "active": {
+              "stroke": "#D1D5DB",
+              "lineWidth": 2,
+              "shadowBlur": 0,
+              "shadowColor": "transparent",
+              "halo": false,
+              "labelOpacity": 1,
+              "labelBackgroundOpacity": 1
+            },
+            "selected": {
+              "stroke": "#9ca3af",
+              "lineWidth": 2,
+              "shadowBlur": 4,
+              "shadowColor": "rgba(156, 163, 175, 0.5)",
+              "halo": false
+            }
           }
         },
         "combo": {
@@ -136,7 +186,7 @@
           },
           {
             "key": "drag-element",
-            "enable": "(e) => {\n          return !e.shiftKey && !e.altKey;\n        }",
+            "enable": "(e) => {\n          if (e.shiftKey || e.altKey) return false;\n          // Access graph via HTMLWidgets and check if edge creation is in progress\n          const target = e.nativeEvent?.target;\n          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();\n          try {\n            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;\n          } catch (err) {}\n          return true;\n        }",
             "animation": true,
             "state": "selected",
             "dropEffect": "move",
@@ -183,10 +233,19 @@
             "type": "collapse-expand"
           },
           {
+            "key": "hover-activate",
+            "animation": false,
+            "enable": "(e) => e.targetType === 'edge'",
+            "degree": 0,
+            "direction": "both",
+            "state": "active",
+            "type": "hover-activate"
+          },
+          {
             "key": "create-edge",
             "trigger": "drag",
-            "enable": "(e) => {\n          return e.shiftKey;\n        }",
-            "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType,\n                  sourcePort: edge.style.sourcePort,\n                  targetPort: edge.style.targetPort\n                }\n              );\n            }\n          }",
+            "enable": "(e) => {\n          return true;\n        }",
+            "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            // For canvas drops, the assist node is already removed, so check targetType first\n            if (edge.targetType === 'canvas') {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: null,\n                  targetType: 'canvas',\n                  sourcePort: edge.style?.sourcePort,\n                  portType: edge.style?.portType\n                }\n              );\n              return;\n            }\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType,\n                  sourcePort: edge.style.sourcePort,\n                  targetPort: edge.style.targetPort\n                }\n              );\n              // We will recreate the edge from the R side with correct ID\n              graph.removeEdgeData([edge.id]);\n            }\n          }",
             "notify": false,
             "type": "create-edge"
           }
@@ -200,7 +259,7 @@
               4,
               4
             ],
-            "onClick": "(value, target, current) => {\nif (value === 'create_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_add_link',\n              current.id.replace(/^node-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'remove_block') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_block', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_link', current.id.replace(/^edge-/, ''));\n          })(value, target, current)\n} else if (value === 'append_block') {\n((value, target, current) => {\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_append_block',\n              current.id.replace(/^node-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'create_stack') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_create_stack', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_stack', current.id.replace(/^combo-/, ''));\n          })(value, target, current)\n} else if (value === 'edit_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_edit_stack',\n              current.id.replace(/^combo-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'add_block') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_add_block', true, {priority: 'event'});\n          })(value, target, current)\n}\n}",
+            "onClick": "(value, target, current) => {\nif (value === 'create_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_add_link', current.id.replace(/^node-/, ''), {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_block') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_block', current.id.replace(/^node-/, ''));\n          })(value, target, current)\n} else if (value === 'remove_link') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_link', current.id.replace(/^edge-/, ''));\n          })(value, target, current)\n} else if (value === 'append_block') {\n((value, target, current) => {\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_append_block',\n              current.id.replace(/^node-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'create_stack') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_create_stack', true, {priority: 'event'});\n          })(value, target, current)\n} else if (value === 'remove_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue('board-dag_extension-ctx_remove_stack', current.id.replace(/^combo-/, ''));\n          })(value, target, current)\n} else if (value === 'edit_stack') {\n((value, target, current) => {\n            if (current.id === undefined) return;\n            Shiny.setInputValue(\n              'board-dag_extension-ctx_edit_stack',\n              current.id.replace(/^combo-/, ''),\n              {priority: 'event'}\n            );\n          })(value, target, current)\n} else if (value === 'add_block') {\n((value, target, current) => {\n            Shiny.setInputValue('board-dag_extension-ctx_add_block', true, {priority: 'event'});\n          })(value, target, current)\n}\n}",
             "getItems": "async (e) => {\n            var body;\n            if (e.targetType === 'canvas') {\n              body = {type: e.targetType};\n            } else {\n              body = {\n                id: e.target.id.replace(/^(node|edge|combo)-/, ''),\n                type: e.targetType\n              };\n            }\n            const response = await fetch(\n              'session/9a744a1bdf8658afbd8fbc6fbe9d2f6e/dataobj/board-dag_extension-context-menu-items?w=&nonce=97c5f08262501467',\n              {\n                method: 'POST',\n                headers: {\n                  'Accept': 'application/json',\n                  'Content-Type': 'application/json'\n                },\n                body: JSON.stringify(body)\n              }\n            );\n            const items = await response.json();\n            return items;\n          }",
             "enable": "(e) => {\n          let cond = e.targetType === 'edge' ||\n            e.targetType === 'node' ||\n            e.targetType === 'canvas' ||\n            e.targetType === 'combo';\n          return cond;\n        }",
             "type": "contextmenu"
@@ -231,7 +290,8 @@
         "behaviors.4.enable",
         "behaviors.4.onSelect",
         "behaviors.6.enable",
-        "behaviors.6.onFinish",
+        "behaviors.7.enable",
+        "behaviors.7.onFinish",
         "plugins.0.onClick",
         "plugins.0.getItems",
         "plugins.0.enable",

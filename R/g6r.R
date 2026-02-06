@@ -78,12 +78,26 @@ set_g6_options <- function(graph, ...) {
     node = list(
       type = "custom-image-node",
       style = list(
+        labelFill = "#6b7280",
         labelBackground = TRUE,
+        labelBackgroundFill = "#f3f4f6",
+        labelBackgroundStroke = "#e5e7eb",
         labelBackgroundRadius = 4,
-        labelFontFamily = "Arial",
-        labelPadding = c(0, 4),
-        labelPlacement = "top-left",
-        labelOffsetY = 8
+        labelPlacement = "bottom",
+        labelOffsetY = 8,
+        labelBackgroundLineWidth = 1,
+        labelBackgroundRadius = 4,
+        labelBackgroundOpacity = 1,
+        labelPadding = c(1, 6, 1, 6),
+        labelFontSize = 11,
+        labelFontFamily = "Open Sans, system-ui, sans-serif"
+      ),
+      state = list(
+        selected = list(
+          labelBackgroundFill = "#dbeafe",
+          labelBackgroundStroke = "#0D99FF",
+          labelFontWeight = 700
+        )
       )
     ),
     combo = list(
@@ -96,10 +110,39 @@ set_g6_options <- function(graph, ...) {
       )
     ),
     edge = list(
-      animation = FALSE,
+      type = "cubic-vertical",
       style = list(
+        zIndex = -1,
         endArrow = TRUE,
-        stroke = "#D1D5DB"
+        stroke = "#D1D5DB",
+        lineWidth = 2,
+        increasedLineWidthForHitTesting = 25,
+        curveOffset = list(15, -15),
+        labelOpacity = 0,
+        labelFill = "#6b7280",
+        labelBackground = TRUE,
+        labelBackgroundFill = "#FFFFFF",
+        labelBackgroundRadius = 4,
+        labelBackgroundOpacity = 0,
+        labelPadding = c(2, 4)
+      ),
+      state = list(
+        active = list(
+          stroke = "#D1D5DB",
+          lineWidth = 2,
+          shadowBlur = 0,
+          shadowColor = "transparent",
+          halo = FALSE,
+          labelOpacity = 1,
+          labelBackgroundOpacity = 1
+        ),
+        selected = list(
+          stroke = "#9ca3af",
+          lineWidth = 2,
+          shadowBlur = 4,
+          shadowColor = "rgba(156, 163, 175, 0.5)",
+          halo = FALSE
+        )
       )
     )
   )
@@ -130,10 +173,18 @@ set_g6_behaviors <- function(graph, ..., ns) {
       )
     ),
     # So we can add node to stack from the UI by drag and drop
+    # Disable drag when edge creation from port is active
     drag_element(
       enable = JS(
         "(e) => {
-          return !e.shiftKey && !e.altKey;
+          if (e.shiftKey || e.altKey) return false;
+          // Access graph via HTMLWidgets and check if edge creation is in progress
+          const target = e.nativeEvent?.target;
+          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
+          try {
+            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
+          } catch (err) {}
+          return true;
         }"
       ),
       # For now, we prevent nodes from being dropped outside combo.
@@ -148,17 +199,37 @@ set_g6_behaviors <- function(graph, ..., ns) {
       outputId = graph_id(ns)
     ),
     collapse_expand(),
+    # Show edge labels on hover (CSS handles the transition animation)
+    hover_activate(
+      animation = FALSE,
+      enable = JS("(e) => e.targetType === 'edge'")
+    ),
     # avoid conflict with internal function
     g6R::create_edge(
       enable = JS(
         "(e) => {
-          return e.shiftKey;
+          return true;
         }"
       ),
       onFinish = JS(
         sprintf(
           "(edge) => {
             const graph = HTMLWidgets.find('#%s').getWidget();
+            // For canvas drops, the assist node is already removed, so check targetType first
+            if (edge.targetType === 'canvas') {
+              Shiny.setInputValue(
+                '%s',
+                {
+                  id: edge.id,
+                  source: edge.source.replace(/^node-/, ''),
+                  target: null,
+                  targetType: 'canvas',
+                  sourcePort: edge.style?.sourcePort,
+                  portType: edge.style?.portType
+                }
+              );
+              return;
+            }
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType === 'combo') {
@@ -175,9 +246,12 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetPort: edge.style.targetPort
                 }
               );
+              // We will recreate the edge from the R side with correct ID
+              graph.removeEdgeData([edge.id]);
             }
           }",
           graph_id(ns),
+          ns("added_edge"),
           ns("added_edge")
         )
       )
@@ -287,7 +361,7 @@ g6_edges_from_links <- function(links) {
   res <- map(
     g6_edge,
     id = to_g6_edge_id(names(links)),
-    source = to_g6_node_id(links$from),
+    source = source_id,
     target = target_id,
     style = map(
       list,
@@ -299,7 +373,7 @@ g6_edges_from_links <- function(links) {
       # node id, we are good to go!
       targetPort = paste0(target_id, "-", links$input)
     ),
-    MoreArgs = list(type = "line")
+    MoreArgs = list(type = "cubic-vertical")
   )
 
   if (length(res)) {
@@ -323,7 +397,9 @@ create_block_ports <- function(block, id) {
     if (is.na(arity)) {
       input_ports <- list(g6_input_port(
         key = sprintf("%s-in", id),
+        label = "in",
         arity = Inf,
+        visibility = "hover",
         placement = "top",
         fill = fill_col
       ))
@@ -334,6 +410,7 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
       arity = 1,
+      visibility = "hover",
       placement = "top",
       fill = fill_col
     ))
@@ -342,26 +419,18 @@ create_block_ports <- function(block, id) {
     if (n == 1) {
       xs <- 0.5
     } else {
-      xs <- seq(0.3, 0.7, length.out = n)
+      xs <- seq(0.15, 0.85, length.out = n)
     }
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(
         key = sprintf("%s-%s", id, inputs[i]),
         label = inputs[i],
         arity = 1,
+        visibility = "hover",
         placement = c(xs[i], 0),
-        fill = fill_col,
-        r = 4
+        fill = fill_col
       )
     })
-  } else if (length(inputs) == 1 && is.na(arity)) {
-    input_ports <- list(g6_input_port(
-      key = sprintf("%s-%s", id, inputs[1]),
-      label = inputs[1],
-      arity = Inf,
-      placement = "top",
-      fill = fill_col
-    ))
   }
 
   out_id <- sprintf("%s-out", id)
@@ -370,8 +439,9 @@ create_block_ports <- function(block, id) {
     input_ports,
     list(g6_output_port(
       key = out_id,
-      label = sub("node-", "", out_id),
+      label = NULL,
       arity = Inf,
+      visibility = "hover",
       placement = "bottom",
       fill = fill_col
     ))
@@ -509,6 +579,16 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+
+  # Apply mouse position for single node additions (e.g., edge drop to canvas)
+  if (length(blocks) == 1 && length(nodes) == 1) {
+    mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
+    if (!is.null(mouse_pos)) {
+      nodes[[1]]$style$x <- mouse_pos$x
+      nodes[[1]]$style$y <- mouse_pos$y
+    }
+  }
+
   g6_add_nodes(proxy, nodes)
   invisible()
 }

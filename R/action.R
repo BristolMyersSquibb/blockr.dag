@@ -1,24 +1,37 @@
 draw_link_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
+      proxy <- blockr_g6_proxy(session)
       observeEvent(
         trigger(),
         {
           new <- trigger()
 
-          remove_edges(new$id, asis = TRUE, proxy = dag_extension[["proxy"]])
+          blocks <- board_blocks(board$board)
 
-          input_id <- from_g6_port_id(new$targetPort, to_g6_node_id(new$target))
-
-          new_lnk <- as_links(
-            new_link(
-              from = new$source,
-              to = new$target,
-              input = input_id
-            )
+          inps <- blockr.dock::block_input_select(
+            blocks[[new$target]],
+            new$target,
+            board_links(board$board),
+            mode = "inputs"
           )
 
-          update(list(links = list(add = new_lnk)))
+          if (length(inps) == 0L) {
+            notify(
+              "No inputs are available for block {new$target}.",
+              type = "warning"
+            )
+
+            return()
+          }
+
+          new_lnk <- new_link(
+            from = new$source,
+            to = new$target,
+            input = inps[1L]
+          )
+
+          update(list(links = list(add = as_links(new_lnk))))
         }
       )
 
