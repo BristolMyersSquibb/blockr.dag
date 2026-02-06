@@ -44,7 +44,7 @@ Suggests:
     colorspace
 Remotes:
     BristolMyersSquibb/blockr.dock,
-    cynkra/g6R@feature/subtle-ports
+    cynkra/g6R
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
