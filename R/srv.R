@@ -154,20 +154,21 @@ actions_observers <- function(actions, proxy) {
     }
   )
 
-  # Append/prepend on port click
-  observeEvent(
-    input[[paste0(graph_id(), "-selected_port")]],
-    {
-      el <- input[[paste0(graph_id(), "-selected_port")]]
-      req(el$type)
+  # Append/prepend on port click: FIXME -> disabled due to critical issue
+  # with input ports which cannot be clicked :)
+  # observeEvent(
+  #   input[[paste0(graph_id(), "-selected_port")]],
+  #   {
+  #     el <- input[[paste0(graph_id(), "-selected_port")]]
+  #     req(el$type)
 
-      switch(
-        el$type,
-        output = actions[["append_block_action"]](from_g6_node_id(el$node)),
-        input = actions[["prepend_block_action"]](from_g6_node_id(el$node))
-      )
-    }
-  )
+  #     switch(
+  #       el$type,
+  #       output = actions[["append_block_action"]](from_g6_node_id(el$node)),
+  #       input = actions[["prepend_block_action"]](from_g6_node_id(el$node))
+  #     )
+  #   }
+  # )
 }
 
 empty_state_observer <- function(board, session) {
