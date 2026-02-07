@@ -351,12 +351,29 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
 
 #' @rdname g6r
 #' @param links Board links.
-g6_edges_from_links <- function(links) {
+#' @param blocks Board blocks (used to resolve variadic target ports).
+g6_edges_from_links <- function(links, blocks = NULL) {
   if (length(links) == 0) {
     return()
   }
   target_id <- to_g6_node_id(links$to)
   source_id <- to_g6_node_id(links$from)
+
+  # Resolve target ports: variadic blocks (NA arity, no named inputs)
+  # use a single "{id}-in" port; fixed-arity blocks use "{id}-{input}"
+  if (!is.null(blocks)) {
+    target_ports <- vapply(seq_along(links$to), function(i) {
+      blk <- blocks[[links$to[i]]]
+      if (!is.null(blk) && is.na(blockr.core::block_arity(blk)) &&
+          length(blockr.core::block_inputs(blk)) == 0) {
+        paste0(target_id[i], "-in")
+      } else {
+        paste0(target_id[i], "-", links$input[i])
+      }
+    }, character(1))
+  } else {
+    target_ports <- paste0(target_id, "-", links$input)
+  }
 
   res <- map(
     g6_edge,
@@ -371,7 +388,7 @@ g6_edges_from_links <- function(links) {
       # Note: targetPort label is built in create_block_ports()
       # from the link input name so if we prefix by the
       # node id, we are good to go!
-      targetPort = paste0(target_id, "-", links$input)
+      targetPort = target_ports
     ),
     MoreArgs = list(type = "cubic-vertical")
   )
@@ -536,7 +553,7 @@ g6_data_from_board <- function(board) {
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
-  edges_data <- g6_edges_from_links(links)
+  edges_data <- g6_edges_from_links(links, blocks)
   combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
@@ -599,8 +616,8 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_edges <- function(links, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links)
+add_edges <- function(links, blocks = NULL, proxy = blockr_g6_proxy()) {
+  edges <- g6_edges_from_links(links, blocks)
   g6_add_edges(proxy, edges)
   invisible()
 }
