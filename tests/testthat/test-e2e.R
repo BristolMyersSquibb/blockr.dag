@@ -157,3 +157,21 @@ test_that("sample_app works", {
 
   app$stop()
 })
+
+# In reference to: https://github.com/BristolMyersSquibb/blockr.dag/issues/90
+test_that("variadic app works", {
+  appdir <- system.file(package = "blockr.dag", "examples/variadic")
+
+  # when shinytest2 0.5.0 lands ...
+  #local_app_support(appdir)
+
+  app <- AppDriver$new(
+    appdir,
+    name = "variadic-app",
+    seed = 4323
+  )
+
+  expect_values(app)
+  app$wait_for_idle()
+  app$stop()
+})
