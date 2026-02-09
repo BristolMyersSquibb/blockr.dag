@@ -349,20 +349,61 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   invisible(res)
 }
 
-#' @rdname g6r
-#' @param links Board links.
-g6_edges_from_links <- function(links) {
+#' Check if a block is variadic
+#'
+#' A block is variadic if it has NA arity and no named inputs.
+#'
+#' @param block A block object
+#' @return Logical indicating if the block is variadic
+#' @keywords internal
+is_variadic_block <- function(block) {
+  is_block(block) &&
+    is.na(blockr.core::block_arity(block)) &&
+    length(blockr.core::block_inputs(block)) == 0
+}
+
+#' Resolve target port IDs for links
+#'
+#' @param links Board links
+#' @param blocks Board blocks
+#' @return Character vector of target port IDs
+#' @keywords internal
+resolve_target_ports <- function(links, blocks) {
   if (length(links) == 0) {
     return()
   }
+
   target_id <- to_g6_node_id(links$to)
+
+  vapply(
+    seq_along(links$to),
+    function(i) {
+      blk <- blocks[[links$to[i]]]
+      if (is_variadic_block(blk)) {
+        paste0(target_id[i], "-in")
+      } else {
+        paste0(target_id[i], "-", links$input[i])
+      }
+    },
+    character(1)
+  )
+}
+
+#' @rdname g6r
+#' @param links Board links.
+#' @param blocks Board blocks
+g6_edges_from_links <- function(links, blocks) {
+  if (length(links) == 0) {
+    return()
+  }
   source_id <- to_g6_node_id(links$from)
+  target_ports <- resolve_target_ports(links, blocks)
 
   res <- map(
     g6_edge,
     id = to_g6_edge_id(names(links)),
     source = source_id,
-    target = target_id,
+    target = to_g6_node_id(links$to),
     style = map(
       list,
       labelText = links$input,
@@ -371,7 +412,7 @@ g6_edges_from_links <- function(links) {
       # Note: targetPort label is built in create_block_ports()
       # from the link input name so if we prefix by the
       # node id, we are good to go!
-      targetPort = paste0(target_id, "-", links$input)
+      targetPort = target_ports
     ),
     MoreArgs = list(type = "cubic-vertical")
   )
@@ -393,19 +434,18 @@ create_block_ports <- function(block, id) {
   input_ports <- list()
   fill_col <- blockr.dock::blk_color(blk_category(block))
 
-  if (length(inputs) == 0) {
-    if (is.na(arity)) {
-      input_ports <- list(g6_input_port(
-        key = sprintf("%s-in", id),
-        label = "in",
-        arity = Inf,
-        visibility = "hover",
-        placement = "top",
-        fill = fill_col
-      ))
-    }
-    # else arity == 0: entry, no input ports
+  # variadic input
+  if (is_variadic_block(block)) {
+    input_ports <- list(g6_input_port(
+      key = sprintf("%s-in", id),
+      label = "in",
+      arity = Inf,
+      visibility = "hover",
+      placement = "top",
+      fill = fill_col
+    ))
   } else if (length(inputs) == 1 && arity == 1) {
+    # Mono input
     input_ports <- list(g6_input_port(
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
@@ -415,6 +455,7 @@ create_block_ports <- function(block, id) {
       fill = fill_col
     ))
   } else if (length(inputs) > 1) {
+    # Multi input
     n <- length(inputs)
     if (n == 1) {
       xs <- 0.5
@@ -536,7 +577,7 @@ g6_data_from_board <- function(board) {
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
-  edges_data <- g6_edges_from_links(links)
+  edges_data <- g6_edges_from_links(links, blocks)
   combos_data <- g6_combos_data_from_stacks(stacks)
   nodes_data <- g6_nodes_from_blocks(blocks, stacks)
 
@@ -599,8 +640,8 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_edges <- function(links, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links)
+add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
+  edges <- g6_edges_from_links(links, board_blocks(board))
   g6_add_edges(proxy, edges)
   invisible()
 }

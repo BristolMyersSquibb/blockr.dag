@@ -134,3 +134,36 @@ test_that("g6_from_graph works", {
   res <- g6_from_graph(g)
   expect_s3_class(res, c("g6", "htmlwidget"))
 })
+
+test_that("is_variadic_block works", {
+  expect_false(is_variadic_block(new_dataset_block()))
+  expect_true(is_variadic_block(new_rbind_block()))
+})
+
+test_that("create_block ports works", {
+  blk <- new_scatter_block()
+  ports <- create_block_ports(blk, "test")
+  expect_s3_class(ports, "g6_ports")
+  expect_length(ports, 2)
+  expect_identical(ports[[1]]$type, "input")
+  expect_identical(ports[[2]]$type, "output")
+})
+
+test_that("resolve_target_ports works", {
+  blocks <- as_blocks(c(
+    a = new_dataset_block(),
+    b = new_head_block(),
+    c = new_rbind_block()
+  ))
+  links <- as_links(
+    c(
+      new_link("a", "b", input = "data"),
+      new_link("a", "c"),
+      new_link("b", "c")
+    )
+  )
+  res <- resolve_target_ports(links, blocks)
+  expect_identical(res[[1]], "node-b-data")
+  expect_identical(res[[2]], "node-c-in")
+  expect_identical(res[[3]], "node-c-in")
+})
