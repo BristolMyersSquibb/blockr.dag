@@ -5,7 +5,7 @@ Create network data from board
 ## Usage
 
 ``` r
-g6_edges_from_links(links)
+g6_edges_from_links(links, blocks)
 
 g6_nodes_from_blocks(blocks, stacks)
 
