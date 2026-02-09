@@ -100,15 +100,44 @@ testServer(
 
     # Trigger draw link
     session$setInputs(
-      added_edge = list(source = "a", target = "b", targetType = "node")
+      added_edge = list(
+        source = "a",
+        target = "b",
+        targetType = "node",
+        sourcePort = "node-a-out",
+        targetPort = "node-b-data"
+      )
     )
     session$setInputs(
-      added_edge = list(source = "a", target = "c", targetType = "node")
+      added_edge = list(
+        source = "a",
+        target = "c",
+        targetType = "node",
+        sourcePort = "node-a-out",
+        targetPort = "node-c-data"
+      )
     )
 
     # Trigger append block
     session$setInputs(
-      added_edge = list(source = "a", targetType = "canvas")
+      added_edge = list(
+        source = "a",
+        target = NULL,
+        targetType = "canvas",
+        sourcePort = "node-a-out",
+        portType = "output"
+      )
+    )
+
+    # Trigger prepend block
+    session$setInputs(
+      added_edge = list(
+        source = "d",
+        target = NULL,
+        targetType = "canvas",
+        sourcePort = "node-d-data",
+        portType = "input"
+      )
     )
 
     # Trigger brush_select
