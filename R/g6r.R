@@ -490,11 +490,34 @@ create_block_ports <- function(block, id) {
   do.call(g6_ports, ports)
 }
 
+#' Get children relationships from links
+#'
+#' @param links Board links
+#' @return Named list where each element is a list of child node IDs (for JSON array conversion)
+#' @keywords internal
+get_children_from_links <- function(links) {
+  if (length(links) == 0) {
+    return(list())
+  }
+
+  # Get unique source nodes
+  sources <- unique(links$from)
+
+  # For each source, get all its target nodes as a list (for JSON array conversion)
+  children <- lapply(sources, function(src) {
+    targets <- links$to[links$from == src]
+    as.list(to_g6_node_id(unique(targets)))
+  })
+
+  set_names(children, to_g6_node_id(sources))
+}
+
 #' @rdname g6r
 #' @param blocks Board blocks.
 #' @param stacks Board stacks.
+#' @param children Named list of children node IDs (optional).
 #' @keywords internal
-g6_nodes_from_blocks <- function(blocks, stacks) {
+g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
   stk_blks <- lapply(stacks, stack_blocks)
 
   stk_blks <- set_names(
@@ -504,8 +527,8 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
 
   ids <- to_g6_node_id(names(blocks))
 
-  res <- map(
-    g6_node,
+  # Build base arguments for g6_node
+  base_args <- list(
     id = ids,
     style = map(
       list,
@@ -521,6 +544,22 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
     ports = map(create_block_ports, blocks, ids)
   )
+
+  # Only add children if we have them and they're non-empty
+  if (!is.null(children) && length(children) > 0) {
+    node_children <- lapply(ids, function(id) {
+      child_ids <- children[[id]]
+      # Return NULL for nodes without children (will be removed by dropNulls in g6_node)
+      if (is.null(child_ids) || length(child_ids) == 0) {
+        NULL
+      } else {
+        child_ids
+      }
+    })
+    base_args$children <- node_children
+  }
+
+  res <- do.call(map, c(list(g6_node), base_args))
 
   if (length(res)) {
     do.call(g6_nodes, res)
@@ -577,9 +616,12 @@ g6_data_from_board <- function(board) {
   blocks <- board_blocks(board)
   stacks <- board_stacks(board)
 
+  # Get children relationships from links
+  children <- get_children_from_links(links)
+
   edges_data <- g6_edges_from_links(links, blocks)
   combos_data <- g6_combos_data_from_stacks(stacks)
-  nodes_data <- g6_nodes_from_blocks(blocks, stacks)
+  nodes_data <- g6_nodes_from_blocks(blocks, stacks, children)
 
   new_graph(
     nodes = nodes_data,
@@ -619,7 +661,10 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 }
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  # Get children from board links
+  children <- get_children_from_links(board_links(board))
+
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), children)
 
   # Apply mouse position for single node additions (e.g., edge drop to canvas)
   if (length(blocks) == 1 && length(nodes) == 1) {
@@ -635,7 +680,10 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  # Get children from board links
+  children <- get_children_from_links(board_links(board))
+
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), children)
   g6_update_nodes(proxy, nodes)
   invisible()
 }
@@ -643,6 +691,59 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
   edges <- g6_edges_from_links(links, board_blocks(board))
   g6_add_edges(proxy, edges)
+
+  # Update parent nodes with their children after adding edges
+  # Pass the new links that were just added, not the board state (which hasn't been updated yet)
+  update_parent_nodes_children(links, proxy)
+
+  invisible()
+}
+
+#' Update parent nodes with their children relationships
+#' @param links Board links that were just added
+#' @param proxy g6 proxy object
+#' @keywords internal
+update_parent_nodes_children <- function(links, proxy = blockr_g6_proxy()) {
+  # Get children relationships from the newly added links
+  children <- get_children_from_links(links)
+
+  if (length(children) == 0) {
+    return(invisible())
+  }
+
+  # Update only the parent nodes (nodes with children)
+  # Must use g6_node() to create proper node objects
+  parent_updates <- lapply(names(children), function(parent_id) {
+    g6_node(
+      id = parent_id,
+      children = children[[parent_id]]
+    )
+  })
+
+  # Update parent nodes with their children
+  g6_update_nodes(proxy, parent_updates)
+  invisible()
+}
+
+#' Refresh parent nodes with current children from board
+#' @param board Board object
+#' @param proxy g6 proxy object
+#' @keywords internal
+refresh_parent_nodes <- function(board, proxy = blockr_g6_proxy()) {
+  children <- get_children_from_links(board_links(board))
+
+  if (length(children) == 0) {
+    return(invisible())
+  }
+
+  parent_updates <- lapply(names(children), function(parent_id) {
+    g6_node(
+      id = parent_id,
+      children = children[[parent_id]]
+    )
+  })
+
+  g6_update_nodes(proxy, parent_updates)
   invisible()
 }
 

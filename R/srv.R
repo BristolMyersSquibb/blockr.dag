@@ -112,11 +112,15 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$rm)) {
-        remove_edges(upd$links$rm, proxy)
+        remove_edges(upd$links$rm, proxy = proxy)
+        # Refresh parent nodes to update children after edge removal
+        refresh_parent_nodes(board$board, proxy)
       }
 
       if (length(upd$blocks$rm)) {
-        remove_nodes(upd$blocks$rm, proxy)
+        remove_nodes(upd$blocks$rm, proxy = proxy)
+        # Refresh parent nodes to update children after node removal
+        refresh_parent_nodes(board$board, proxy)
       }
     }
   )
