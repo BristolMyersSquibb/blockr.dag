@@ -661,10 +661,7 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 }
 
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  # Get children from board links
-  children <- get_children_from_links(board_links(board))
-
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), children)
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
 
   # Apply mouse position for single node additions (e.g., edge drop to canvas)
   if (length(blocks) == 1 && length(nodes) == 1) {
@@ -680,11 +677,9 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  # Get children from board links
-  children <- get_children_from_links(board_links(board))
-
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), children)
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
   g6_update_nodes(proxy, nodes)
+
   invisible()
 }
 
@@ -692,58 +687,6 @@ add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
   edges <- g6_edges_from_links(links, board_blocks(board))
   g6_add_edges(proxy, edges)
 
-  # Update parent nodes with their children after adding edges
-  # Pass the new links that were just added, not the board state (which hasn't been updated yet)
-  update_parent_nodes_children(links, proxy)
-
-  invisible()
-}
-
-#' Update parent nodes with their children relationships
-#' @param links Board links that were just added
-#' @param proxy g6 proxy object
-#' @keywords internal
-update_parent_nodes_children <- function(links, proxy = blockr_g6_proxy()) {
-  # Get children relationships from the newly added links
-  children <- get_children_from_links(links)
-
-  if (length(children) == 0) {
-    return(invisible())
-  }
-
-  # Update only the parent nodes (nodes with children)
-  # Must use g6_node() to create proper node objects
-  parent_updates <- lapply(names(children), function(parent_id) {
-    g6_node(
-      id = parent_id,
-      children = children[[parent_id]]
-    )
-  })
-
-  # Update parent nodes with their children
-  g6_update_nodes(proxy, parent_updates)
-  invisible()
-}
-
-#' Refresh parent nodes with current children from board
-#' @param board Board object
-#' @param proxy g6 proxy object
-#' @keywords internal
-refresh_parent_nodes <- function(board, proxy = blockr_g6_proxy()) {
-  children <- get_children_from_links(board_links(board))
-
-  if (length(children) == 0) {
-    return(invisible())
-  }
-
-  parent_updates <- lapply(names(children), function(parent_id) {
-    g6_node(
-      id = parent_id,
-      children = children[[parent_id]]
-    )
-  })
-
-  g6_update_nodes(proxy, parent_updates)
   invisible()
 }
 
