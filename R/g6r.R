@@ -496,7 +496,6 @@ create_block_ports <- function(block, id) {
 #' @return Named list where each element is a list of child node IDs (for JSON array conversion)
 #' @keywords internal
 get_children_from_links <- function(links) {
-  # Convert to data frame if needed
   if (length(links) == 0) {
     return(list())
   }
@@ -507,20 +506,24 @@ get_children_from_links <- function(links) {
     return(list())
   }
 
+  # Get unique source nodes
+  sources <- unique(links$from)
+
   # Count how many parents each child has
   child_parent_count <- table(links$to)
 
-  # Only include children that have exactly one parent
-  children_by_parent <- split(links$to, links$from)
-
-  lapply(children_by_parent, function(child_ids) {
-    # Filter to only children with single parent
-    single_parent_children <- child_ids[child_parent_count[child_ids] == 1]
-    if (length(single_parent_children) == 0) {
+  # For each source, get all its target nodes as a list (for JSON array conversion)
+  children <- lapply(sources, function(src) {
+    targets <- links$to[links$from == src]
+    # Only include children with single parent to avoid weird collapse behavior
+    single_parent_targets <- targets[child_parent_count[targets] == 1]
+    if (length(single_parent_targets) == 0) {
       return(NULL)
     }
-    as.list(to_g6_node_id(single_parent_children))
+    as.list(to_g6_node_id(unique(single_parent_targets)))
   })
+
+  set_names(children, to_g6_node_id(sources))
 }
 
 #' @rdname g6r
