@@ -542,7 +542,10 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
       MoreArgs = list(size = 48)
     ),
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
-    ports = map(create_block_ports, blocks, ids)
+    ports = map(create_block_ports, blocks, ids),
+    collapse = lapply(blocks, function(block) {
+      g6_collapse_options(stroke = "#D1D5DB")
+    })
   )
 
   # Only add children if we have them and they're non-empty
