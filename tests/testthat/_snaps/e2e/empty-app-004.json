@@ -27,6 +27,18 @@
                 "r": 4
               }
             },
+            "collapse": {
+              "collapsed": false,
+              "placement": "right-top",
+              "r": 6,
+              "fill": "#fff",
+              "stroke": "#9cabd4",
+              "lineWidth": 1,
+              "iconStroke": "#9cabd4",
+              "iconLineWidth": 1.4,
+              "cursor": "pointer",
+              "zIndex": 999
+            },
             "zIndex": 0,
             "badges": [
 
@@ -34,7 +46,10 @@
           },
           "data": {
 
-          }
+          },
+          "children": [
+            "node-super_head_block"
+          ]
         },
         "node-super_head_block": {
           "id": "node-super_head_block",
@@ -63,6 +78,18 @@
                 "r": 4
               }
             },
+            "collapse": {
+              "collapsed": false,
+              "placement": "right-top",
+              "r": 6,
+              "fill": "#fff",
+              "stroke": "#9cabd4",
+              "lineWidth": 1,
+              "iconStroke": "#9cabd4",
+              "iconLineWidth": 1.4,
+              "cursor": "pointer",
+              "zIndex": 999
+            },
             "zIndex": 0,
             "badges": [
 
@@ -84,6 +111,8 @@
             "sourcePort": "node-super_data_block-out",
             "targetPort": "node-super_head_block-data",
             "zIndex": -1,
+            "sourceNode": "node-super_data_block",
+            "targetNode": "node-super_head_block",
             "controlPoints": [
               [
                 74,
@@ -91,8 +120,6 @@
                 0
               ]
             ],
-            "sourceNode": "node-super_data_block",
-            "targetNode": "node-super_head_block",
             "src": "<shinytest2:preprocessed>"
           },
           "data": {
@@ -121,6 +148,7 @@
         "iconsUrl": "//at.alicdn.com/t/font_2678727_za4qjydwkkh.js",
         "mode": "dev",
         "preservePosition": false,
+        "directed": true,
         "node": {
           "type": "custom-image-node",
           "style": {

@@ -28,6 +28,7 @@
         "iconsUrl": "//at.alicdn.com/t/font_2678727_za4qjydwkkh.js",
         "mode": "dev",
         "preservePosition": false,
+        "directed": true,
         "node": {
           "type": "custom-image-node",
           "style": {

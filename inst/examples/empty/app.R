@@ -4,6 +4,7 @@ library(blockr.dock)
 
 options(
   "g6R.mode" = "dev",
+  "g6R.directed_graph" = TRUE,
   "g6R.layout_on_data_change" = TRUE
 )
 
