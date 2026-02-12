@@ -500,27 +500,13 @@ get_children_from_links <- function(links) {
     return(list())
   }
 
-  links <- as.data.frame(links)
-
-  if (nrow(links) == 0) {
-    return(list())
-  }
-
   # Get unique source nodes
   sources <- unique(links$from)
-
-  # Count how many parents each child has
-  child_parent_count <- table(links$to)
 
   # For each source, get all its target nodes as a list (for JSON array conversion)
   children <- lapply(sources, function(src) {
     targets <- links$to[links$from == src]
-    # Only include children with single parent to avoid weird collapse behavior
-    single_parent_targets <- targets[child_parent_count[targets] == 1]
-    if (length(single_parent_targets) == 0) {
-      return(NULL)
-    }
-    as.list(to_g6_node_id(unique(single_parent_targets)))
+    as.list(to_g6_node_id(unique(targets)))
   })
 
   set_names(children, to_g6_node_id(sources))
