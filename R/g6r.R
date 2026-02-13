@@ -332,7 +332,17 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   if (is.null(graph)) {
     res <- g6_from_board(board)
   } else {
-    res <- g6_from_graph(as_graph(graph))
+    res <- tryCatch(
+      g6_from_graph(as_graph(graph)),
+      error = function(e) {
+        warning(
+          "Failed to restore graph state: ", conditionMessage(e),
+          "\nFalling back to fresh graph layout.",
+          call. = FALSE
+        )
+        g6_from_board(board)
+      }
+    )
   }
 
   res <- set_g6_options(res)
