@@ -544,7 +544,7 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
     ports = map(create_block_ports, blocks, ids),
     collapse = lapply(blocks, function(block) {
-      g6_collapse_options(stroke = "#D1D5DB")
+      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
     })
   )
 
