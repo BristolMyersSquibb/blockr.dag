@@ -27,6 +27,7 @@
             },
             "collapse": {
               "collapsed": false,
+              "visibility": "visible",
               "placement": "right-top",
               "r": 6,
               "fill": "#fff",
@@ -75,6 +76,7 @@
             },
             "collapse": {
               "collapsed": false,
+              "visibility": "visible",
               "placement": "right-top",
               "r": 6,
               "fill": "#fff",
