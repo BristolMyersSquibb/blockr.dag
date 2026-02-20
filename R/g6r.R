@@ -432,7 +432,7 @@ create_block_ports <- function(block, id) {
   inputs <- blockr.core::block_inputs(block)
   arity <- blockr.core::block_arity(block)
   input_ports <- list()
-  fill_col <- blockr.dock::blk_color(blk_category(block))
+  fill_col <- blks_color(block)
 
   # variadic input
   if (is_variadic_block(block)) {
@@ -509,12 +509,7 @@ g6_nodes_from_blocks <- function(blocks, stacks) {
     id = ids,
     style = map(
       list,
-      src = map(
-        blockr.dock::blk_icon_data_uri,
-        lapply(blocks, blk_icon),
-        lapply(chr_ply(blocks, blk_category), blockr.dock::blk_color),
-        MoreArgs = list(size = 48)
-      ),
+      src = blks_icon(blocks, size = 48),
       labelText = chr_ply(blocks, block_name),
       MoreArgs = list(size = 48)
     ),
