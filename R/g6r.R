@@ -744,3 +744,18 @@ setup_remove_elements_kbd <- function(
     once = TRUE
   )
 }
+
+setup_copy_paste_kbd <- function(session = get_session()) {
+  input <- session$input
+  ns <- session$ns
+  observeEvent(
+    req(input[[paste0(graph_id(), "-initialized")]]),
+    {
+      session$sendCustomMessage(
+        "setup-copy-paste",
+        list(id = graph_id(ns))
+      )
+    },
+    once = TRUE
+  )
+}

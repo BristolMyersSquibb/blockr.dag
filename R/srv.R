@@ -45,6 +45,7 @@ dag_ext_srv <- function(graph) {
         toolbar_item_action(toolbar, actions, session)
 
         setup_remove_elements_kbd()
+        setup_copy_paste_kbd()
 
         actions_observers(actions, proxy)
 
@@ -137,6 +138,27 @@ actions_observers <- function(actions, proxy) {
     {
       actions[["draw_link_action"]](input$added_edge)
     }
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-copy_selected")]],
+    actions[["copy_selected_action"]](
+      input[[paste0(graph_id(), "-copy_selected")]]
+    )
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-cut_selected")]],
+    actions[["cut_selected_action"]](
+      input[[paste0(graph_id(), "-cut_selected")]]
+    )
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-paste_clipboard")]],
+    actions[["paste_action"]](
+      input[[paste0(graph_id(), "-paste_clipboard")]]
+    )
   )
 
   # Append/prepend from canvas drop
