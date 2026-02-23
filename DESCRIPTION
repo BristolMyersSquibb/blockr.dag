@@ -42,9 +42,6 @@ Suggests:
     cyclocomp,
     shinytest2,
     colorspace
-Remotes:
-    BristolMyersSquibb/blockr.dock,
-    cynkra/g6R@feat-collapsible-nodes
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
