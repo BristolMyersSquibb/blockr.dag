@@ -29,6 +29,7 @@
         "mode": "dev",
         "preservePosition": false,
         "directed": true,
+        "maxCollapseDepth": null,
         "node": {
           "type": "custom-image-node",
           "style": {

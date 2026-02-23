@@ -27,11 +27,11 @@
             },
             "collapse": {
               "collapsed": false,
-              "visibility": "visible",
+              "visibility": "hover",
               "placement": "right-top",
               "r": 6,
               "fill": "#fff",
-              "stroke": "#9cabd4",
+              "stroke": "#D1D5DB",
               "lineWidth": 1,
               "iconStroke": "#9cabd4",
               "iconLineWidth": 1.4,
@@ -76,11 +76,11 @@
             },
             "collapse": {
               "collapsed": false,
-              "visibility": "visible",
+              "visibility": "hover",
               "placement": "right-top",
               "r": 6,
               "fill": "#fff",
-              "stroke": "#9cabd4",
+              "stroke": "#D1D5DB",
               "lineWidth": 1,
               "iconStroke": "#9cabd4",
               "iconLineWidth": 1.4,
@@ -128,6 +128,7 @@
         "mode": "dev",
         "preservePosition": false,
         "directed": true,
+        "maxCollapseDepth": null,
         "node": {
           "type": "custom-image-node",
           "style": {
