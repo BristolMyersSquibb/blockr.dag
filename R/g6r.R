@@ -696,7 +696,7 @@ add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_combos <- function(stacks, board, proxy = blockr_g6_proxy()) {
+add_combos <- function(stacks, proxy = blockr_g6_proxy()) {
   combos <- g6_combos_data_from_stacks(stacks)
   g6_add_combos(proxy, combos)
 
