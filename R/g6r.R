@@ -103,7 +103,7 @@ set_g6_options <- function(graph, ...) {
     combo = list(
       animation = FALSE,
       badge = TRUE,
-      type = "rect",
+      type = "rect-combo-with-extra-button",
       style = list(
         # more bottom padding, because of the badge
         padding = c(20, 20, 40, 20)
@@ -208,7 +208,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     g6R::create_edge(
       enable = JS(
         "(e) => {
-          return true;
+          return e.targetType === 'node' && e.targetType !== 'combo'
         }"
       ),
       onFinish = JS(
@@ -598,7 +598,10 @@ g6_combos_data_from_stacks <- function(stacks) {
         lineWidth = 0,
         radius = 8
       )
-    )
+    ),
+    collapse = lapply(blocks, function(block) {
+      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
+    })
   )
 
   if (length(res)) {

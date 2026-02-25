@@ -32,6 +32,10 @@ serve(
       new_link(from = "g", to = "h", input = "data"),
       new_link(from = "h", to = "i", input = "data")
     ),
+    stacks = c(
+      new_stack(id = "stack1", blocks = c("b", "c", "d")),
+      new_stack(id = "stack2", blocks = c("f", "g"))
+    ),
     extensions = new_dag_extension()
   )
 )
