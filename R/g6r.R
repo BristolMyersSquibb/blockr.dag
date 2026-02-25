@@ -599,7 +599,7 @@ g6_combos_data_from_stacks <- function(stacks) {
         radius = 8
       )
     ),
-    collapse = lapply(blocks, function(block) {
+    collapse = lapply(stacks, function(stack) {
       g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
     })
   )
