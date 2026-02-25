@@ -47,7 +47,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g6_edges_from_links</span><span class="op">(</span><span class="va">links</span>, <span class="va">blocks</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g6_nodes_from_blocks</span><span class="op">(</span><span class="va">blocks</span>, <span class="va">stacks</span><span class="op">)</span></span>
+<span><span class="fu">g6_nodes_from_blocks</span><span class="op">(</span><span class="va">blocks</span>, <span class="va">stacks</span>, children <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g6_combos_data_from_stacks</span><span class="op">(</span><span class="va">stacks</span><span class="op">)</span></span>
 <span></span>
@@ -68,6 +68,10 @@
 
 <dt id="arg-stacks">stacks<a class="anchor" aria-label="anchor" href="#arg-stacks"></a></dt>
 <dd><p>Board stacks.</p></dd>
+
+
+<dt id="arg-children">children<a class="anchor" aria-label="anchor" href="#arg-children"></a></dt>
+<dd><p>Named list of children node IDs (optional).</p></dd>
 
 
 <dt id="arg-board">board<a class="anchor" aria-label="anchor" href="#arg-board"></a></dt>
