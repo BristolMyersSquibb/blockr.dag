@@ -4,6 +4,7 @@
 
 ### Internal changes
 
+- Add support for collapsible nodes and combos, through g6R.
 - Reworked actions. Inherits from `blockr.dock`.
 - Added support for node ports from g6R.
 - Fix
