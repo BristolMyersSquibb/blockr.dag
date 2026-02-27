@@ -20,6 +20,19 @@
                 "r": 4
               }
             },
+            "collapse": {
+              "collapsed": false,
+              "visibility": "hover",
+              "placement": "right-top",
+              "r": 6,
+              "fill": "#fff",
+              "stroke": "#D1D5DB",
+              "lineWidth": 1,
+              "iconStroke": "#9cabd4",
+              "iconLineWidth": 1.4,
+              "cursor": "pointer",
+              "zIndex": 999
+            },
             "zIndex": 0,
             "badges": [
 
@@ -54,6 +67,8 @@
         "iconsUrl": "//at.alicdn.com/t/font_2678727_za4qjydwkkh.js",
         "mode": "dev",
         "preservePosition": false,
+        "directed": true,
+        "maxCollapseDepth": null,
         "node": {
           "type": "custom-image-node",
           "style": {
@@ -129,7 +144,7 @@
         "combo": {
           "animation": false,
           "badge": true,
-          "type": "rect",
+          "type": "rect-combo-with-extra-button",
           "style": {
             "padding": [
               20,
@@ -244,7 +259,7 @@
           {
             "key": "create-edge",
             "trigger": "drag",
-            "enable": "(e) => {\n          return true;\n        }",
+            "enable": "(e) => {\n          return e.targetType === 'node' && e.targetType !== 'combo'\n        }",
             "onFinish": "(edge) => {\n            const graph = HTMLWidgets.find('#board-dag_extension-graph').getWidget();\n            // For canvas drops, the assist node is already removed, so check targetType first\n            if (edge.targetType === 'canvas') {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: null,\n                  targetType: 'canvas',\n                  sourcePort: edge.style?.sourcePort,\n                  portType: edge.style?.portType\n                }\n              );\n              return;\n            }\n            const targetType = graph.getElementType(edge.target);\n            // Avoid to create edges in combos. If so, we remove it\n            if (targetType === 'combo') {\n              graph.removeEdgeData([edge.id]);\n            } else {\n              Shiny.setInputValue(\n                'board-dag_extension-added_edge',\n                {\n                  id: edge.id,\n                  source: edge.source.replace(/^node-/, ''),\n                  target: edge.target.replace(/^node-/, ''),\n                  targetType: edge.targetType,\n                  sourcePort: edge.style.sourcePort,\n                  targetPort: edge.style.targetPort\n                }\n              );\n              // We will recreate the edge from the R side with correct ID\n              graph.removeEdgeData([edge.id]);\n            }\n          }",
             "notify": false,
             "type": "create-edge"

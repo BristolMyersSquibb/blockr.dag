@@ -9,7 +9,7 @@
 \usage{
 g6_edges_from_links(links, blocks)
 
-g6_nodes_from_blocks(blocks, stacks)
+g6_nodes_from_blocks(blocks, stacks, children = NULL)
 
 g6_combos_data_from_stacks(stacks)
 
@@ -21,6 +21,8 @@ g6_data_from_board(board)
 \item{blocks}{Board blocks.}
 
 \item{stacks}{Board stacks.}
+
+\item{children}{Named list of children node IDs (optional).}
 
 \item{board}{Board object.}
 }

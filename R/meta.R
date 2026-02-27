@@ -1,21 +1,14 @@
-blk_category <- function(block) {
-
-  id <- registry_id_from_block(block)
-
-  if (length(id)) {
-    registry_metadata(id, "category")
-  } else {
-    default_category()
-  }
+blks_color <- function(blocks) {
+  blockr.dock::blk_color(block_metadata(blocks)$category)
 }
 
-blk_icon <- function(block) {
+blks_icon <- function(blocks, size = 48L) {
+  meta <- block_metadata(blocks)
 
-  id <- registry_id_from_block(block)
-
-  if (length(id)) {
-    registry_metadata(id, "icon")
-  } else {
-    default_icon(default_category())
-  }
+  chr_mply(
+    blockr.dock::blk_icon_data_uri,
+    meta$icon,
+    blockr.dock::blk_color(meta$category),
+    MoreArgs = list(size = size)
+  )
 }

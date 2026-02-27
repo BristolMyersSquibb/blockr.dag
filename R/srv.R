@@ -113,11 +113,11 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$rm)) {
-        remove_edges(upd$links$rm, proxy)
+        remove_edges(upd$links$rm, proxy = proxy)
       }
 
       if (length(upd$blocks$rm)) {
-        remove_nodes(upd$blocks$rm, proxy)
+        remove_nodes(upd$blocks$rm, proxy = proxy)
       }
     }
   )
