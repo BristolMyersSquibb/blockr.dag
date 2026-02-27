@@ -2,6 +2,8 @@
 
 S3method(as_graph,graph)
 S3method(as_graph,list)
+S3method(blockr.core::blockr_deser,subboard)
+S3method(blockr.core::blockr_ser,subboard)
 S3method(board_actions,dag_extension)
 S3method(context_menu_items,dag_extension)
 S3method(context_menu_items,dock_board)

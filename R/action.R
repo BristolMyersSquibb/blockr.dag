@@ -76,38 +76,46 @@ remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
+copy_selection_to_clipboard <- function(board, dag_extension) {
+  input <- dag_extension[["proxy"]]$session$input
+  selected_nodes <- input[[paste0(graph_id(), "-selected_node")]]
+  selected_combos <- input[[paste0(graph_id(), "-selected_combo")]]
+
+  subboard <- extract_subboard(
+    board$board,
+    block_ids = from_g6_node_id(coal(selected_nodes, character())),
+    stack_ids = from_g6_combo_id(coal(selected_combos, character()))
+  )
+
+  if (is.null(subboard)) return(NULL)
+
+  states <- live_block_states(board, names(subboard$blocks))
+
+  json <- as.character(jsonlite::toJSON(
+    blockr_ser(subboard, blocks = states),
+    auto_unbox = TRUE
+  ))
+
+  session <- dag_extension[["proxy"]]$session
+  session$sendCustomMessage("write-clipboard", list(json = json))
+
+  subboard
+}
+
+remove_subboard <- function(subboard, update) {
+  update(list(
+    blocks = list(rm = names(subboard$blocks)),
+    links = list(rm = names(subboard$links)),
+    stacks = list(rm = names(subboard$stacks))
+  ))
+}
+
 copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      input <- dag_extension[["proxy"]]$session$input
-      observeEvent(
-        trigger(),
-        {
-          selected_nodes <- input[[paste0(graph_id(), "-selected_node")]]
-          selected_combos <- input[[paste0(graph_id(), "-selected_combo")]]
-
-          subgraph <- extract_subgraph(
-            board$board,
-            coal(selected_nodes, character()),
-            coal(selected_combos, character())
-          )
-
-          if (is.null(subgraph)) {
-            return()
-          }
-
-          states <- live_block_states(board, names(subgraph$blocks))
-
-          json <- as.character(jsonlite::toJSON(
-            blockr_ser_subgraph(subgraph, block_states = states),
-            auto_unbox = TRUE
-          ))
-
-          session <- dag_extension[["proxy"]]$session
-          session$sendCustomMessage("write-clipboard", list(json = json))
-        }
-      )
-
+      observeEvent(trigger(), {
+        copy_selection_to_clipboard(board, dag_extension)
+      })
       NULL
     },
     id = "copy_selected_action"
@@ -117,44 +125,10 @@ copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
 cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      input <- dag_extension[["proxy"]]$session$input
-      observeEvent(
-        trigger(),
-        {
-          selected_nodes <- input[[paste0(graph_id(), "-selected_node")]]
-          selected_combos <- input[[paste0(graph_id(), "-selected_combo")]]
-
-          subgraph <- extract_subgraph(
-            board$board,
-            coal(selected_nodes, character()),
-            coal(selected_combos, character())
-          )
-
-          if (is.null(subgraph)) {
-            return()
-          }
-
-          states <- live_block_states(board, names(subgraph$blocks))
-
-          json <- as.character(jsonlite::toJSON(
-            blockr_ser_subgraph(subgraph, block_states = states),
-            auto_unbox = TRUE
-          ))
-
-          session <- dag_extension[["proxy"]]$session
-          session$sendCustomMessage("write-clipboard", list(json = json))
-
-          # Remove the selected elements
-          update(
-            list(
-              blocks = list(rm = names(subgraph$blocks)),
-              links = list(rm = names(subgraph$links)),
-              stacks = list(rm = names(subgraph$stacks))
-            )
-          )
-        }
-      )
-
+      observeEvent(trigger(), {
+        subboard <- copy_selection_to_clipboard(board, dag_extension)
+        if (!is.null(subboard)) remove_subboard(subboard, update)
+      })
       NULL
     },
     id = "cut_selected_action"
@@ -164,30 +138,22 @@ cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
 paste_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      observeEvent(
-        trigger(),
-        {
-          tryCatch(
-            {
-              data <- jsonlite::fromJSON(trigger(), simplifyDataFrame = FALSE)
-              subgraph <- blockr_deser_subgraph(data)
-              remapped <- remap_subgraph_ids(subgraph, board$board)
+      observeEvent(trigger(), {
+        data <- tryCatch(
+          jsonlite::fromJSON(trigger(), simplifyDataFrame = FALSE),
+          error = function(e) NULL
+        )
+        if (is.null(data)) return()
 
-              update(
-                list(
-                  blocks = list(add = remapped$blocks),
-                  links = list(add = remapped$links),
-                  stacks = list(add = remapped$stacks)
-                )
-              )
-            },
-            error = function(e) {
-              # Silently no-op on bad data
-            }
-          )
-        }
-      )
+        subboard <- blockr_deser(data)
+        remapped <- remap_subboard_ids(subboard, board$board)
 
+        update(list(
+          blocks = list(add = remapped$blocks),
+          links = list(add = remapped$links),
+          stacks = list(add = remapped$stacks)
+        ))
+      })
       NULL
     },
     id = "paste_action"
