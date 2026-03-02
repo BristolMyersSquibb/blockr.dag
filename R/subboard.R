@@ -11,6 +11,10 @@ new_subboard <- function(
   )
 }
 
+is_subboard <- function(x) {
+  inherits(x, "subboard")
+}
+
 # --- Extraction helpers ---
 
 subboard_blocks <- function(all_blocks, block_ids, stack_ids, all_stacks) {
@@ -50,6 +54,12 @@ extract_subboard <- function(
   block_ids = character(),
   stack_ids = character()
 ) {
+  stopifnot(
+    is_board(board),
+    is.character(block_ids),
+    is.character(stack_ids)
+  )
+
   all_blocks <- board_blocks(board)
   all_stacks <- board_stacks(board)
 
@@ -93,7 +103,9 @@ blockr_deser.subboard <- function(x, data, ...) {
 # --- Live state capture ---
 
 live_block_states <- function(board, block_ids) {
+  stopifnot(is.character(block_ids))
   running <- board$blocks
+
   ids <- intersect(block_ids, names(running))
   lapply(
     lst_xtr(running[ids], "server", "state"),
@@ -144,6 +156,11 @@ remap_stacks <- function(stks, block_id_map, used_ids) {
 }
 
 remap_subboard_ids <- function(subboard, board) {
+  stopifnot(
+    is_subboard(subboard),
+    is_board(board)
+  )
+
   used_ids <- c(
     board_block_ids(board),
     board_link_ids(board),
