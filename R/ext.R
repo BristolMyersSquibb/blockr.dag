@@ -218,7 +218,7 @@ context_menu_items.dag_extension <- function(x) {
             try {
               const text = await navigator.clipboard.readText();
               const data = JSON.parse(text);
-              if (data && data.blocks) {
+              if (data && data.object === 'subboard') {
                 Shiny.setInputValue('%s', text, {priority: 'event'});
               }
             } catch (err) {}

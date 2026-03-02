@@ -1,7 +1,10 @@
 # --- Constructor ---
 
-new_subboard <- function(blocks = blocks(), links = links(),
-                          stacks = stacks()) {
+new_subboard <- function(
+  blocks = blocks(),
+  links = links(),
+  stacks = stacks()
+) {
   structure(
     list(blocks = blocks, links = links, stacks = stacks),
     class = "subboard"
@@ -15,12 +18,16 @@ subboard_blocks <- function(all_blocks, block_ids, stack_ids, all_stacks) {
     block_ids <- union(block_ids, stack_blocks(all_stacks[[sid]]))
   }
   block_ids <- intersect(block_ids, names(all_blocks))
-  if (length(block_ids) == 0L) return(NULL)
+  if (length(block_ids) == 0L) {
+    return(NULL)
+  }
   all_blocks[block_ids]
 }
 
 subboard_links <- function(all_links, block_ids) {
-  if (length(all_links) == 0L) return(links())
+  if (length(all_links) == 0L) {
+    return(links())
+  }
   keep <- all_links$from %in% block_ids & all_links$to %in% block_ids
   if (any(keep)) all_links[keep] else links()
 }
@@ -28,20 +35,28 @@ subboard_links <- function(all_links, block_ids) {
 subboard_stacks <- function(all_stacks, stack_ids, block_ids) {
   selected <- intersect(stack_ids, names(all_stacks))
   candidates <- setdiff(names(all_stacks), selected)
-  inferred <- Filter(function(sid) {
-    blks <- stack_blocks(all_stacks[[sid]])
-    length(blks) > 0L && all(blks %in% block_ids)
-  }, candidates)
+  inferred <- Filter(
+    function(sid) {
+      blks <- stack_blocks(all_stacks[[sid]])
+      length(blks) > 0L && all(blks %in% block_ids)
+    },
+    candidates
+  )
   all_stacks[union(selected, inferred)]
 }
 
-extract_subboard <- function(board, block_ids = character(),
-                              stack_ids = character()) {
+extract_subboard <- function(
+  board,
+  block_ids = character(),
+  stack_ids = character()
+) {
   all_blocks <- board_blocks(board)
   all_stacks <- board_stacks(board)
 
   blocks <- subboard_blocks(all_blocks, block_ids, stack_ids, all_stacks)
-  if (is.null(blocks)) return(NULL)
+  if (is.null(blocks)) {
+    return(NULL)
+  }
 
   block_ids <- names(blocks)
 
@@ -100,7 +115,9 @@ remap_blocks <- function(blocks, id_map) {
 }
 
 remap_links <- function(lnks, block_id_map, used_ids) {
-  if (length(lnks) == 0L) return(links())
+  if (length(lnks) == 0L) {
+    return(links())
+  }
   remapped <- lapply(as.list(lnks), function(lnk) {
     new_link(
       from = unname(block_id_map[lnk$from]),
@@ -113,7 +130,9 @@ remap_links <- function(lnks, block_id_map, used_ids) {
 }
 
 remap_stacks <- function(stks, block_id_map, used_ids) {
-  if (length(stks) == 0L) return(stacks())
+  if (length(stks) == 0L) {
+    return(stacks())
+  }
   remapped <- lapply(as.list(stks), function(stk) {
     new_stack(
       blocks = unname(block_id_map[stack_blocks(stk)]),
@@ -132,7 +151,8 @@ remap_subboard_ids <- function(subboard, board) {
   )
 
   new_block_ids <- rand_names(
-    old_names = used_ids, n = length(subboard$blocks)
+    old_names = used_ids,
+    n = length(subboard$blocks)
   )
   block_id_map <- set_names(new_block_ids, names(subboard$blocks))
   used_ids <- c(used_ids, new_block_ids)
