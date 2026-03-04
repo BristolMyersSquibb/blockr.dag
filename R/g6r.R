@@ -392,6 +392,9 @@ resolve_target_ports <- function(links, blocks) {
     seq_along(links$to),
     function(i) {
       blk <- blocks[[links$to[i]]]
+      if (is.null(blk)) {
+        return(NA_character_)
+      }
       if (is_variadic_block(blk)) {
         paste0(target_id[i], "-in")
       } else {
@@ -412,14 +415,28 @@ g6_edges_from_links <- function(links, blocks) {
   source_id <- to_g6_node_id(links$from)
   target_ports <- resolve_target_ports(links, blocks)
 
+  # Skip edges whose target block is not yet in the board;
+
+  # they will be created in a later update cycle.
+  valid <- !is.na(target_ports)
+  if (!any(valid)) {
+    return()
+  }
+
+  source_id <- source_id[valid]
+  target_ports <- target_ports[valid]
+  link_ids <- names(links)[valid]
+  link_inputs <- links$input[valid]
+  target_id <- to_g6_node_id(links$to)[valid]
+
   res <- map(
     g6_edge,
-    id = to_g6_edge_id(names(links)),
+    id = to_g6_edge_id(link_ids),
     source = source_id,
-    target = to_g6_node_id(links$to),
+    target = target_id,
     style = map(
       list,
-      labelText = links$input,
+      labelText = link_inputs,
       # Currently all nodes only have 1 output that is called out
       sourcePort = paste0(source_id, "-out"),
       # Note: targetPort label is built in create_block_ports()
