@@ -332,7 +332,20 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   if (is.null(graph)) {
     res <- g6_from_board(board)
   } else {
-    res <- g6_from_graph(as_graph(graph))
+    res <- tryCatch(
+      g6_from_graph(as_graph(graph)),
+      error = function(e) {
+        notify(
+          paste(
+            "DAG could not be restored from saved state, rebuilding from",
+            "board. Details:", conditionMessage(e)
+          ),
+          type = "warning",
+          session = session
+        )
+        g6_from_board(board)
+      }
+    )
   }
 
   res <- set_g6_options(res)
