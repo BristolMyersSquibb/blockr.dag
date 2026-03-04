@@ -674,12 +674,17 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
 
-  # Apply mouse position for single node additions (e.g., edge drop to canvas)
-  if (length(blocks) == 1 && length(nodes) == 1) {
-    mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
-    if (!is.null(mouse_pos)) {
-      nodes[[1]]$style$x <- mouse_pos$x
-      nodes[[1]]$style$y <- mouse_pos$y
+  mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
+  base_x <- mouse_pos$x %||% 150
+  base_y <- mouse_pos$y %||% 150
+
+  if (length(nodes) == 1) {
+    nodes[[1]]$style$x <- base_x
+    nodes[[1]]$style$y <- base_y
+  } else if (length(nodes) > 1) {
+    for (i in seq_along(nodes)) {
+      nodes[[i]]$style$x <- base_x
+      nodes[[i]]$style$y <- base_y + (i - 1) * 130
     }
   }
 
