@@ -714,9 +714,16 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links, board_blocks(board))
-  g6_add_edges(proxy, edges)
+add_edges <- function(links, board, proxy = blockr_g6_proxy(),
+                      extra_blocks = NULL) {
+  blks <- board_blocks(board)
+  if (length(extra_blocks)) {
+    blks <- c(blks, extra_blocks)
+  }
+  edges <- g6_edges_from_links(links, blks)
+  if (!is.null(edges)) {
+    g6_add_edges(proxy, edges)
+  }
 
   invisible()
 }
