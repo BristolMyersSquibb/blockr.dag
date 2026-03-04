@@ -91,12 +91,24 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
 
   states <- live_block_states(board, names(subboard$blocks))
 
-  json <- as.character(jsonlite::toJSON(
-    blockr_ser(subboard, blocks = states),
-    auto_unbox = TRUE
-  ))
-
   session <- dag_extension[["proxy"]]$session
+
+  json <- tryCatch(
+    as.character(jsonlite::toJSON(
+      blockr_ser(subboard, blocks = states),
+      auto_unbox = TRUE
+    )),
+    error = function(e) {
+      shiny::showNotification(
+        paste("Cannot copy selection:", conditionMessage(e)),
+        type = "error"
+      )
+      NULL
+    }
+  )
+
+  if (is.null(json)) return(NULL)
+
   session$sendCustomMessage("write-clipboard", list(json = json))
 
   subboard
