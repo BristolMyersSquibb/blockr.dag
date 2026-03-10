@@ -98,6 +98,10 @@ update_observer <- function(update, board, proxy) {
 
       if (length(upd$links$add)) {
         blocks <- board_blocks(board$board)
+        # If new blocks are added in the same update as new links, for instance
+        # during an append action, we need to consider the new blocks that are in
+        # upd$blocks$add and not yet in the board. Otherwise, we can possibly end up
+        # with non existing target/source nodes.
         if (length(upd$blocks$add)) {
           blocks <- c(blocks, upd$blocks$add)
         }
