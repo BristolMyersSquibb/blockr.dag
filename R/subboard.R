@@ -146,9 +146,10 @@ remap_stacks <- function(stks, block_id_map, used_ids) {
     return(stacks())
   }
   remapped <- lapply(as.list(stks), function(stk) {
-    new_stack(
+    blockr.dock::new_dock_stack(
       blocks = unname(block_id_map[stack_blocks(stk)]),
-      name = paste0(stack_name(stk), " (copy)")
+      name = paste0(stack_name(stk), " (copy)"),
+      color = blockr.dock::stack_color(stk)
     )
   })
   names(remapped) <- rand_names(old_names = used_ids, n = length(remapped))
