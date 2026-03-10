@@ -96,7 +96,11 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$add)) {
-        add_edges(upd$links$add, board$board, proxy)
+        blocks <- board_blocks(board$board)
+        if (length(upd$blocks$add)) {
+          blocks <- c(blocks, upd$blocks$add)
+        }
+        add_edges(upd$links$add, blocks, proxy)
       }
 
       if (length(upd$stacks$add)) {
