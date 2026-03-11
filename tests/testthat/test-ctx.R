@@ -10,7 +10,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(node, "value"),
-    c("create_link", "remove_block", "append_block")
+    c("create_link", "remove_block", "append_block", "copy", "cut")
   )
 
   edge <- build_context_menu(ctx, target = list(type = "edge"))
@@ -30,7 +30,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(canv, "value"),
-    c("create_stack", "add_block")
+    c("create_stack", "add_block", "paste")
   )
 
   comb <- build_context_menu(ctx, target = list(type = "combo"))
@@ -40,6 +40,6 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(comb, "value"),
-    c("remove_stack", "edit_stack")
+    c("remove_stack", "edit_stack", "copy", "cut")
   )
 })

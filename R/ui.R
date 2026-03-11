@@ -77,6 +77,13 @@ dag_ext_ui <- function(id, board) {
       script = file.path("js", "empty-state.js"),
       stylesheet = file.path("css", "empty-state.css"),
       package = pkg_name()
+    ),
+    htmltools::htmlDependency(
+      name = "copy-paste",
+      version = pkg_version(),
+      src = c(file = "assets"),
+      script = file.path("js", "copy-paste.js"),
+      package = pkg_name()
     )
   )
 }

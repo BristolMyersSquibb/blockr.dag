@@ -332,7 +332,20 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
   if (is.null(graph)) {
     res <- g6_from_board(board)
   } else {
-    res <- g6_from_graph(as_graph(graph))
+    res <- tryCatch(
+      g6_from_graph(as_graph(graph)),
+      error = function(e) {
+        showNotification(
+          sprintf(
+            "Failed to initialize graph from provided graph object: %s.
+            \nFalling back to graph generated from board.",
+            conditionMessage(e)
+          ),
+          type = "error"
+        )
+        g6_from_board(board)
+      }
+    )
   }
 
   res <- set_g6_options(res)
@@ -664,12 +677,17 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
 
-  # Apply mouse position for single node additions (e.g., edge drop to canvas)
-  if (length(blocks) == 1 && length(nodes) == 1) {
-    mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
-    if (!is.null(mouse_pos)) {
-      nodes[[1]]$style$x <- mouse_pos$x
-      nodes[[1]]$style$y <- mouse_pos$y
+  mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
+  base_x <- mouse_pos$x %||% 150
+  base_y <- mouse_pos$y %||% 150
+
+  if (length(nodes) == 1) {
+    nodes[[1]]$style$x <- base_x
+    nodes[[1]]$style$y <- base_y
+  } else if (length(nodes) > 1) {
+    for (i in seq_along(nodes)) {
+      nodes[[i]]$style$x <- base_x
+      nodes[[i]]$style$y <- base_y + (i - 1) * 130
     }
   }
 
@@ -684,8 +702,8 @@ update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_edges <- function(links, board, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links, board_blocks(board))
+add_edges <- function(links, blocks, proxy = blockr_g6_proxy()) {
+  edges <- g6_edges_from_links(links, blocks)
   g6_add_edges(proxy, edges)
 
   invisible()
@@ -774,6 +792,21 @@ setup_remove_elements_kbd <- function(
           key = key,
           id = graph_id(ns)
         )
+      )
+    },
+    once = TRUE
+  )
+}
+
+setup_copy_paste_kbd <- function(session = get_session()) {
+  input <- session$input
+  ns <- session$ns
+  observeEvent(
+    req(input[[paste0(graph_id(), "-initialized")]]),
+    {
+      session$sendCustomMessage(
+        "setup-copy-paste",
+        list(id = graph_id(ns))
       )
     },
     once = TRUE

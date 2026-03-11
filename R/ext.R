@@ -171,6 +171,67 @@ context_menu_items.dag_extension <- function(x) {
       ),
       condition = function(board, target) target$type == "canvas",
       id = "add_block"
+    ),
+    new_context_menu_entry(
+      name = "Copy",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("ctx_copy")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "copy_selected_action",
+        input_name = "ctx_copy"
+      ),
+      condition = function(board, target) {
+        target$type %in% c("node", "combo")
+      },
+      id = "copy"
+    ),
+    new_context_menu_entry(
+      name = "Cut",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("ctx_cut")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "cut_selected_action",
+        input_name = "ctx_cut"
+      ),
+      condition = function(board, target) {
+        target$type %in% c("node", "combo")
+      },
+      id = "cut"
+    ),
+    new_context_menu_entry(
+      name = "Paste",
+      js = function(ns) {
+        sprintf(
+          "async (value, target, current) => {
+            try {
+              const text = await navigator.clipboard.readText();
+              const data = JSON.parse(text);
+              if (data && data.object === 'subboard') {
+                Shiny.setInputValue('%s', text, {priority: 'event'});
+              }
+            } catch (err) {}
+          }",
+          ns("ctx_paste")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "paste_action",
+        input_name = "ctx_paste"
+      ),
+      condition = function(board, target) target$type == "canvas",
+      id = "paste"
     )
   )
 }

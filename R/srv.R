@@ -45,6 +45,7 @@ dag_ext_srv <- function(graph) {
         toolbar_item_action(toolbar, actions, session)
 
         setup_remove_elements_kbd()
+        setup_copy_paste_kbd()
 
         actions_observers(actions, proxy)
 
@@ -96,7 +97,15 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$links$add)) {
-        add_edges(upd$links$add, board$board, proxy)
+        blocks <- board_blocks(board$board)
+        # If new blocks are added in the same update as new links, for instance
+        # during an append action, we need to consider the new blocks that are in
+        # upd$blocks$add and not yet in the board. Otherwise, we can possibly end up
+        # with non existing target/source nodes.
+        if (length(upd$blocks$add)) {
+          blocks <- c(blocks, upd$blocks$add)
+        }
+        add_edges(upd$links$add, blocks, proxy)
       }
 
       if (length(upd$stacks$add)) {
@@ -137,6 +146,27 @@ actions_observers <- function(actions, proxy) {
     {
       actions[["draw_link_action"]](input$added_edge)
     }
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-copy_selected")]],
+    actions[["copy_selected_action"]](
+      input[[paste0(graph_id(), "-copy_selected")]]
+    )
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-cut_selected")]],
+    actions[["cut_selected_action"]](
+      input[[paste0(graph_id(), "-cut_selected")]]
+    )
+  )
+
+  observeEvent(
+    input[[paste0(graph_id(), "-paste_clipboard")]],
+    actions[["paste_action"]](
+      input[[paste0(graph_id(), "-paste_clipboard")]]
+    )
   )
 
   # Append/prepend from canvas drop
