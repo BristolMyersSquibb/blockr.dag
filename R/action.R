@@ -87,7 +87,9 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
     stack_ids = from_g6_combo_id(coal(selected_combos, character()))
   )
 
-  if (is.null(subboard)) return(NULL)
+  if (is.null(subboard)) {
+    return(NULL)
+  }
 
   states <- live_block_states(board, names(subboard$blocks))
 
@@ -99,7 +101,7 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
       auto_unbox = TRUE
     )),
     error = function(e) {
-      shiny::showNotification(
+      showNotification(
         paste("Cannot copy selection:", conditionMessage(e)),
         type = "error"
       )
@@ -107,7 +109,9 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
     }
   )
 
-  if (is.null(json)) return(NULL)
+  if (is.null(json)) {
+    return(NULL)
+  }
 
   session$sendCustomMessage("write-clipboard", list(json = json))
 
@@ -151,13 +155,23 @@ paste_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
       observeEvent(trigger(), {
-        data <- tryCatch(
-          jsonlite::fromJSON(trigger(), simplifyDataFrame = FALSE),
-          error = function(e) NULL
+        subboard <- NULL
+        tryCatch(
+          subboard <- blockr_deser(jsonlite::fromJSON(
+            trigger(),
+            simplifyDataFrame = FALSE
+          )),
+          error = function(e) {
+            showNotification(
+              paste("Cannot paste clipboard content:", conditionMessage(e)),
+              type = "error"
+            )
+          }
         )
-        if (is.null(data)) return()
+        if (is.null(subboard)) {
+          return()
+        }
 
-        subboard <- blockr_deser(data)
         remapped <- remap_subboard_ids(subboard, board$board)
 
         update(list(

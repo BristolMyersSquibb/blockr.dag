@@ -335,10 +335,13 @@ init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
     res <- tryCatch(
       g6_from_graph(as_graph(graph)),
       error = function(e) {
-        warning(
-          "Failed to restore graph state: ", conditionMessage(e),
-          "\nFalling back to fresh graph layout.",
-          call. = FALSE
+        showNotification(
+          sprintf(
+            "Failed to initialize graph from provided graph object: %s.
+            \nFalling back to graph generated from board.",
+            conditionMessage(e)
+          ),
+          type = "error"
         )
         g6_from_board(board)
       }
