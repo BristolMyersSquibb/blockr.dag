@@ -348,8 +348,12 @@ extension_block_callback.dag_extension <- function(x, ...) {
 
     badge_count <- reactiveVal(0L)
 
+    graph_ready <- reactive(
+      isTRUE(dag_extension$proxy$session$input[[paste0(graph_id(), "-initialized")]])
+    )
+
     observeEvent(
-      req(n_cnd() > 0L, n_cnd() != badge_count()),
+      req(graph_ready(), n_cnd() > 0L, n_cnd() != badge_count()),
       {
         n <- n_cnd()
 
@@ -376,7 +380,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
     )
 
     observeEvent(
-      req(n_cnd() == 0L, badge_count() > 0L),
+      req(graph_ready(), n_cnd() == 0L, badge_count() > 0L),
       {
         node_config <- list(
           list(
