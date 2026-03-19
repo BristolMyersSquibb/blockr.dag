@@ -166,7 +166,7 @@ testServer(
     ))
 
     # Update block title
-    mod_blocks <- set_names(board_blocks(board$board), c("a_new", "b_new"))
+    mod_blocks <- set_names(board_blocks(board$board)[c("a", "b")], c("a_new", "b_new"))
 
     update(
       list(
@@ -214,7 +214,10 @@ test_that("extension_block_callback works", {
     },
     {
       expect_null(res)
-      session$setInputs(errors = c("error1", "error2"))
+      session$setInputs(
+        `graph-initialized` = TRUE,
+        errors = c("error1", "error2")
+      )
       session$setInputs(errors = character(0))
     }
   )
