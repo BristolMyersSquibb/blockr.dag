@@ -794,7 +794,8 @@ setup_remove_elements_kbd <- function(
         )
       )
     },
-    once = TRUE
+    once = TRUE,
+    label = "setup_remove_kbd"
   )
 }
 
@@ -809,6 +810,7 @@ setup_copy_paste_kbd <- function(session = get_session()) {
         list(id = graph_id(ns))
       )
     },
-    once = TRUE
+    once = TRUE,
+    label = "setup_copy_paste_kbd"
   )
 }
