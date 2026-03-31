@@ -64,7 +64,8 @@ dag_ext_srv <- function(graph) {
                 dock
               )
             }
-          }
+          },
+          label = "selected_node"
         )
 
         empty_state_observer(board, session)
@@ -72,7 +73,8 @@ dag_ext_srv <- function(graph) {
         list(
           state = list(
             graph = reactive(
-              input[[paste0(graph_id(), "-state")]]
+              input[[paste0(graph_id(), "-state")]],
+              label = "graph_state"
             )
           ),
           proxy = proxy
@@ -127,7 +129,8 @@ update_observer <- function(update, board, proxy) {
       if (length(upd$blocks$rm)) {
         remove_nodes(upd$blocks$rm, proxy = proxy)
       }
-    }
+    },
+    label = "update_observer"
   )
 }
 
@@ -138,35 +141,40 @@ actions_observers <- function(actions, proxy) {
     input[[paste0(graph_id(), "-batch_delete")]],
     actions[["remove_selected_action"]](
       input[[paste0(graph_id(), "-batch_delete")]]
-    )
+    ),
+    label = "batch_delete"
   )
 
   observeEvent(
     req(input$added_edge$targetType != "canvas"),
     {
       actions[["draw_link_action"]](input$added_edge)
-    }
+    },
+    label = "draw_link"
   )
 
   observeEvent(
     input[[paste0(graph_id(), "-copy_selected")]],
     actions[["copy_selected_action"]](
       input[[paste0(graph_id(), "-copy_selected")]]
-    )
+    ),
+    label = "copy_selected"
   )
 
   observeEvent(
     input[[paste0(graph_id(), "-cut_selected")]],
     actions[["cut_selected_action"]](
       input[[paste0(graph_id(), "-cut_selected")]]
-    )
+    ),
+    label = "cut_selected"
   )
 
   observeEvent(
     input[[paste0(graph_id(), "-paste_clipboard")]],
     actions[["paste_action"]](
       input[[paste0(graph_id(), "-paste_clipboard")]]
-    )
+    ),
+    label = "paste_clipboard"
   )
 
   # Append/prepend from canvas drop
@@ -181,7 +189,8 @@ actions_observers <- function(actions, proxy) {
         output = actions[["append_block_action"]](edge$source),
         input = actions[["prepend_block_action"]](edge$source)
       )
-    }
+    },
+    label = "canvas_drop"
   )
 
   # Append/prepend on port click: FIXME -> disabled due to critical issue
@@ -215,6 +224,7 @@ empty_state_observer <- function(board, session) {
           show = !has_blocks
         )
       )
-    }
+    },
+    label = "empty_state"
   )
 }
