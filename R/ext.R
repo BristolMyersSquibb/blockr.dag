@@ -99,6 +99,23 @@ context_menu_items.dag_extension <- function(x) {
       id = "append_block"
     ),
     new_context_menu_entry(
+      name = "Add block",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            Shiny.setInputValue('%s', true, {priority: 'event'});
+          }",
+          ns("ctx_add_block")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "add_block_action",
+        input_name = "ctx_add_block"
+      ),
+      condition = function(board, target) target$type == "canvas",
+      id = "add_block"
+    ),
+    new_context_menu_entry(
       name = "Create stack",
       js = function(ns) {
         sprintf(
@@ -154,23 +171,6 @@ context_menu_items.dag_extension <- function(x) {
       ),
       condition = function(board, target) target$type == "combo",
       id = "edit_stack"
-    ),
-    new_context_menu_entry(
-      name = "Add block",
-      js = function(ns) {
-        sprintf(
-          "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
-          }",
-          ns("ctx_add_block")
-        )
-      },
-      action = update_action_trigger(
-        action_name = "add_block_action",
-        input_name = "ctx_add_block"
-      ),
-      condition = function(board, target) target$type == "canvas",
-      id = "add_block"
     ),
     new_context_menu_entry(
       name = "Copy",
