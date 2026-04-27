@@ -34,7 +34,15 @@ $(function () {
         return;
       }
 
+      // If the user has text selected anywhere on the page, defer to the
+      // browser's default copy/cut so that e.g. column names or error
+      // messages land on the clipboard as-is.
+      const selection = window.getSelection && window.getSelection();
+      const hasTextSelection =
+        selection && selection.toString().length > 0;
+
       if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+        if (hasTextSelection) return;
         e.preventDefault();
         Shiny.setInputValue(
           `${m.id}-copy_selected`,
@@ -44,6 +52,7 @@ $(function () {
       }
 
       if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+        if (hasTextSelection) return;
         e.preventDefault();
         Shiny.setInputValue(
           `${m.id}-cut_selected`,
@@ -53,11 +62,11 @@ $(function () {
       }
 
       if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
         try {
           const text = await navigator.clipboard.readText();
           const data = JSON.parse(text);
           if (data && data.object === 'subboard') {
+            e.preventDefault();
             Shiny.setInputValue(
               `${m.id}-paste_clipboard`,
               text,
