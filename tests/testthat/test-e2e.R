@@ -102,7 +102,10 @@ expect_values <- function(app, ...) {
     ...,
     export = vals$export,
     input = filter_names(vals$input),
-    output = filter_names(vals$output)
+    output = filter_names(vals$output),
+    transform = function(lines) {
+      gsub("nonce=[0-9a-f]+", "nonce=<scrubbed>", lines, perl = TRUE)
+    }
   )
 }
 
