@@ -9,11 +9,6 @@ name: ci
 jobs:
   ci:
     uses: cynkra/blockr.ci/.github/workflows/ci.yaml@main
-    with:
-      default-deps: |
-        BristolMyersSquibb/blockr.core
-        BristolMyersSquibb/blockr.dock
-        cynkra/g6R
     secrets: inherit
     permissions:
       contents: write
