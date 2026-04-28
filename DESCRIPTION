@@ -1,6 +1,6 @@
 Package: blockr.dag
 Title: A Directed Acyclic Graph Extension for 'blockr'
-Version: 0.1.2.9000
+Version: 0.1.2
 Authors@R: 
     c(person(given = "David",
              family = "Granjon",
@@ -34,8 +34,7 @@ Imports:
     htmltools
 Remotes:
     BristolMyersSquibb/blockr.core,
-    BristolMyersSquibb/blockr.dock,
-    cynkra/g6R
+    BristolMyersSquibb/blockr.dock
 Suggests:
     knitr,
     rmarkdown,
