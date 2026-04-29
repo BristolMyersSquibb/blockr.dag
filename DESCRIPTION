@@ -32,9 +32,6 @@ Imports:
     g6R (>= 0.6.0),
     jsonlite,
     htmltools
-Remotes:
-    BristolMyersSquibb/blockr.core,
-    BristolMyersSquibb/blockr.dock
 Suggests:
     knitr,
     rmarkdown,
