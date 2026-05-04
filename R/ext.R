@@ -344,14 +344,14 @@ extension_block_callback.dag_extension <- function(x, ...) {
   ) {
     n_cnd <- reactive(
       sum(lengths(conditions()$error)),
-      label = "n_cnd"
+      label = otel_lbl("n_cnd")
     )
 
     badge_count <- reactiveVal(0L)
 
     graph_ready <- reactive(
       isTRUE(dag_extension$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
-      label = "graph_ready"
+      label = otel_lbl("graph_ready")
     )
 
     observeEvent(
@@ -379,7 +379,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
         g6_update_nodes(dag_extension$proxy, node_config)
         badge_count(n)
       },
-      label = "show_error_badge"
+      label = otel_lbl("show_error_badge")
     )
 
     observeEvent(
@@ -397,7 +397,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
         g6_update_nodes(dag_extension$proxy, node_config)
         badge_count(0L)
       },
-      label = "clear_error_badge"
+      label = otel_lbl("clear_error_badge")
     )
 
     NULL

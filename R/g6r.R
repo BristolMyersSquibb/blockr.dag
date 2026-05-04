@@ -795,7 +795,7 @@ setup_remove_elements_kbd <- function(
       )
     },
     once = TRUE,
-    label = "setup_remove_kbd"
+    label = otel_lbl("setup_remove_kbd")
   )
 }
 
@@ -811,6 +811,6 @@ setup_copy_paste_kbd <- function(session = get_session()) {
       )
     },
     once = TRUE,
-    label = "setup_copy_paste_kbd"
+    label = otel_lbl("setup_copy_paste_kbd")
   )
 }
