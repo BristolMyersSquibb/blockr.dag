@@ -61,7 +61,7 @@ update_action_trigger <- function(action_name, input_name) {
     observeEvent(
       session$input[[input_name]],
       actions[[action_name]](session$input[[input_name]]),
-      label = action_name
+      label = otel_lbl(action_name)
     )
   }
 }

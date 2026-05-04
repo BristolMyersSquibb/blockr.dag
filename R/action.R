@@ -33,7 +33,7 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
 
           update(list(links = list(add = as_links(new_lnk))))
         },
-        label = "draw_link"
+        label = otel_lbl("draw_link")
       )
 
       NULL
@@ -69,7 +69,7 @@ remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
             )
           )
         },
-        label = "remove_selected"
+        label = otel_lbl("remove_selected")
       )
 
       NULL
@@ -133,7 +133,7 @@ copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
     function(input, output, session) {
       observeEvent(trigger(), {
         copy_selection_to_clipboard(board, dag_extension)
-      }, label = "copy_selected")
+      }, label = otel_lbl("copy_selected"))
       NULL
     },
     id = "copy_selected_action"
@@ -146,7 +146,7 @@ cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
       observeEvent(trigger(), {
         subboard <- copy_selection_to_clipboard(board, dag_extension)
         if (!is.null(subboard)) remove_subboard(subboard, update)
-      }, label = "cut_selected")
+      }, label = otel_lbl("cut_selected"))
       NULL
     },
     id = "cut_selected_action"
@@ -181,7 +181,7 @@ paste_action <- function(trigger, board, update, dag_extension, ...) {
           links = list(add = remapped$links),
           stacks = list(add = remapped$stacks)
         ))
-      }, label = "paste")
+      }, label = otel_lbl("paste"))
       NULL
     },
     id = "paste_action"
