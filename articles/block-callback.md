@@ -1,6 +1,7 @@
 # Extension block callback
 
 ``` r
+
 library(blockr.dag)
 ```
 
@@ -34,6 +35,7 @@ DAG method returns a function with the following signature:
   the extension at the bottom of the main server function:
 
 ``` r
+
 list(
   state = list(
     graph = reactive(
@@ -54,6 +56,7 @@ module.
 This callback function returns `NULL`.
 
 ``` r
+
 extension_block_callback.dag_extension <- function(x, ...) {
   function(
     id,

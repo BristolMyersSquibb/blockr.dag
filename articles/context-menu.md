@@ -1,6 +1,7 @@
 # Context Menu Items
 
 ``` r
+
 library(blockr.dag)
 ```
 
@@ -17,6 +18,7 @@ Context menu items are created with
 [`new_context_menu_entry()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/ctx.md):
 
 ``` r
+
 # Context menu entry
 entry <- new_context_menu_entry(
   name = "Custom Action",
@@ -34,6 +36,7 @@ entry <- new_context_menu_entry(
 that takes the namespace `ns` as input and returns a string:
 
 ``` r
+
 function(ns) {
   sprintf(
     "(value, target, current) => {
@@ -52,6 +55,7 @@ Any new entry has to go inside `context_menu_items.dag_extension` for
 registration:
 
 ``` r
+
 # Add custom context menu items to an extension
 context_menu_items.dag_extension <- function(x) {
   list(

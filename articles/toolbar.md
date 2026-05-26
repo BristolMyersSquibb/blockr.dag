@@ -1,6 +1,7 @@
 # Toolbar Items
 
 ``` r
+
 library(blockr.dag)
 ```
 
@@ -24,6 +25,7 @@ Toolbar items are declared via
 [`new_toolbar_item()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/tool.md):
 
 ``` r
+
 # Toolbar item
 item <- new_toolbar_item(
   id = "custom_tool",
@@ -39,6 +41,7 @@ item <- new_toolbar_item(
 that takes the namespace `ns` as input and returns a string:
 
 ``` r
+
 function(ns) {
   sprintf(
     "(value, target, current) => {

@@ -1,6 +1,7 @@
 # blockr.dag
 
 ``` r
+
 library(blockr.dag)
 library(blockr.core)
 library(blockr.dock)
@@ -17,6 +18,7 @@ serve it with the
 extension:
 
 ``` r
+
 # Create an empty board.
 serve(new_dock_board(extensions = new_dag_extension()))
 ```
@@ -26,6 +28,7 @@ serve(new_dock_board(extensions = new_dag_extension()))
 You can also start with a custom graph structure:
 
 ``` r
+
 graph <- new_graph(
   nodes = list(
     list(id = 1),
@@ -125,6 +128,7 @@ We listen to [`update()`](https://rdrr.io/r/stats/update.html) and apply
 the necessary changes to the `g6R` widget via its **proxy** functions:
 
 ``` r
+
 # Update observer handles board changes
 update_observer <- function(update, board, proxy) {
   observeEvent(update(), {

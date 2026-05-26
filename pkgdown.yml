@@ -1,4 +1,4 @@
-pandoc: 3.1.11
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
@@ -6,7 +6,7 @@ articles:
   blockr.dag: blockr.dag.html
   context-menu: context-menu.html
   toolbar: toolbar.html
-last_built: 2026-04-30T06:43Z
+last_built: 2026-05-26T06:51Z
 urls:
   reference: https://bristolmyerssquibb.github.io/blockr.dag/reference
   article: https://bristolmyerssquibb.github.io/blockr.dag/articles

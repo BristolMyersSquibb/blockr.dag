@@ -11,6 +11,7 @@ You can install the development version of blockr.dag from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("BristolMyersSquibb/blockr.dag")
 ```
@@ -20,6 +21,7 @@ pak::pak("BristolMyersSquibb/blockr.dag")
 To start up a board with the `dag` extension, run the following code:
 
 ``` r
+
 library(blockr.dag)
 library(blockr.core)
 library(blockr.dock)
