@@ -161,9 +161,7 @@ set_g6_layout <- function(graph) {
 }
 
 set_g6_behaviors <- function(graph, ..., ns) {
-  g6_behaviors(
-    graph,
-    ...,
+  behaviors <- list(
     zoom_canvas(),
     drag_canvas(
       enable = JS(
@@ -203,17 +201,26 @@ set_g6_behaviors <- function(graph, ..., ns) {
     hover_activate(
       animation = FALSE,
       enable = JS("(e) => e.targetType === 'edge'")
-    ),
-    # avoid conflict with internal function
-    g6R::create_edge(
-      enable = JS(
-        "(e) => {
+    )
+  )
+
+  # Edge creation mutates the board, so it is the only interactive
+  # behaviour dropped in locked mode. Selection / brush / drag stay
+  # enabled so users can pan, rearrange and inspect the graph.
+  if (!blockr.dock::is_dock_locked()) {
+    behaviors <- c(
+      behaviors,
+      list(
+        # avoid conflict with internal function
+        g6R::create_edge(
+          enable = JS(
+            "(e) => {
           return e.targetType === 'node' && e.targetType !== 'combo'
         }"
-      ),
-      onFinish = JS(
-        sprintf(
-          "(edge) => {
+          ),
+          onFinish = JS(
+            sprintf(
+              "(edge) => {
             const graph = HTMLWidgets.find('#%s').getWidget();
             // For canvas drops, the assist node is already removed, so check targetType first
             if (edge.targetType === 'canvas') {
@@ -250,13 +257,17 @@ set_g6_behaviors <- function(graph, ..., ns) {
               graph.removeEdgeData([edge.id]);
             }
           }",
-          graph_id(ns),
-          ns("added_edge"),
-          ns("added_edge")
+              graph_id(ns),
+              ns("added_edge"),
+              ns("added_edge")
+            )
+          )
         )
       )
     )
-  )
+  }
+
+  do.call(g6_behaviors, c(list(graph, ...), behaviors))
 }
 
 set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
@@ -780,6 +791,12 @@ setup_remove_elements_kbd <- function(
   key = "Backspace",
   session = get_session()
 ) {
+  # No write controls in locked mode — skip the JS keybinding entirely so
+  # Backspace falls back to the browser default.
+  if (blockr.dock::is_dock_locked()) {
+    return(invisible())
+  }
+
   input <- session$input
   ns <- session$ns
   observeEvent(
@@ -800,6 +817,10 @@ setup_remove_elements_kbd <- function(
 }
 
 setup_copy_paste_kbd <- function(session = get_session()) {
+  if (blockr.dock::is_dock_locked()) {
+    return(invisible())
+  }
+
   input <- session$input
   ns <- session$ns
   observeEvent(

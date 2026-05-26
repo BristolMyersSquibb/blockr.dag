@@ -11,7 +11,8 @@ new_context_menu_entry(
   js,
   action = NULL,
   condition = TRUE,
-  id = tolower(gsub(" +", "_", name))
+  id = tolower(gsub(" +", "_", name)),
+  show_when_locked = FALSE
 )
 
 is_context_menu_entry(x)
@@ -29,6 +30,11 @@ context_menu_items(x)
 
 \item{id}{Unique identifier for the context menu entry.
 Inferred from \code{name} if not provided}
+
+\item{show_when_locked}{If \code{TRUE}, the entry is kept in the context
+menu when the dock is locked (\code{blockr.dock::is_dock_locked()}).
+Defaults to \code{FALSE}; set to \code{TRUE} only for entries that neither
+mutate the board nor leak board state outside the locked context.}
 
 \item{x}{Object}
 }

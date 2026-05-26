@@ -3,7 +3,10 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
     function(input, output, session) {
       proxy <- blockr_g6_proxy(session)
       observeEvent(
-        trigger(),
+        {
+          blockr.dock::req_unlocked()
+          trigger()
+        },
         {
           new <- trigger()
 
@@ -47,7 +50,10 @@ remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
     function(input, output, session) {
       input <- dag_extension[["proxy"]]$session$input
       observeEvent(
-        trigger(),
+        {
+          blockr.dock::req_unlocked()
+          trigger()
+        },
         {
           update(
             list(
@@ -131,9 +137,16 @@ remove_subboard <- function(subboard, update) {
 copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      observeEvent(trigger(), {
-        copy_selection_to_clipboard(board, dag_extension)
-      }, label = "copy_selected")
+      observeEvent(
+        {
+          blockr.dock::req_unlocked()
+          trigger()
+        },
+        {
+          copy_selection_to_clipboard(board, dag_extension)
+        },
+        label = "copy_selected"
+      )
       NULL
     },
     id = "copy_selected_action"
@@ -143,10 +156,17 @@ copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
 cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      observeEvent(trigger(), {
-        subboard <- copy_selection_to_clipboard(board, dag_extension)
-        if (!is.null(subboard)) remove_subboard(subboard, update)
-      }, label = "cut_selected")
+      observeEvent(
+        {
+          blockr.dock::req_unlocked()
+          trigger()
+        },
+        {
+          subboard <- copy_selection_to_clipboard(board, dag_extension)
+          if (!is.null(subboard)) remove_subboard(subboard, update)
+        },
+        label = "cut_selected"
+      )
       NULL
     },
     id = "cut_selected_action"
@@ -156,32 +176,39 @@ cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
 paste_action <- function(trigger, board, update, dag_extension, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      observeEvent(trigger(), {
-        subboard <- NULL
-        tryCatch(
-          subboard <- blockr_deser(jsonlite::fromJSON(
-            trigger(),
-            simplifyDataFrame = FALSE
-          )),
-          error = function(e) {
-            showNotification(
-              paste("Cannot paste clipboard content:", conditionMessage(e)),
-              type = "error"
-            )
+      observeEvent(
+        {
+          blockr.dock::req_unlocked()
+          trigger()
+        },
+        {
+          subboard <- NULL
+          tryCatch(
+            subboard <- blockr_deser(jsonlite::fromJSON(
+              trigger(),
+              simplifyDataFrame = FALSE
+            )),
+            error = function(e) {
+              showNotification(
+                paste("Cannot paste clipboard content:", conditionMessage(e)),
+                type = "error"
+              )
+            }
+          )
+          if (is.null(subboard)) {
+            return()
           }
-        )
-        if (is.null(subboard)) {
-          return()
-        }
 
-        remapped <- remap_subboard_ids(subboard, board$board)
+          remapped <- remap_subboard_ids(subboard, board$board)
 
-        update(list(
-          blocks = list(add = remapped$blocks),
-          links = list(add = remapped$links),
-          stacks = list(add = remapped$stacks)
-        ))
-      }, label = "paste")
+          update(list(
+            blocks = list(add = remapped$blocks),
+            links = list(add = remapped$links),
+            stacks = list(add = remapped$stacks)
+          ))
+        },
+        label = "paste"
+      )
       NULL
     },
     id = "paste_action"

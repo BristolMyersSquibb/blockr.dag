@@ -52,7 +52,13 @@ dag_ext_srv <- function(graph) {
         update_observer(update, board, proxy)
 
         observeEvent(
-          input[[paste0(graph_id(), "-selected_node")]],
+          {
+            # Selection itself is allowed in locked mode (so the user
+            # can interact with the canvas), but opening a block panel
+            # in the dock is not.
+            blockr.dock::req_unlocked()
+            input[[paste0(graph_id(), "-selected_node")]]
+          },
           {
             sel <- input[[paste0(graph_id(), "-selected_node")]]
             evt <- attr(sel, "eventType")
@@ -138,7 +144,10 @@ actions_observers <- function(actions, proxy) {
   input <- proxy$session$input
 
   observeEvent(
-    input[[paste0(graph_id(), "-batch_delete")]],
+    {
+      blockr.dock::req_unlocked()
+      input[[paste0(graph_id(), "-batch_delete")]]
+    },
     actions[["remove_selected_action"]](
       input[[paste0(graph_id(), "-batch_delete")]]
     ),
@@ -146,7 +155,10 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    req(input$added_edge$targetType != "canvas"),
+    {
+      blockr.dock::req_unlocked()
+      req(input$added_edge$targetType != "canvas")
+    },
     {
       actions[["draw_link_action"]](input$added_edge)
     },
@@ -154,7 +166,10 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    input[[paste0(graph_id(), "-copy_selected")]],
+    {
+      blockr.dock::req_unlocked()
+      input[[paste0(graph_id(), "-copy_selected")]]
+    },
     actions[["copy_selected_action"]](
       input[[paste0(graph_id(), "-copy_selected")]]
     ),
@@ -162,7 +177,10 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    input[[paste0(graph_id(), "-cut_selected")]],
+    {
+      blockr.dock::req_unlocked()
+      input[[paste0(graph_id(), "-cut_selected")]]
+    },
     actions[["cut_selected_action"]](
       input[[paste0(graph_id(), "-cut_selected")]]
     ),
@@ -170,7 +188,10 @@ actions_observers <- function(actions, proxy) {
   )
 
   observeEvent(
-    input[[paste0(graph_id(), "-paste_clipboard")]],
+    {
+      blockr.dock::req_unlocked()
+      input[[paste0(graph_id(), "-paste_clipboard")]]
+    },
     actions[["paste_action"]](
       input[[paste0(graph_id(), "-paste_clipboard")]]
     ),
@@ -179,7 +200,10 @@ actions_observers <- function(actions, proxy) {
 
   # Append/prepend from canvas drop
   observeEvent(
-    req(input$added_edge$targetType == "canvas"),
+    {
+      blockr.dock::req_unlocked()
+      req(input$added_edge$targetType == "canvas")
+    },
     {
       edge <- input$added_edge
       req(edge$portType)

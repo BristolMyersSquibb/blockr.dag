@@ -56,6 +56,13 @@ preprocess_mouse_position <- function() {
   )
 } # nocov end
 
+filter_locked <- function(items) {
+  if (!blockr.dock::is_dock_locked()) {
+    return(items)
+  }
+  Filter(function(x) isTRUE(attr(x, "show_when_locked")), items)
+}
+
 update_action_trigger <- function(action_name, input_name) {
   function(actions, session = get_session()) {
     observeEvent(

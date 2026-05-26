@@ -9,6 +9,10 @@
 #' @param condition Condition to determine if the entry should be shown.
 #' @param id Unique identifier for the context menu entry.
 #'   Inferred from `name` if not provided
+#' @param show_when_locked If `TRUE`, the entry is kept in the context
+#'   menu when the dock is locked (`blockr.dock::is_dock_locked()`).
+#'   Defaults to `FALSE`; set to `TRUE` only for entries that neither
+#'   mutate the board nor leak board state outside the locked context.
 #' @param x Object to test or extract context menu items from.
 #'
 #' @details
@@ -53,7 +57,8 @@ new_context_menu_entry <- function(
   js,
   action = NULL,
   condition = TRUE,
-  id = tolower(gsub(" +", "_", name))
+  id = tolower(gsub(" +", "_", name)),
+  show_when_locked = FALSE
 ) {
   if (is.null(action)) {
     action <- function(...) NULL
@@ -73,13 +78,15 @@ new_context_menu_entry <- function(
     is.function(condition),
     is.function(js),
     is_string(id),
-    is_string(name)
+    is_string(name),
+    is_bool(show_when_locked)
   )
 
   structure(
     list(condition = condition, action = action, js = js),
     name = name,
     id = id,
+    show_when_locked = show_when_locked,
     class = "context_menu_entry"
   )
 }

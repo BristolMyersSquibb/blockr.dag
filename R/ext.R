@@ -22,7 +22,7 @@ new_dag_extension <- function(graph = NULL, ...) {
 
 #' @export
 context_menu_items.dag_extension <- function(x) {
-  list(
+  entries <- list(
     new_context_menu_entry(
       name = "Create link",
       js = function(ns) {
@@ -234,13 +234,16 @@ context_menu_items.dag_extension <- function(x) {
       id = "paste"
     )
   )
+
+  filter_locked(entries)
 }
 
 #' @export
 toolbar_items.dag_extension <- function(x) {
-  list(
+  items <- list(
     new_toolbar_item(
       id = "zoom_in",
+      show_when_locked = TRUE,
       icon = "zoom-in",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -251,6 +254,7 @@ toolbar_items.dag_extension <- function(x) {
     ),
     new_toolbar_item(
       id = "zoom_out",
+      show_when_locked = TRUE,
       icon = "zoom-out",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -261,6 +265,7 @@ toolbar_items.dag_extension <- function(x) {
     ),
     new_toolbar_item(
       id = "auto_fit",
+      show_when_locked = TRUE,
       icon = "auto-fit",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -271,6 +276,7 @@ toolbar_items.dag_extension <- function(x) {
     ),
     new_toolbar_item(
       id = "layout",
+      show_when_locked = TRUE,
       icon = "reset",
       js = "(value, target, current) => {
         const graph = HTMLWidgets.find(
@@ -328,6 +334,8 @@ toolbar_items.dag_extension <- function(x) {
       )
     )
   )
+
+  filter_locked(items)
 }
 
 #' @importFrom blockr.dock extension_block_callback

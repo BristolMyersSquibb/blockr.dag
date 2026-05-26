@@ -6,7 +6,14 @@
 \alias{toolbar_items}
 \title{Toolbar item functions}
 \usage{
-new_toolbar_item(id, icon, js, action = NULL, tooltip = NULL)
+new_toolbar_item(
+  id,
+  icon,
+  js,
+  action = NULL,
+  tooltip = NULL,
+  show_when_locked = FALSE
+)
 
 is_toolbar_item(x)
 
@@ -22,6 +29,12 @@ toolbar_items(x)
 \item{action}{Action to perform when the entry is selected.}
 
 \item{tooltip}{Optional tooltip text for the entry.}
+
+\item{show_when_locked}{If \code{TRUE}, the item is kept in the toolbar
+when the dock is locked (\code{blockr.dock::is_dock_locked()}). Defaults
+to \code{FALSE} because most actions either mutate the board or leak
+board state outside the locked context. Pure navigation actions
+(zoom, fit, re-layout) should set this to \code{TRUE}.}
 
 \item{x}{Object}
 }
