@@ -153,20 +153,19 @@ testServer(
       "graph-batch_delete" = TRUE
     )
 
-    # Remove node from combo
-    stacks <- board_stacks(board$board)
-    tmp_stack_1 <- stacks[[1]]
-    stack_blocks(tmp_stack_1) <- stack_blocks(tmp_stack_1)[1]
-    # Add node to combo
-    tmp_stack_2 <- stacks[[2]]
-    stack_blocks(tmp_stack_2) <- "d"
-    mod_stacks <- as_stacks(set_names(
-      list(tmp_stack_1, tmp_stack_2),
-      board_stack_ids(board$board)
-    ))
+    # blockr.core's mod slot now expects partial-args deltas keyed by
+    # entry ID rather than full block / stack objects. stack_1 is being
+    # removed in the same update so it cannot also appear in mod.
 
-    # Update block title
-    mod_blocks <- set_names(board_blocks(board$board)[c("a", "b")], c("a_new", "b_new"))
+    mod_stacks <- list(
+      stack_2 = list(blocks = "d")
+    )
+
+    # Block names: rename blocks a and b via the block_name delta key.
+    mod_blocks <- list(
+      a = list(block_name = "a_new"),
+      b = list(block_name = "b_new")
+    )
 
     update(
       list(
