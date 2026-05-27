@@ -8,6 +8,11 @@
 #' @param js JavaScript code to execute when the entry is selected.
 #' @param tooltip Optional tooltip text for the entry.
 #' @param action Action to perform when the entry is selected.
+#' @param show_when_locked If `TRUE`, the item is kept in the toolbar
+#'   when the dock is locked (`blockr.dock::is_dock_locked()`). Defaults
+#'   to `FALSE` because most actions either mutate the board or leak
+#'   board state outside the locked context. Pure navigation actions
+#'   (zoom, fit, re-layout) should set this to `TRUE`.
 #' @param x Object to test or extract toolbar items from.
 #'
 #' @details
@@ -46,7 +51,14 @@
 #'   \item{`toolbar_items()`}{A list of toolbar
 #' items for the given object.}
 #' }
-new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
+new_toolbar_item <- function(
+  id,
+  icon,
+  js,
+  action = NULL,
+  tooltip = NULL,
+  show_when_locked = FALSE
+) {
   if (is_string(js)) {
     js_string <- js
     js <- function(...) js_string
@@ -57,7 +69,8 @@ new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
     is_string(icon),
     is.null(action) || is.function(action),
     is.function(js),
-    is.null(tooltip) || is_string(tooltip)
+    is.null(tooltip) || is_string(tooltip),
+    is_bool(show_when_locked)
   )
 
   if (is.null(tooltip)) {
@@ -69,6 +82,7 @@ new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
     id = id,
     icon = icon,
     tooltip = tooltip,
+    show_when_locked = show_when_locked,
     class = "toolbar_item"
   )
 }

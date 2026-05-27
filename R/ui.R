@@ -1,6 +1,7 @@
 dag_ext_ui <- function(id, board) {
   ns <- NS(id)
   has_blocks <- length(board_blocks(board)) > 0
+  locked <- blockr.dock::is_dock_locked()
 
   # nolint start: line_length_linter
   icon_pointer <- paste0(
@@ -22,7 +23,63 @@ dag_ext_ui <- function(id, board) {
     '<rect x="9" y="15" width="6" height="6" rx="1"/>',
     '<path d="M6 9v3a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V9"/></svg>'
   )
+  icon_lock <- paste0(
+    '<svg width="20" height="20" viewBox="0 0 24 24" ',
+    'fill="none" stroke="#9ca3af" stroke-width="2">',
+    '<rect x="3" y="11" width="18" height="11" rx="2"/>',
+    '<path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+  )
   # nolint end
+
+  empty_state_body <- if (locked) {
+    tags$div(
+      class = "dag-empty-state-content",
+      tags$div(
+        class = "dag-empty-state-icons",
+        tags$div(class = "dag-empty-state-icon-box", HTML(icon_lock))
+      ),
+      tags$p(
+        class = "dag-empty-state-title",
+        "Workflow is read-only"
+      ),
+      tags$div(
+        class = "dag-empty-state-hints",
+        tags$p(
+          class = "dag-empty-state-hint",
+          "Editing is disabled in locked mode"
+        )
+      )
+    )
+  } else {
+    tags$div(
+      class = "dag-empty-state-content",
+      tags$div(
+        class = "dag-empty-state-icons",
+        tags$div(class = "dag-empty-state-icon-box", HTML(icon_pointer)),
+        HTML(icon_plus),
+        tags$div(class = "dag-empty-state-icon-box", HTML(icon_workflow))
+      ),
+      tags$p(
+        class = "dag-empty-state-title",
+        "Start building your workflow"
+      ),
+      tags$div(
+        class = "dag-empty-state-hints",
+        tags$p(
+          class = "dag-empty-state-hint",
+          tags$kbd("Right-click"),
+          " to add blocks"
+        ),
+        tags$p(
+          class = "dag-empty-state-hint",
+          tags$kbd("Shift"),
+          " + ",
+          tags$kbd("Drag"),
+          " to connect"
+        )
+      )
+    )
+  }
 
   tagList(
     tags$div(
@@ -33,34 +90,7 @@ dag_ext_ui <- function(id, board) {
         id = ns("empty-state"),
         class = "dag-empty-state",
         style = if (has_blocks) "display: none;" else NULL,
-        tags$div(
-          class = "dag-empty-state-content",
-          tags$div(
-            class = "dag-empty-state-icons",
-            tags$div(class = "dag-empty-state-icon-box", HTML(icon_pointer)),
-            HTML(icon_plus),
-            tags$div(class = "dag-empty-state-icon-box", HTML(icon_workflow))
-          ),
-          tags$p(
-            class = "dag-empty-state-title",
-            "Start building your workflow"
-          ),
-          tags$div(
-            class = "dag-empty-state-hints",
-            tags$p(
-              class = "dag-empty-state-hint",
-              tags$kbd("Right-click"),
-              " to add blocks"
-            ),
-            tags$p(
-              class = "dag-empty-state-hint",
-              tags$kbd("Shift"),
-              " + ",
-              tags$kbd("Drag"),
-              " to connect"
-            )
-          )
-        )
+        empty_state_body
       )
     ),
     htmltools::htmlDependency(
