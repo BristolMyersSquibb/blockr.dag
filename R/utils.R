@@ -56,6 +56,28 @@ preprocess_mouse_position <- function() {
   )
 } # nocov end
 
+# Resolve a `mod` delta payload from the update-lifecycle reactive
+# (blockr.core #175 shape: named list of partial-arg deltas keyed by
+# id) against the current board state into a fully-formed S3
+# collection.
+#
+# blockr.core's apply observer does the same merge with the matching
+# `update_*()` generic, but we cannot piggy-back on it: that observer
+# and `update_observer()` both react to `update()` on the same flush
+# with no guaranteed ordering, so reading `board_stacks(board$board)`
+# from inside `update_observer()` is not safe to assume reflects the
+# merged state. Re-applying the deltas ourselves keeps the consumer
+# (combos / nodes / edges renderers) on full objects regardless of
+# ordering.
+#
+# @param deltas Named list of per-id deltas.
+# @param current The current collection (e.g. `board_stacks(board)`).
+# @param updater The blockr.core `update_*()` generic.
+# @param wrap The blockr.core `as_*()` collection coercer.
+resolve_mod_deltas <- function(deltas, current, updater, wrap) {
+  wrap(Map(updater, current[names(deltas)], deltas))
+}
+
 update_action_trigger <- function(action_name, input_name) {
   function(actions, session = get_session()) {
     observeEvent(

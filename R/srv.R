@@ -115,7 +115,19 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$stacks$mod)) {
-        update_combos(upd$stacks$mod, board$board, proxy)
+        # `upd$stacks$mod` is a delta list under blockr.core's #175
+        # contract; combos need full `stack` objects. See
+        # `resolve_mod_deltas()` for the ordering rationale.
+        update_combos(
+          resolve_mod_deltas(
+            upd$stacks$mod,
+            board_stacks(board$board),
+            blockr.core::update_stack,
+            blockr.core::as_stacks
+          ),
+          board$board,
+          proxy
+        )
       }
 
       if (length(upd$stacks$rm)) {
