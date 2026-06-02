@@ -674,21 +674,159 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+#' Lay out a batch of newly added nodes
+#'
+#' Computes explicit `x`/`y` coordinates for a set of newly added nodes so they
+#' can be inserted without re-running the global graph layout (which would move
+#' existing nodes). When the new nodes are interconnected by `links`, they are
+#' arranged as a small top-to-bottom layered DAG mirroring the main
+#' [g6R::antv_dagre_layout()] direction. Nodes with no internal structure fall
+#' back to a simple vertical stack.
+#'
+#' @param ids Character vector of block IDs being added (order is preserved in
+#'   the returned coordinates).
+#' @param links Board links from the same update. Only links whose `from` and
+#'   `to` are both in `ids` contribute to the layout; cross-links to existing
+#'   nodes are ignored.
+#' @param base_x,base_y Anchor coordinates (top-centre of the new cluster),
+#'   typically the cursor position.
+#' @param ranksep,nodesep Vertical spacing between layers and horizontal spacing
+#'   between siblings within a layer, in pixels.
+#'
+#' @return A list with numeric vectors `x` and `y`, aligned to `ids`.
+#' @keywords internal
+new_nodes_layout <- function(
+  ids,
+  links = NULL,
+  base_x = 150,
+  base_y = 150,
+  ranksep = 130,
+  nodesep = 150
+) {
+  n <- length(ids)
+  if (n == 0) {
+    return(list(x = numeric(), y = numeric()))
+  }
+  if (n == 1) {
+    return(list(x = base_x, y = base_y))
+  }
 
-  mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
-  base_x <- mouse_pos$x %||% 150
-  base_y <- mouse_pos$y %||% 150
+  # Keep only links internal to the new node set.
+  from <- links$from
+  to <- links$to
+  if (length(from)) {
+    keep <- from %in% ids & to %in% ids
+    from <- from[keep]
+    to <- to[keep]
+  }
 
-  if (length(nodes) == 1) {
-    nodes[[1]]$style$x <- base_x
-    nodes[[1]]$style$y <- base_y
-  } else if (length(nodes) > 1) {
-    for (i in seq_along(nodes)) {
-      nodes[[i]]$style$x <- base_x
-      nodes[[i]]$style$y <- base_y + (i - 1) * 130
+  # No internal structure: legacy vertical stack.
+  if (!length(from)) {
+    return(list(
+      x = rep(base_x, n),
+      y = base_y + (seq_len(n) - 1L) * ranksep
+    ))
+  }
+
+  # Longest-path layering (DAG): a node sits one rank below its deepest parent.
+  layers <- setNames(rep(0L, n), ids)
+  changed <- TRUE
+  iter <- 0L
+  while (changed && iter <= n) {
+    changed <- FALSE
+    for (i in seq_along(from)) {
+      if (layers[[to[i]]] < layers[[from[i]]] + 1L) {
+        layers[[to[i]]] <- layers[[from[i]]] + 1L
+        changed <- TRUE
+      }
     }
+    iter <- iter + 1L
+  }
+
+  # Within each layer, spread siblings horizontally, centred on base_x.
+  x <- numeric(n)
+  y <- numeric(n)
+  for (lv in sort(unique(layers))) {
+    idx <- which(layers == lv)
+    k <- length(idx)
+    x[idx] <- base_x + (seq_len(k) - (k + 1) / 2) * nodesep
+    y[idx] <- base_y + lv * ranksep
+  }
+
+  list(x = x, y = y)
+}
+
+#' Read positions of existing nodes from the graph state
+#'
+#' @param proxy A `g6_proxy` object.
+#' @return A named list (by g6 node ID) of `list(x, y)`, dropping nodes without
+#'   coordinates. Empty list when no positioned nodes are available.
+#' @keywords internal
+existing_node_positions <- function(proxy) {
+  state <- proxy$session$input[[paste0(graph_id(), "-state")]]
+  nodes <- state$nodes
+  if (is.null(nodes)) {
+    return(list())
+  }
+
+  pos <- lapply(nodes, function(n) {
+    if (is.null(n$style$x) || is.null(n$style$y)) {
+      return(NULL)
+    }
+    list(x = n$style$x, y = n$style$y)
+  })
+  names(pos) <- chr_ply(nodes, `[[`, "id")
+  filter_null(pos)
+}
+
+#' Pick an anchor point for a batch of newly added nodes
+#'
+#' When the batch connects to existing nodes (an append/paste onto the current
+#' graph), the cluster is anchored centred just below its existing parents so it
+#' reads as a continuation of the graph. Otherwise it falls back to the last
+#' known cursor position (a blank-canvas add).
+#'
+#' @inheritParams new_nodes_layout
+#' @param proxy A `g6_proxy` object.
+#' @return A list with scalar `x` and `y`.
+#' @keywords internal
+new_nodes_anchor <- function(ids, links, proxy, ranksep = 130) {
+  mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
+  anchor <- list(x = mouse_pos$x %||% 150, y = mouse_pos$y %||% 150)
+
+  if (!length(links$from)) {
+    return(anchor)
+  }
+
+  # Existing parents: links into the new set originating outside it.
+  is_parent <- !(links$from %in% ids) & (links$to %in% ids)
+  parents <- unique(links$from[is_parent])
+  if (!length(parents)) {
+    return(anchor)
+  }
+
+  positions <- existing_node_positions(proxy)
+  parent_pos <- positions[intersect(to_g6_node_id(parents), names(positions))]
+  if (!length(parent_pos)) {
+    return(anchor)
+  }
+
+  xs <- vapply(parent_pos, `[[`, numeric(1), "x")
+  ys <- vapply(parent_pos, `[[`, numeric(1), "y")
+
+  list(x = mean(xs), y = max(ys) + ranksep)
+}
+
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy(), links = NULL) {
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  ids <- names(blocks)
+
+  anchor <- new_nodes_anchor(ids, links, proxy)
+  pos <- new_nodes_layout(ids, links, anchor$x, anchor$y)
+
+  for (i in seq_along(nodes)) {
+    nodes[[i]]$style$x <- pos$x[i]
+    nodes[[i]]$style$y <- pos$y[i]
   }
 
   g6_add_nodes(proxy, nodes)

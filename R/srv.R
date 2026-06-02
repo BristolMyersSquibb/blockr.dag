@@ -91,7 +91,9 @@ update_observer <- function(update, board, proxy) {
       upd <- update()
 
       if (length(upd$blocks$add)) {
-        add_nodes(upd$blocks$add, board$board, proxy)
+        # Pass links added in the same update so a connected batch of new
+        # nodes is laid out by structure rather than stacked in a column.
+        add_nodes(upd$blocks$add, board$board, proxy, links = upd$links$add)
       }
 
       if (length(upd$blocks$mod)) {
