@@ -695,9 +695,18 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-update_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
-  g6_update_nodes(proxy, nodes)
+relabel_nodes <- function(mods, proxy = blockr_g6_proxy()) {
+
+  # A `blocks$mod` delta only ever carries `block_name`, so a rename is
+  # just a label change; g6 merges the partial style, keeping the icon.
+  g6_update_nodes(
+    proxy,
+    map(
+      list,
+      id = to_g6_node_id(names(mods)),
+      style = map(list, labelText = chr_xtr(mods, "block_name"))
+    )
+  )
 
   invisible()
 }
