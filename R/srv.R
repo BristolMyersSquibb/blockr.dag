@@ -95,7 +95,7 @@ update_observer <- function(update, board, proxy) {
       }
 
       if (length(upd$blocks$mod)) {
-        update_nodes(upd$blocks$mod, board$board, proxy)
+        relabel_nodes(upd$blocks$mod, proxy)
       }
 
       if (length(upd$links$add)) {

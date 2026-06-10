@@ -187,6 +187,44 @@ testServer(
   }
 )
 
+test_that("a block-name mod delta relabels the node", {
+  captured <- NULL
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      captured <<- nodes
+      invisible()
+    }
+  )
+
+  rename_board <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"))
+  )
+
+  testServer(
+    function(id, board, update) {
+      moduleServer(
+        id,
+        function(input, output, session) {
+          update_observer(update, board, blockr_g6_proxy(session))
+        }
+      )
+    },
+    args = list(
+      board = reactiveValues(board = rename_board),
+      update = reactiveVal(NULL)
+    ),
+    {
+      update(
+        list(blocks = list(mod = list(a = list(block_name = "renamed"))))
+      )
+      session$flushReact()
+
+      expect_identical(captured[[1L]]$id, to_g6_node_id("a"))
+      expect_identical(captured[[1L]]$style$labelText, "renamed")
+    }
+  )
+})
+
 test_that("extension_block_callback works", {
   ext_cb <- extension_block_callback(new_dag_extension())
 
