@@ -48,6 +48,7 @@
 <li>Added support for node ports from g6R.</li>
 <li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/86" class="external-link">#86</a>.</li>
 <li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/110" class="external-link">#110</a>: copy/cut keyboard shortcuts no longer hijack plain text selections (column names, error messages, etc.).</li>
+<li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/123" class="external-link">#123</a>: renaming a block now relabels its DAG node instead of erroring. <code>update_observer()</code> handed blockr.core’s partial-argument <code>blocks$mod</code> delta straight to <code>update_nodes()</code> (which needs full <code>block</code> objects); it now updates the node label directly from the delta.</li>
 </ul></div>
 </div>
     <div class="section level2">

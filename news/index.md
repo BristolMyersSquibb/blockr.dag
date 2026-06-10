@@ -14,6 +14,12 @@
   [\#110](https://github.com/BristolMyersSquibb/blockr.dag/issues/110):
   copy/cut keyboard shortcuts no longer hijack plain text selections
   (column names, error messages, etc.).
+- Fix
+  [\#123](https://github.com/BristolMyersSquibb/blockr.dag/issues/123):
+  renaming a block now relabels its DAG node instead of erroring.
+  `update_observer()` handed blockr.core’s partial-argument `blocks$mod`
+  delta straight to `update_nodes()` (which needs full `block` objects);
+  it now updates the node label directly from the delta.
 
 ## blockr.dag 0.1.0
 
