@@ -2,7 +2,8 @@
 
 ## Internal changes
 
-- Label observers for OTEL support.
+- Label observers for OTEL support, using `blockr.core::otel_lbl()` to
+  prefix labels with `<blockr.dag>` for unambiguous OpenTelemetry traces.
 - Add support for collapsible nodes and combos, through g6R.
 - Reworked actions. Inherits from `blockr.dock`.
 - Added support for node ports from g6R.

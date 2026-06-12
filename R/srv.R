@@ -65,7 +65,7 @@ dag_ext_srv <- function(graph) {
               )
             }
           },
-          label = "selected_node"
+          label = otel_lbl("selected_node")
         )
 
         empty_state_observer(board, session)
@@ -74,7 +74,7 @@ dag_ext_srv <- function(graph) {
           state = list(
             graph = reactive(
               input[[paste0(graph_id(), "-state")]],
-              label = "graph_state"
+              label = otel_lbl("graph_state")
             )
           ),
           proxy = proxy
@@ -142,7 +142,7 @@ update_observer <- function(update, board, proxy) {
         remove_nodes(upd$blocks$rm, proxy = proxy)
       }
     },
-    label = "update_observer"
+    label = otel_lbl("update_observer")
   )
 }
 
@@ -154,7 +154,7 @@ actions_observers <- function(actions, proxy) {
     actions[["remove_selected_action"]](
       input[[paste0(graph_id(), "-batch_delete")]]
     ),
-    label = "batch_delete"
+    label = otel_lbl("batch_delete")
   )
 
   observeEvent(
@@ -162,7 +162,7 @@ actions_observers <- function(actions, proxy) {
     {
       actions[["draw_link_action"]](input$added_edge)
     },
-    label = "draw_link"
+    label = otel_lbl("draw_link")
   )
 
   observeEvent(
@@ -170,7 +170,7 @@ actions_observers <- function(actions, proxy) {
     actions[["copy_selected_action"]](
       input[[paste0(graph_id(), "-copy_selected")]]
     ),
-    label = "copy_selected"
+    label = otel_lbl("copy_selected")
   )
 
   observeEvent(
@@ -178,7 +178,7 @@ actions_observers <- function(actions, proxy) {
     actions[["cut_selected_action"]](
       input[[paste0(graph_id(), "-cut_selected")]]
     ),
-    label = "cut_selected"
+    label = otel_lbl("cut_selected")
   )
 
   observeEvent(
@@ -186,7 +186,7 @@ actions_observers <- function(actions, proxy) {
     actions[["paste_action"]](
       input[[paste0(graph_id(), "-paste_clipboard")]]
     ),
-    label = "paste_clipboard"
+    label = otel_lbl("paste_clipboard")
   )
 
   # Append/prepend from canvas drop
@@ -202,7 +202,7 @@ actions_observers <- function(actions, proxy) {
         input = actions[["prepend_block_action"]](edge$source)
       )
     },
-    label = "canvas_drop"
+    label = otel_lbl("canvas_drop")
   )
 
   # Append/prepend on port click: FIXME -> disabled due to critical issue
@@ -237,6 +237,6 @@ empty_state_observer <- function(board, session) {
         )
       )
     },
-    label = "empty_state"
+    label = otel_lbl("empty_state")
   )
 }
