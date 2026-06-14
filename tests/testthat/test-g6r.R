@@ -167,3 +167,127 @@ test_that("resolve_target_ports works", {
   expect_identical(res[[2]], "node-c-in")
   expect_identical(res[[3]], "node-c-in")
 })
+
+test_that("new_nodes_layout places a single node at the anchor", {
+  expect_equal(
+    new_nodes_layout("a", base_x = 100, base_y = 200),
+    list(x = 100, y = 200)
+  )
+})
+
+test_that("new_nodes_layout stacks unstructured batches vertically", {
+  res <- new_nodes_layout(
+    c("a", "b", "c"),
+    links = NULL,
+    base_x = 100,
+    base_y = 50,
+    ranksep = 130
+  )
+  expect_equal(res$x, c(100, 100, 100))
+  expect_equal(res$y, c(50, 180, 310))
+})
+
+test_that("new_nodes_layout layers a connected chain top-to-bottom", {
+  res <- new_nodes_layout(
+    c("a", "b", "c"),
+    links = list(from = c("a", "b"), to = c("b", "c")),
+    base_x = 0,
+    base_y = 0,
+    ranksep = 100
+  )
+  # one node per layer => centred on base_x
+  expect_equal(res$x, c(0, 0, 0))
+  expect_equal(res$y, c(0, 100, 200))
+})
+
+test_that("new_nodes_layout spreads siblings and centres them", {
+  res <- new_nodes_layout(
+    c("a", "b", "c", "d"),
+    links = list(from = c("a", "a", "b", "c"), to = c("b", "c", "d", "d")),
+    base_x = 200,
+    base_y = 50,
+    ranksep = 130,
+    nodesep = 150
+  )
+  # a top, b/c middle (centred around 200), d bottom
+  expect_equal(res$y, c(50, 180, 180, 310))
+  expect_equal(res$x, c(200, 125, 275, 200))
+})
+
+test_that("new_nodes_layout ignores links to existing nodes", {
+  res <- new_nodes_layout(
+    c("a", "b"),
+    links = list(from = c("X", "a"), to = c("a", "b")),
+    base_x = 0,
+    base_y = 0,
+    ranksep = 130
+  )
+  # X is not in the new set, so a stays at layer 0, b at layer 1
+  expect_equal(res$y, c(0, 130))
+})
+
+test_that("existing_node_positions reads coordinates from graph state", {
+  proxy <- list(
+    session = list(
+      ns = identity,
+      input = list(
+        `graph-state` = list(
+          nodes = list(
+            list(id = "node-a", style = list(x = 10, y = 20)),
+            list(id = "node-b", style = list(x = 30, y = 40)),
+            list(id = "node-c", style = list()) # no coords -> dropped
+          )
+        )
+      )
+    )
+  )
+
+  pos <- existing_node_positions(proxy)
+  expect_named(pos, c("node-a", "node-b"))
+  expect_equal(pos[["node-b"]], list(x = 30, y = 40))
+})
+
+test_that("new_nodes_anchor anchors below existing parents", {
+  proxy <- list(
+    session = list(
+      input = list(
+        `graph-mouse_position` = list(x = 999, y = 999),
+        `graph-state` = list(
+          nodes = list(
+            list(id = "node-p1", style = list(x = 100, y = 100)),
+            list(id = "node-p2", style = list(x = 200, y = 140))
+          )
+        )
+      )
+    )
+  )
+
+  # new node "n" connects from existing parents p1 and p2
+  anchor <- new_nodes_anchor(
+    ids = "n",
+    links = list(from = c("p1", "p2"), to = c("n", "n")),
+    proxy = proxy,
+    ranksep = 130
+  )
+  expect_equal(anchor$x, 150) # mean(100, 200)
+  expect_equal(anchor$y, 270) # max(100, 140) + 130
+})
+
+test_that("new_nodes_anchor falls back to cursor without existing parents", {
+  proxy <- list(
+    session = list(
+      input = list(
+        `graph-mouse_position` = list(x = 42, y = 84),
+        `graph-state` = list(nodes = list())
+      )
+    )
+  )
+
+  # purely internal links, no link from an existing node
+  anchor <- new_nodes_anchor(
+    ids = c("a", "b"),
+    links = list(from = "a", to = "b"),
+    proxy = proxy
+  )
+  expect_equal(anchor, list(x = 42, y = 84))
+})
