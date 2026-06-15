@@ -29,11 +29,12 @@ Imports:
     blockr.core (>= 0.1.2.9000),
     blockr.dock (>= 0.1.1),
     shiny,
-    g6R (>= 0.6.0),
+    g6R (>= 0.6.0.9000),
     jsonlite,
     htmltools
 Remotes:
-    BristolMyersSquibb/blockr.core
+    BristolMyersSquibb/blockr.core,
+    cynkra/g6R
 Suggests:
     knitr,
     rmarkdown,

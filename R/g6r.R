@@ -172,21 +172,14 @@ set_g6_behaviors <- function(graph, ..., ns) {
         }"
       )
     ),
-    # So we can add node to stack from the UI by drag and drop
-    # Disable drag when edge creation from port is active
+    # So we can add node to stack from the UI by drag and drop.
+    # Shift/alt are reserved for canvas pan / brush select. Suppressing
+    # node drag during port edge-creation is handled by g6R's create_edge
+    # (it pauses drag-element on port-grab and restores this predicate on
+    # drop), so no assist-node probe is needed here. Requires g6R with
+    # cynkra/g6R#49.
     drag_element(
-      enable = JS(
-        "(e) => {
-          if (e.shiftKey || e.altKey) return false;
-          // Access graph via HTMLWidgets and check if edge creation is in progress
-          const target = e.nativeEvent?.target;
-          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
-          try {
-            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
-          } catch (err) {}
-          return true;
-        }"
-      ),
+      enable = JS("(e) => !e.shiftKey && !e.altKey"),
       # For now, we prevent nodes from being dropped outside combo.
       dropEffect = "move"
     ),
