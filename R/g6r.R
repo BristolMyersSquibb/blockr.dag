@@ -208,7 +208,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
     g6R::create_edge(
       enable = JS(
         "(e) => {
-          return e.targetType === 'node' && e.targetType !== 'combo'
+          return e.targetType === 'node'
         }"
       ),
       onFinish = JS(
@@ -226,7 +226,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetType: 'canvas',
                   sourcePort: edge.style?.sourcePort,
                   portType: edge.style?.portType
-                }
+                },
+                {priority: 'event'}
               );
               return;
             }
@@ -244,7 +245,8 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetType: edge.targetType,
                   sourcePort: edge.style.sourcePort,
                   targetPort: edge.style.targetPort
-                }
+                },
+                {priority: 'event'}
               );
               // We will recreate the edge from the R side with correct ID
               graph.removeEdgeData([edge.id]);
@@ -696,7 +698,6 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 relabel_nodes <- function(mods, proxy = blockr_g6_proxy()) {
-
   # A `blocks$mod` delta only ever carries `block_name`, so a rename is
   # just a label change; g6 merges the partial style, keeping the icon.
   g6_update_nodes(

@@ -194,10 +194,12 @@ actions_observers <- function(actions, proxy) {
     req(input$added_edge$targetType == "canvas"),
     {
       edge <- input$added_edge
-      req(edge$portType)
 
+      # g6 only starts an edge from a grabbed port, so portType is normally
+      # set. Default to append (output port) rather than silently dropping
+      # the gesture if it is ever missing.
       switch(
-        edge$portType,
+        coal(edge$portType, "output"),
         output = actions[["append_block_action"]](edge$source),
         input = actions[["prepend_block_action"]](edge$source)
       )
