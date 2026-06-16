@@ -33,7 +33,8 @@ Imports:
     jsonlite,
     htmltools
 Remotes:
-    BristolMyersSquibb/blockr.core
+    BristolMyersSquibb/blockr.core,
+    nbenn/shinytest2@wait-for-app-serving
 Suggests:
     knitr,
     rmarkdown,
