@@ -27,13 +27,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     blockr.core (>= 0.1.2.9000),
-    blockr.dock (>= 0.1.1),
+    blockr.dock (>= 0.1.2),
     shiny,
     g6R (>= 0.6.0),
     jsonlite,
     htmltools
 Remotes:
     BristolMyersSquibb/blockr.core,
+    BristolMyersSquibb/blockr.dock,
+    BristolMyersSquibb/blockr.ui,
     nbenn/shinytest2@wait-for-app-serving
 Suggests:
     knitr,
