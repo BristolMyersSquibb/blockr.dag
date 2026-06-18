@@ -191,8 +191,12 @@ actions_observers <- function(actions, proxy) {
 
   # Append/prepend from canvas drop
   observeEvent(
-    req(input$added_edge$targetType == "canvas"),
     {
+      req(input$added_edge$targetType == "canvas")
+      browser()
+    },
+    {
+      browser()
       edge <- input$added_edge
       req(edge$portType)
 
