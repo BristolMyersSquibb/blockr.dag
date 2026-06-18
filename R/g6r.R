@@ -453,9 +453,9 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-in", id),
       label = "in",
       arity = Inf,
-      visibility = "hover",
       placement = "top",
-      fill = fill_col
+      fill = fill_col,
+      r = 3
     ))
   } else if (length(inputs) == 1 && arity == 1) {
     # Mono input
@@ -463,9 +463,9 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
       arity = 1,
-      visibility = "hover",
       placement = "top",
-      fill = fill_col
+      fill = fill_col,
+      r = 3
     ))
   } else if (length(inputs) > 1) {
     # Multi input
@@ -480,9 +480,9 @@ create_block_ports <- function(block, id) {
         key = sprintf("%s-%s", id, inputs[i]),
         label = inputs[i],
         arity = 1,
-        visibility = "hover",
         placement = c(xs[i], 0),
-        fill = fill_col
+        fill = fill_col,
+        r = 3
       )
     })
   }
@@ -495,9 +495,9 @@ create_block_ports <- function(block, id) {
       key = out_id,
       label = NULL,
       arity = Inf,
-      visibility = "hover",
-      placement = "bottom",
-      fill = fill_col
+      placement = "label-bottom",
+      fill = fill_col,
+      r = 3
     ))
   )
   do.call(g6_ports, ports)
@@ -696,7 +696,6 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 relabel_nodes <- function(mods, proxy = blockr_g6_proxy()) {
-
   # A `blocks$mod` delta only ever carries `block_name`, so a rename is
   # just a label change; g6 merges the partial style, keeping the icon.
   g6_update_nodes(
