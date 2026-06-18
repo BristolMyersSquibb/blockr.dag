@@ -8,6 +8,11 @@
 - Add support for collapsible nodes and combos, through g6R.
 - Reworked actions. Inherits from `blockr.dock`.
 - Added support for node ports from g6R.
+- Reworked block ports: ports are now always visible (rather than
+  hover-only) with a fixed radius, and the output port uses the
+  `label-bottom` placement. Pairs with g6R’s port-grab tolerance so a
+  near-miss on a port still starts an edge. Requires
+  `g6R (>= 0.6.0.9000)`.
 - Fix
   [\#86](https://github.com/BristolMyersSquibb/blockr.dag/issues/86).
 - Fix
