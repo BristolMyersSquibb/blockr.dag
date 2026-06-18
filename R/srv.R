@@ -191,13 +191,17 @@ actions_observers <- function(actions, proxy) {
 
   # Append/prepend from canvas drop
   observeEvent(
+    req(input$added_edge$targetType == "canvas"),
     {
-      req(input$added_edge$targetType == "canvas")
-      browser()
-    },
-    {
-      browser()
       edge <- input$added_edge
+      # DEBUG (#127): log the R-side receipt of a canvas drop. Pair with the
+      # JS '[blockr.dag drop]' console logs: if onFinish logged the canvas
+      # branch but this line is absent, the input never reached R; if portType
+      # is <NULL>, the req() below silently drops the gesture.
+      pt <- if (is.null(edge$portType)) "<NULL>" else edge$portType
+      blockr.core::log_debug(
+        "[blockr.dag drop] canvas_drop: source={edge$source} portType={pt}"
+      )
       req(edge$portType)
 
       switch(

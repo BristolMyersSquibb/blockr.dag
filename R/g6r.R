@@ -215,8 +215,20 @@ set_g6_behaviors <- function(graph, ..., ns) {
         sprintf(
           "(edge) => {
             const graph = HTMLWidgets.find('#%s').getWidget();
+            // DEBUG (#127): confirm onFinish fired and with what shape. If a
+            // failed drop produces NO 'onFinish fired' line, the gesture was
+            // canceled inside g6 create_edge before reaching here.
+            console.log('[blockr.dag drop] onFinish fired', {
+              targetType: edge.targetType,
+              id: edge.id,
+              source: edge.source,
+              target: edge.target,
+              sourcePort: edge.style ? edge.style.sourcePort : undefined,
+              portType: edge.style ? edge.style.portType : undefined
+            });
             // For canvas drops, the assist node is already removed, so check targetType first
             if (edge.targetType === 'canvas') {
+              console.log('[blockr.dag drop] canvas branch -> setInputValue added_edge');
               Shiny.setInputValue(
                 '%s',
                 {
@@ -233,8 +245,10 @@ set_g6_behaviors <- function(graph, ..., ns) {
             const targetType = graph.getElementType(edge.target);
             // Avoid to create edges in combos. If so, we remove it
             if (targetType === 'combo') {
+              console.log('[blockr.dag drop] combo branch -> dropped, no link');
               graph.removeEdgeData([edge.id]);
             } else {
+              console.log('[blockr.dag drop] node branch -> setInputValue added_edge');
               Shiny.setInputValue(
                 '%s',
                 {
