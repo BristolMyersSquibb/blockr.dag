@@ -696,8 +696,19 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
 }
 
 relabel_nodes <- function(mods, proxy = blockr_g6_proxy()) {
-  # A `blocks$mod` delta only ever carries `block_name`, so a rename is
-  # just a label change; g6 merges the partial style, keeping the icon.
+  # A `blocks$mod` delta can carry any externally controllable argument
+  # (e.g. the assistant configuring a chart with `chart_type`/`group`/...),
+  # not just a rename. Only deltas that actually change `block_name` are
+  # label changes the DAG needs to reflect; ignore the rest. Extracting
+  # `block_name` from a config-only delta would yield a zero-length value
+  # and crash the surrounding observer.
+  mods <- Filter(function(m) !is.null(m[["block_name"]]), mods)
+
+  if (!length(mods)) {
+    return(invisible())
+  }
+
+  # g6 merges the partial style, keeping the icon.
   g6_update_nodes(
     proxy,
     map(
