@@ -252,15 +252,23 @@ set_g6_options <- function(graph, ...) {
   )
 }
 
-set_g6_layout <- function(graph) {
-  g6_layout(
-    graph,
-    layout = antv_dagre_layout(
-      begin = c(150, 150),
-      nodesep = 50,
-      ranksep = 50,
-      sortByCombo = TRUE
-    )
+set_g6_layout <- function(graph, layout = NULL) {
+  g6_layout(graph, layout = layout %||% default_dag_layout())
+}
+
+# Built-in DAG layout, tuned to stay compact on larger boards. Relative to the
+# g6 antv-dagre defaults: tighter `nodesep` so wide rows of siblings don't
+# blow up horizontally, `tight-tree` ranker which packs ranks more densely
+# than `network-simplex`, and `nodeSize` set to the node footprint (48px icon
+# plus padding) so dagre's collision spacing matches the rendered nodes.
+default_dag_layout <- function() {
+  antv_dagre_layout(
+    begin = c(150, 150),
+    nodesep = 20,
+    ranksep = 50,
+    ranker = "tight-tree",
+    nodeSize = 60,
+    sortByCombo = TRUE
   )
 }
 
@@ -430,16 +438,17 @@ blockr_g6_proxy <- function(session = get_session()) {
   g6_proxy(graph_id(session$ns), session = session)
 }
 
-init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
+init_g6 <- function(board, positions = NULL, layout = NULL, ...,
+                    session = get_session()) {
   ns <- session$ns
 
   # The board is the single source of truth for nodes / edges / combos and
   # all board-derived styling. The extension owns only board-independent view
-  # attributes, which for now is node positions overlaid on top.
+  # attributes: node positions overlaid on top, and the layout.
   res <- g6_from_board(board, positions)
 
   res <- set_g6_options(res)
-  res <- set_g6_layout(res)
+  res <- set_g6_layout(res, layout)
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 

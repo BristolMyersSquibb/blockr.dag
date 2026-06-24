@@ -124,6 +124,45 @@ test_that("g6_from_board builds a widget from the board", {
   expect_s3_class(res, c("g6", "htmlwidget"))
 })
 
+test_that("default_dag_layout is a serializable antv-dagre layout", {
+  lay <- default_dag_layout()
+  expect_identical(lay$type, "antv-dagre")
+  expect_identical(lay$nodesep, 20)
+  expect_identical(lay$ranker, "tight-tree")
+  # No JS callbacks, so it survives a JSON round trip (save / restore)
+  rt <- jsonlite::fromJSON(jsonlite::toJSON(lay, auto_unbox = TRUE))
+  expect_identical(rt$type, "antv-dagre")
+  expect_identical(rt$ranker, "tight-tree")
+})
+
+test_that("set_g6_layout falls back to the tuned default when layout is NULL", {
+  board <- new_board(blocks = c(a = new_dataset_block("iris")))
+  g <- set_g6_layout(g6_from_board(board))
+  expect_identical(g$x$layout$type, "antv-dagre")
+  expect_identical(g$x$layout$nodesep, 20)
+})
+
+test_that("set_g6_layout honors a supplied layout", {
+  board <- new_board(blocks = c(a = new_dataset_block("iris")))
+  g <- set_g6_layout(
+    g6_from_board(board),
+    antv_dagre_layout(rankdir = "LR", nodesep = 99)
+  )
+  expect_identical(g$x$layout$rankdir, "LR")
+  expect_identical(g$x$layout$nodesep, 99)
+})
+
+test_that("a JSON round-tripped layout is accepted (restore path)", {
+  board <- new_board(blocks = c(a = new_dataset_block("iris")))
+  # On restore the layout comes back as a plain list (class dropped by JSON)
+  restored <- jsonlite::fromJSON(
+    jsonlite::toJSON(antv_dagre_layout(rankdir = "LR"), auto_unbox = TRUE)
+  )
+  g <- set_g6_layout(g6_from_board(board), restored)
+  expect_identical(g$x$layout$type, "antv-dagre")
+  expect_identical(g$x$layout$rankdir, "LR")
+})
+
 test_that("merge_node_positions overlays positions onto matching nodes", {
   nodes <- list(
     structure(list(id = "node-a", style = list(src = "x")), class = "g6_node"),

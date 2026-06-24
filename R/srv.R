@@ -1,4 +1,4 @@
-dag_ext_srv <- function(positions) {
+dag_ext_srv <- function(positions, layout) {
   function(id, board, update, actions, ...) {
     dot_args <- list(...)
 
@@ -33,6 +33,7 @@ dag_ext_srv <- function(positions) {
         init_g6(
           board = initial_board,
           positions = positions,
+          layout = layout,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
@@ -75,7 +76,12 @@ dag_ext_srv <- function(positions) {
 
         list(
           state = list(
-            positions = ext_positions
+            positions = ext_positions,
+            # Layout is set at construction and not changed at runtime, so the
+            # state echoes the constructor value back (NULL stays NULL, so a
+            # restored board picks up the current default). It round-trips for
+            # JSON-serializable layouts; see `?new_dag_extension`.
+            layout = layout
           ),
           proxy = proxy
         )

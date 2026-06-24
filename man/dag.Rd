@@ -4,7 +4,7 @@
 \alias{new_dag_extension}
 \title{DAG extension}
 \usage{
-new_dag_extension(positions = NULL, ...)
+new_dag_extension(positions = NULL, layout = NULL, ...)
 }
 \arguments{
 \item{positions}{Optional node positions overlaid on the board-derived
@@ -16,6 +16,13 @@ board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> 
 auto-layout currently computes final node placement at cold start, so
 supplied positions are not yet honored over it (a follow-up will let
 positions pin over the layout).}
+
+\item{layout}{Layout for the DAG, as returned by a g6R layout function
+(e.g. \code{\link[g6R:antv_dagre_layout]{g6R::antv_dagre_layout()}}, \code{\link[g6R:dagre_layout]{g6R::dagre_layout()}},
+\code{\link[g6R:d3_force_layout]{g6R::d3_force_layout()}}). \code{NULL} (default) uses a built-in \code{antv-dagre}
+layout tuned for larger boards. Persisted across save / restore for
+JSON-serializable layouts (layouts carrying \code{JS()} callbacks do not
+round-trip).}
 
 \item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
 }

@@ -59,6 +59,30 @@ serve(
 )
 ```
 
+### Configure the layout
+
+By default the DAG uses a built-in `antv-dagre` layout tuned to stay compact on
+larger boards. Pass any [g6R](https://github.com/cynkra/g6R) layout to `layout`
+to override it, e.g. lay the graph out left-to-right:
+
+```{r}
+serve(
+  new_dock_board(
+    blocks = c(
+      a = new_dataset_block("iris"),
+      b = new_head_block()
+    ),
+    links = list(from = "a", to = "b", input = "data"),
+    extensions = new_dag_extension(
+      layout = antv_dagre_layout(rankdir = "LR", nodesep = 20)
+    )
+  )
+)
+```
+
+The chosen layout is persisted across save / restore (for layouts without
+`JS()` callbacks).
+
 ## Options
 
 blockr.dag's behaviour is tuned through a handful of R `options()`, set before `serve()`. They split into options owned by blockr.dag and options it inherits from [g6R](https://cynkra.github.io/g6R/), the engine that renders and drives the DAG.

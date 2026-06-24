@@ -23,15 +23,21 @@
 #' auto-layout currently computes final node placement at cold start, so
 #' supplied positions are not yet honored over it (a follow-up will let
 #' positions pin over the layout).
+#' @param layout Layout for the DAG, as returned by a g6R layout function
+#' (e.g. [g6R::antv_dagre_layout()], [g6R::dagre_layout()],
+#' [g6R::d3_force_layout()]). `NULL` (default) uses a built-in `antv-dagre`
+#' layout tuned for larger boards. Persisted across save / restore for
+#' JSON-serializable layouts (layouts carrying `JS()` callbacks do not
+#' round-trip).
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system
 #' for visualizing and manipulating DAG workflows.
 #' @rdname dag
 #' @export
-new_dag_extension <- function(positions = NULL, ...) {
+new_dag_extension <- function(positions = NULL, layout = NULL, ...) {
   blockr.dock::new_dock_extension(
-    dag_ext_srv(positions),
+    dag_ext_srv(positions, layout),
     dag_ext_ui,
     name = "Workflow",
     description = dag_ext_description(),
