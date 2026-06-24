@@ -50,6 +50,44 @@ serve(
 )
 ```
 
+## Options
+
+blockr.dag’s behaviour is tuned through a handful of R
+[`options()`](https://rdrr.io/r/base/options.html), set before
+[`serve()`](https://bristolmyerssquibb.github.io/blockr.core/reference/serve.html).
+They split into options owned by blockr.dag and options it inherits from
+[g6R](https://cynkra.github.io/g6R/), the engine that renders and drives
+the DAG.
+
+### blockr.dag options
+
+| Option | Default | Description |
+|----|----|----|
+| `blockr.dag.svg_renderer` | `FALSE` | Render the DAG with g6R’s SVG renderer instead of the default canvas renderer. Canvas is the default because the SVG element reports `offsetWidth == 0`, which makes the underlying `g-lite` client/canvas coordinate scaling ignore the page zoom factor and desyncs hit-testing below 100% browser zoom (drops and port grabs silently fail). The SVG renderer keeps every element in the DOM, so it is mainly useful for `shinytest2` end-to-end tests, which opt in via `AppDriver$new(options = list(blockr.dag.svg_renderer = TRUE))`. |
+
+### g6R options
+
+Because blockr.dag renders through g6R, several g6R options shape DAG
+behaviour. Set them alongside the board:
+
+``` r
+
+options(
+  g6R.mode = "dev",
+  g6R.directed_graph = TRUE,
+  g6R.layout_on_data_change = TRUE
+)
+
+serve(new_dock_board(extensions = new_dag_extension()))
+```
+
+| Option | Default | Description |
+|----|----|----|
+| `g6R.mode` | `"prod"` | `"dev"` surfaces in-app notifications (e.g. why an edge drop was rejected); `"prod"` keeps them silent. Use `"dev"` while building. |
+| `g6R.directed_graph` | `FALSE` | Maintain parent/child (tree) relationships as edges and nodes are added or removed through the g6R proxy. A DAG is directed, so this is typically `TRUE`; g6R also auto-enables it when nodes declare `children`. The tree bookkeeping is only kept in sync when you mutate the graph through the proxy functions, not the raw G6 JS API. |
+| `g6R.layout_on_data_change` | `FALSE` | Re-run the layout whenever the graph data changes (a block or edge is added/removed), so the DAG re-arranges itself. With `FALSE`, existing nodes keep their position and only new elements are placed. |
+| `g6R.preserve_elements_position` | `FALSE` | Preserve node positions across redraws instead of recomputing them. |
+
 ## User Interface Elements
 
 ### Keyboard Shortcuts

@@ -42,7 +42,8 @@
 <h2 class="pkg-version" data-toc-text="0.1.2.9000" id="blockrdag-0129000">blockr.dag 0.1.2.9000<a class="anchor" aria-label="anchor" href="#blockrdag-0129000"></a></h2>
 <div class="section level3">
 <h3 id="internal-changes-0-1-2-9000">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-0-1-2-9000"></a></h3>
-<ul><li>Label observers for OTEL support.</li>
+<ul><li>The DAG now renders with G6’s default canvas renderer instead of the SVG renderer. The SVG element reports <code>offsetWidth == 0</code>, which broke <code>g-lite</code>’s client/canvas coordinate scaling under browser zoom other than 100% (drops and port grabs silently failed below 100%). The SVG renderer is still used for <code>shinytest2</code> end-to-end tests via the new <code>blockr.dag.svg_renderer</code> option (see <code><a href="../reference/dag.html">?new_dag_extension</a></code>). Requires <code>g6R (&gt;= 0.6.0.9001)</code>, which keeps the create-edge assist node from crashing the canvas renderer.</li>
+<li>Label observers for OTEL support.</li>
 <li>Add support for collapsible nodes and combos, through g6R.</li>
 <li>Reworked actions. Inherits from <code>blockr.dock</code>.</li>
 <li>Added support for node ports from g6R.</li>

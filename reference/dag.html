@@ -68,6 +68,19 @@ UI elements to manipulate the board.</p>
     <p>A <code>dag_extension</code> object that extends the dock extension system
 for visualizing and manipulating DAG workflows.</p>
     </div>
+    <div class="section level2">
+    <h2 id="options">Options<a class="anchor" aria-label="anchor" href="#options"></a></h2>
+
+
+<p><code>blockr.dag.svg_renderer</code>: when <code>TRUE</code>, the DAG is rendered with the SVG
+renderer instead of the default canvas renderer. Canvas is the default
+because the SVG element reports <code>offsetWidth == 0</code>, which makes the
+underlying <code>g-lite</code> client/canvas coordinate scaling ignore the page zoom
+factor and desyncs hit-testing below 100% browser zoom. The SVG renderer
+keeps every element in the DOM, which the <code>shinytest2</code> end-to-end tests need
+to query and screenshot, so they opt in via
+<code>AppDriver$new(options = list(blockr.dag.svg_renderer = TRUE))</code>.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
