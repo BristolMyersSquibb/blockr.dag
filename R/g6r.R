@@ -77,6 +77,65 @@ merge_node_positions <- function(nodes, positions) {
   })
 }
 
+# Round coordinates to whole pixels so sub-pixel jitter echoed back by the
+# client doesn't read as a change (used to break the external-control echo
+# loop and to debounce client drags).
+round_positions <- function(positions) {
+  lapply(positions, function(p) list(x = round(p[["x"]]), y = round(p[["y"]])))
+}
+
+# Position specs equal up to whole-pixel rounding, compared per block id
+# (order-independent).
+positions_equal <- function(a, b) {
+  if (length(a) != length(b)) {
+    return(FALSE)
+  }
+  a <- round_positions(a)
+  b <- round_positions(b)
+  ids <- union(names(a), names(b))
+  all(vapply(ids, function(id) identical(a[[id]], b[[id]]), logical(1)))
+}
+
+# Entries of `target` whose (pixel-rounded) coordinates differ from `live`.
+# This is what an external set needs to push to the client, and an empty
+# result is the echo-loop guard: a client-originated change leaves nothing
+# to push back.
+positions_diff <- function(target, live) {
+  if (!length(target)) {
+    return(list())
+  }
+  rt <- round_positions(target)
+  rl <- round_positions(live)
+  keep <- vapply(
+    names(rt),
+    function(id) !identical(rt[[id]], rl[[id]]),
+    logical(1)
+  )
+  target[keep]
+}
+
+# Push node positions to the client. `positions` is keyed by block id.
+apply_node_positions <- function(positions, proxy = blockr_g6_proxy()) {
+  if (!length(positions)) {
+    return(invisible())
+  }
+
+  g6_update_nodes(
+    proxy,
+    map(
+      list,
+      id = to_g6_node_id(names(positions)),
+      style = map(
+        list,
+        x = vapply(positions, `[[`, numeric(1), "x"),
+        y = vapply(positions, `[[`, numeric(1), "y")
+      )
+    )
+  )
+
+  invisible()
+}
+
 # Project the extension's position spec out of the live g6 graph state.
 # `state` is the preprocessed `graph.getData()` blob: nodes keyed by g6 id,
 # each carrying `style$x/y`. Re-key back to block ids and keep only nodes

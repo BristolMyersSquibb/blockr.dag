@@ -188,6 +188,58 @@ test_that("positions round-trip through project then merge", {
   expect_equal(nodes[[1]]$style$y, 84)
 })
 
+test_that("positions_equal compares up to whole-pixel rounding", {
+  expect_true(positions_equal(list(), list()))
+  expect_true(positions_equal(
+    list(a = list(x = 10, y = 20)),
+    list(a = list(x = 10.4, y = 19.6))
+  ))
+  expect_false(positions_equal(
+    list(a = list(x = 10, y = 20)),
+    list(a = list(x = 13, y = 20))
+  ))
+  # Different number of entries
+  expect_false(positions_equal(
+    list(a = list(x = 10, y = 20)),
+    list(a = list(x = 10, y = 20), b = list(x = 1, y = 1))
+  ))
+})
+
+test_that("positions_diff returns only changed entries (echo guard)", {
+  live <- list(a = list(x = 10, y = 20), b = list(x = 5, y = 5))
+
+  # Identical -> nothing to push (this is what breaks the echo loop)
+  expect_length(positions_diff(live, live), 0L)
+
+  # Only b moved -> only b is pushed
+  target <- list(a = list(x = 10, y = 20), b = list(x = 9, y = 9))
+  expect_named(positions_diff(target, live), "b")
+
+  # Empty target -> nothing
+  expect_identical(positions_diff(list(), live), list())
+})
+
+test_that("apply_node_positions builds a g6 node-update payload", {
+  captured <- NULL
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      captured <<- nodes
+      invisible()
+    }
+  )
+
+  apply_node_positions(list(a = list(x = 100, y = 200)), proxy = NULL)
+
+  expect_equal(captured[[1]]$id, to_g6_node_id("a"))
+  expect_equal(captured[[1]]$style$x, 100)
+  expect_equal(captured[[1]]$style$y, 200)
+
+  # No-op on empty input (no client message)
+  captured <- NULL
+  apply_node_positions(list(), proxy = NULL)
+  expect_null(captured)
+})
+
 test_that("is_variadic_block works", {
   expect_false(is_variadic_block(new_dataset_block()))
   expect_true(is_variadic_block(new_rbind_block()))

@@ -16,7 +16,10 @@
 #' @param positions Optional node positions overlaid on the board-derived
 #' nodes, as a named list keyed by block id, each element a list with numeric
 #' `x` and `y` (e.g. `list(a = list(x = 100, y = 200))`). Persisted across
-#' save / restore. Unknown or stale block ids are ignored. Note: the
+#' save / restore. Unknown or stale block ids are ignored. This handle is
+#' externally controllable: positions can be set programmatically through the
+#' board update lifecycle (`update(list(extensions = list(mod = list(<ext_id> =
+#' list(positions = ...)))))`), which moves the corresponding nodes. Note: the
 #' auto-layout currently computes final node placement at cold start, so
 #' supplied positions are not yet honored over it (a follow-up will let
 #' positions pin over the layout).
@@ -31,8 +34,26 @@ new_dag_extension <- function(positions = NULL, ...) {
     dag_ext_srv(positions),
     dag_ext_ui,
     name = "Workflow",
+    description = dag_ext_description(),
     class = "dag_extension",
+    external_ctrl = "positions",
     ...
+  )
+}
+
+# Surfaced to LLM assistants via `blockr.dock`'s extension external-control
+# tooling (`tool_list_extensions` reports it as the extension `description`,
+# explaining how to drive `modify_extension`). Spells out the `positions`
+# schema, which the model cannot infer from the variable name alone.
+dag_ext_description <- function() {
+  paste(
+    "Directed-acyclic-graph view of the board's blocks. Externally",
+    "controllable variable `positions`: a JSON object mapping block id to an",
+    "object with numeric `x` and `y` canvas-pixel coordinates (origin",
+    "top-left, x rightward, y downward), e.g.",
+    "{\"my_block\": {\"x\": 120, \"y\": 80}}. Set it via modify_extension to",
+    "move those nodes; block ids you omit keep their current positions. Read",
+    "the current coordinates from the `values` field of list_extensions."
   )
 }
 

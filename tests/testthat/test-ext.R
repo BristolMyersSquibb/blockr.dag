@@ -12,6 +12,68 @@ test_that("dag extension ctor", {
   expect_s3_class(ext, "dag_extension")
 })
 
+test_that("positions is an externally controllable handle", {
+  expect_identical(attr(new_dag_extension(), "external_ctrl"), "positions")
+})
+
+test_that("external position set pushes the moved node to the client", {
+  pushed <- NULL
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      pushed <<- nodes
+      invisible()
+    }
+  )
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        setup_positions_ctrl(NULL, proxy = NULL, session = session)
+      })
+    },
+    {
+      rv <- session$returned
+      expect_s3_class(rv, "reactiveVal")
+
+      session$setInputs("graph-initialized" = TRUE)
+
+      # External write (as the board update lifecycle would do) with no
+      # client positions yet -> the node is pushed to the client.
+      rv(list(a = list(x = 100, y = 200)))
+      session$flushReact()
+
+      expect_equal(pushed[[1]]$id, to_g6_node_id("a"))
+      expect_equal(pushed[[1]]$style$x, 100)
+      expect_equal(pushed[[1]]$style$y, 200)
+    }
+  )
+})
+
+test_that("client drags sync into the positions reactiveVal (debounced)", {
+  local_mocked_bindings(g6_update_nodes = function(proxy, nodes) invisible())
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        setup_positions_ctrl(NULL, proxy = NULL, session = session)
+      })
+    },
+    {
+      rv <- session$returned
+      session$setInputs("graph-initialized" = TRUE)
+      session$setInputs(
+        "graph-state" = list(
+          nodes = list(
+            `node-a` = list(id = "node-a", style = list(x = 12, y = 34))
+          )
+        )
+      )
+      session$elapse(300) # let the debounce fire
+      expect_identical(rv(), list(a = list(x = 12, y = 34)))
+    }
+  )
+})
+
 test_that("ext_ui works", {
   ui <- dag_ext_ui("test", empty_board)
   expect_s3_class(ui, "shiny.tag.list")
