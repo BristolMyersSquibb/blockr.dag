@@ -67,13 +67,22 @@ g6_from_graph <- function(graph) {
   )
 }
 
+# Renderer selection. Production uses G6's default canvas renderer: the SVG
+# element reports `offsetWidth == 0`, which makes g-lite's client<->canvas scale
+# ignore the page zoom factor and desyncs hit-testing below 100% browser zoom.
+# The SVG renderer keeps every element in the DOM, which the shinytest2 e2e
+# tests query and screenshot, so those opt in via
+# `options(blockr.dag.svg_renderer = TRUE)` (passed to `AppDriver$new()`).
+use_svg_renderer <- function() {
+  isTRUE(getOption("blockr.dag.svg_renderer", FALSE))
+}
+
 set_g6_options <- function(graph, ...) {
+  renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
   g6_options(
     graph,
     ...,
-    # Required so that elements are in the DOM
-    # for shinytest2 e2e
-    renderer = JS("() => new SVGRenderer()"),
+    renderer = renderer,
     animation = FALSE,
     node = list(
       type = "custom-image-node",
