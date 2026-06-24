@@ -26,7 +26,9 @@ test_that("variadic app works", {
   app <- AppDriver$new(
     appdir,
     name = "variadic-app",
-    seed = 4323
+    seed = 4323,
+    # e2e assertions need every element in the DOM, so render with SVG.
+    options = list(blockr.dag.svg_renderer = TRUE)
   )
 
   expect_values(app)
