@@ -47,13 +47,21 @@ new_dag_extension <- function(positions = NULL, ...) {
 # schema, which the model cannot infer from the variable name alone.
 dag_ext_description <- function() {
   paste(
-    "Directed-acyclic-graph view of the board's blocks. Externally",
-    "controllable variable `positions`: a JSON object mapping block id to an",
-    "object with numeric `x` and `y` canvas-pixel coordinates (origin",
-    "top-left, x rightward, y downward), e.g.",
-    "{\"my_block\": {\"x\": 120, \"y\": 80}}. Set it via modify_extension to",
-    "move those nodes; block ids you omit keep their current positions. Read",
-    "the current coordinates from the `values` field of list_extensions."
+    "Directed-acyclic-graph view of the board's blocks. The externally",
+    "controllable variable `positions` sets where each block (node) sits on",
+    "the workflow canvas. This is the in-diagram coordinate of a block, NOT a",
+    "dockview panel or view: to move a block around the workflow diagram use",
+    "modify_extension with `positions`, never the view/panel tools.",
+    "`positions` is a JSON object mapping block id to an object with numeric",
+    "`x` and `y` canvas-pixel coordinates (origin top-left, x rightward, y",
+    "downward), e.g. {\"my_block\": {\"x\": 120, \"y\": 80}}. Set only the",
+    "blocks you move; omitted blocks keep their current positions.",
+    "Coordinates are absolute, so to place a block relative to another (to",
+    "its left/right/above/below) first read both blocks' current coordinates",
+    "from the `values` field of list_extensions, then compute the target:",
+    "nodes are about 50px, so leave ~150px between centres (left = same y and",
+    "smaller x, right = same y and larger x, above = same x and smaller y,",
+    "below = same x and larger y)."
   )
 }
 
