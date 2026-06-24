@@ -1,4 +1,4 @@
-dag_ext_srv <- function(graph) {
+dag_ext_srv <- function(positions) {
   function(id, board, update, dock, actions, ...) {
     dot_args <- list(...)
 
@@ -32,7 +32,7 @@ dag_ext_srv <- function(graph) {
 
         init_g6(
           board = initial_board,
-          graph = graph,
+          positions = positions,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
@@ -72,9 +72,9 @@ dag_ext_srv <- function(graph) {
 
         list(
           state = list(
-            graph = reactive(
-              input[[paste0(graph_id(), "-state")]],
-              label = "graph_state"
+            positions = reactive(
+              project_positions(input[[paste0(graph_id(), "-state")]]),
+              label = "graph_positions"
             )
           ),
           proxy = proxy

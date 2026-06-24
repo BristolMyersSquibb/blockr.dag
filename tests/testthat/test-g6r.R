@@ -115,24 +115,77 @@ test_that("roundtrip conversions work correctly", {
   )
 })
 
-test_that("g6_from_graph works", {
-  g <- new_graph(
+test_that("g6_from_board builds a widget from the board", {
+  board <- new_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block()),
+    links = list(ab = new_link("a", "b", input = "data"))
+  )
+  res <- g6_from_board(board)
+  expect_s3_class(res, c("g6", "htmlwidget"))
+})
+
+test_that("merge_node_positions overlays positions onto matching nodes", {
+  nodes <- list(
+    structure(list(id = "node-a", style = list(src = "x")), class = "g6_node"),
+    structure(list(id = "node-b", style = list(src = "y")), class = "g6_node")
+  )
+
+  # No positions -> nodes unchanged
+  expect_identical(merge_node_positions(nodes, NULL), nodes)
+  expect_identical(merge_node_positions(nodes, list()), nodes)
+
+  res <- merge_node_positions(
+    nodes,
+    list(a = list(x = 10, y = 20), zzz = list(x = 1, y = 2))
+  )
+
+  # Matching block id is pinned; unknown / stale ids are ignored
+  expect_equal(res[[1]]$style$x, 10)
+  expect_equal(res[[1]]$style$y, 20)
+  # board-derived styling is preserved
+  expect_equal(res[[1]]$style$src, "x")
+  # node without a supplied position keeps no preset
+  expect_null(res[[2]]$style$x)
+  expect_null(res[[2]]$style$y)
+})
+
+test_that("project_positions re-keys live state to a block-id spec", {
+  expect_identical(project_positions(NULL), list())
+  expect_identical(project_positions(list(nodes = NULL)), list())
+
+  state <- list(
     nodes = list(
-      list(id = 1, style = list(labelText = "Node 1")),
-      list(id = 2, style = list(labelText = "Node 2"))
-    ),
-    edges = list(
-      list(
-        source = 1,
-        target = 2,
-        style = list(
-          labelText = "Edge from 1 to 2"
-        )
-      )
+      "node-a" = list(id = "node-a", style = list(x = 10, y = 20, src = "x")),
+      # missing coordinates -> dropped
+      "node-b" = list(id = "node-b", style = list(src = "y"))
     )
   )
-  res <- g6_from_graph(g)
-  expect_s3_class(res, c("g6", "htmlwidget"))
+
+  res <- project_positions(state)
+
+  expect_named(res, "a")
+  expect_identical(res$a, list(x = 10, y = 20))
+})
+
+test_that("positions round-trip through project then merge", {
+  board <- new_board(blocks = c(a = new_dataset_block("iris")))
+
+  # Live state as emitted by g6 (keyed by g6 id, positions in style$x/y)
+  state <- list(
+    nodes = list(
+      "node-a" = list(id = "node-a", style = list(x = 42, y = 84))
+    )
+  )
+
+  positions <- project_positions(state)
+
+  nodes <- merge_node_positions(
+    graph_nodes(g6_data_from_board(board)),
+    positions
+  )
+
+  expect_equal(nodes[[1]]$style$x, 42)
+  expect_equal(nodes[[1]]$style$y, 84)
 })
 
 test_that("is_variadic_block works", {

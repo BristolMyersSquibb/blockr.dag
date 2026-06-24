@@ -45,26 +45,59 @@ to_g6_port_id <- function(x, node) {
   x
 }
 
-g6_from_board <- function(board) {
+g6_from_board <- function(board, positions = NULL) {
   stopifnot(is_board(board))
 
   graph <- g6_data_from_board(board)
 
   g6(
-    nodes = graph_nodes(graph),
+    nodes = merge_node_positions(graph_nodes(graph), positions),
     edges = graph_edges(graph),
     combos = graph_combos(graph)
   )
 }
 
-g6_from_graph <- function(graph) {
-  stopifnot(is_graph(graph))
+# Overlay extension-owned node positions onto board-derived g6 nodes.
+# `positions` is keyed by block id; `nodes` carry g6 ids (`node-<id>`).
+# Supplied coordinates set `style$x/y`, which g6R's position-preservation
+# (BEFORE/AFTER_LAYOUT) honors over the auto-layout. Unknown or stale ids
+# are ignored; nodes without an entry keep no preset and fall to the layout.
+merge_node_positions <- function(nodes, positions) {
+  if (!length(nodes) || !length(positions)) {
+    return(nodes)
+  }
 
-  g6(
-    nodes = graph_nodes(graph),
-    edges = graph_edges(graph),
-    combos = graph_combos(graph)
-  )
+  lapply(nodes, function(node) {
+    pos <- positions[[from_g6_node_id(node[["id"]])]]
+    if (!is.null(pos)) {
+      node[["style"]][["x"]] <- pos[["x"]]
+      node[["style"]][["y"]] <- pos[["y"]]
+    }
+    node
+  })
+}
+
+# Project the extension's position spec out of the live g6 graph state.
+# `state` is the preprocessed `graph.getData()` blob: nodes keyed by g6 id,
+# each carrying `style$x/y`. Re-key back to block ids and keep only nodes
+# with both coordinates. Returns a named list `id -> list(x, y)`.
+project_positions <- function(state) {
+  nodes <- state[["nodes"]]
+
+  if (!length(nodes)) {
+    return(list())
+  }
+
+  res <- lapply(nodes, function(node) {
+    xy <- node[["style"]][c("x", "y")]
+    if (is.null(xy[["x"]]) || is.null(xy[["y"]])) {
+      return(NULL)
+    }
+    list(x = xy[["x"]], y = xy[["y"]])
+  })
+
+  res <- filter_null(res)
+  set_names(res, from_g6_node_id(names(res)))
 }
 
 # Renderer selection. Production uses G6's default canvas renderer: the SVG
@@ -335,27 +368,13 @@ blockr_g6_proxy <- function(session = get_session()) {
   g6_proxy(graph_id(session$ns), session = session)
 }
 
-init_g6 <- function(board, graph = NULL, ..., session = get_session()) {
+init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
   ns <- session$ns
 
-  if (is.null(graph)) {
-    res <- g6_from_board(board)
-  } else {
-    res <- tryCatch(
-      g6_from_graph(as_graph(graph)),
-      error = function(e) {
-        showNotification(
-          sprintf(
-            "Failed to initialize graph from provided graph object: %s.
-            \nFalling back to graph generated from board.",
-            conditionMessage(e)
-          ),
-          type = "error"
-        )
-        g6_from_board(board)
-      }
-    )
-  }
+  # The board is the single source of truth for nodes / edges / combos and
+  # all board-derived styling. The extension owns only board-independent view
+  # attributes, which for now is node positions overlaid on top.
+  res <- g6_from_board(board, positions)
 
   res <- set_g6_options(res)
   res <- set_g6_layout(res)

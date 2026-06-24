@@ -13,16 +13,22 @@
 #' to query and screenshot, so they opt in via
 #' `AppDriver$new(options = list(blockr.dag.svg_renderer = TRUE))`.
 #'
-#' @param graph A `graph` object (or `NULL`).
+#' @param positions Optional node positions overlaid on the board-derived
+#' nodes, as a named list keyed by block id, each element a list with numeric
+#' `x` and `y` (e.g. `list(a = list(x = 100, y = 200))`). Persisted across
+#' save / restore. Unknown or stale block ids are ignored. Note: the
+#' auto-layout currently computes final node placement at cold start, so
+#' supplied positions are not yet honored over it (a follow-up will let
+#' positions pin over the layout).
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system
 #' for visualizing and manipulating DAG workflows.
 #' @rdname dag
 #' @export
-new_dag_extension <- function(graph = NULL, ...) {
+new_dag_extension <- function(positions = NULL, ...) {
   blockr.dock::new_dock_extension(
-    dag_ext_srv(graph),
+    dag_ext_srv(positions),
     dag_ext_ui,
     name = "Workflow",
     class = "dag_extension",
