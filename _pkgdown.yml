@@ -28,17 +28,7 @@ reference:
     desc: Initialize a DAG extension
     contents:
       - new_dag_extension
-  
-  - title: Graph
-    desc: Create and manipulate graph objects
-    contents:
-      - new_graph
-      - is_graph
-      - as_graph
-      - graph_nodes
-      - graph_edges
-      - graph_combos
-  
+
   - title: User Interface
     desc: UI components and interactions
   - subtitle: Context Menu

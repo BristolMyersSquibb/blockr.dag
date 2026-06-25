@@ -4,10 +4,18 @@
 \alias{new_dag_extension}
 \title{DAG extension}
 \usage{
-new_dag_extension(graph = NULL, ...)
+new_dag_extension(positions = NULL, ...)
 }
 \arguments{
-\item{graph}{A \code{graph} object (or \code{NULL}).}
+\item{positions}{Optional node positions overlaid on the board-derived
+nodes, as a named list keyed by block id, each element a list with numeric
+\code{x} and \code{y} (e.g. \code{list(a = list(x = 100, y = 200))}). Persisted across
+save / restore. Unknown or stale block ids are ignored. This handle is
+externally controllable: positions can be set programmatically through the
+board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> = list(positions = ...)))))}), which moves the corresponding nodes. Note: the
+auto-layout currently computes final node placement at cold start, so
+supplied positions are not yet honored over it (a follow-up will let
+positions pin over the layout).}
 
 \item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
 }

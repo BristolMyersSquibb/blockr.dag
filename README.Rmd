@@ -48,7 +48,11 @@ webshot2::appshot(app, "man/figures/demo-app.png")
 
 ![blockr.dag demo application with stacks](man/figures/demo-app.png)
 
-To start up the dag extension with dummy nodes and edges:
+The board is the single source of truth for the DAG. The extension owns only
+board-independent view attributes, e.g. node positions, passed as `positions`
+(keyed by block id) and persisted across save / restore. The auto-layout
+currently still computes final placement at cold start, so positions are not
+yet honored over it (a planned follow-up):
 
 ```{r dummy-graph-example, eval=FALSE, code=readLines("inst/examples/graph/app.R")}
 ```

@@ -1,4 +1,4 @@
-dag_ext_srv <- function(graph) {
+dag_ext_srv <- function(positions) {
   function(id, board, update, dock, actions, ...) {
     dot_args <- list(...)
 
@@ -32,7 +32,7 @@ dag_ext_srv <- function(graph) {
 
         init_g6(
           board = initial_board,
-          graph = graph,
+          positions = positions,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
@@ -40,6 +40,8 @@ dag_ext_srv <- function(graph) {
         )
 
         proxy <- blockr_g6_proxy(session)
+
+        ext_positions <- setup_positions_ctrl(positions, proxy)
 
         context_menu_entry_action(context_menu, actions, session)
         toolbar_item_action(toolbar, actions, session)
@@ -72,16 +74,70 @@ dag_ext_srv <- function(graph) {
 
         list(
           state = list(
-            graph = reactive(
-              input[[paste0(graph_id(), "-state")]],
-              label = "graph_state"
-            )
+            positions = ext_positions
           ),
           proxy = proxy
         )
       }
     )
   }
+}
+
+# Bidirectional sync for the externally-controllable `positions` handle.
+#
+# Reads: the returned `reactiveVal` tracks live user drags, projected from the
+# `graph-state` input and debounced (that input fires on every g6 redraw, so
+# many times per drag).
+#
+# Writes: the board update lifecycle writes external sets into this same
+# `reactiveVal` (see `blockr.dock::apply_extensions_mod()`); an observer then
+# pushes the changed nodes to the client with `g6_update_nodes()`.
+#
+# The echo loop (external set -> client move -> `graph-state` -> sync back) is
+# broken on both ends by `positions_equal()` / `positions_diff()` (compared up
+# to whole-pixel rounding): a value the client already shows is neither
+# re-stored nor re-pushed, so the `reactiveVal` settles.
+setup_positions_ctrl <- function(positions, proxy, session = get_session()) {
+  input <- session$input
+
+  rv <- reactiveVal(positions %||% list())
+
+  state_input <- function() input[[paste0(graph_id(), "-state")]]
+  initialized <- function() input[[paste0(graph_id(), "-initialized")]]
+
+  client_positions <- debounce(
+    reactive(project_positions(state_input())),
+    millis = 250
+  )
+
+  # Client -> state: keep reads current with user drags.
+  observeEvent(
+    client_positions(),
+    {
+      req(initialized())
+      live <- client_positions()
+      if (!positions_equal(live, rv())) {
+        rv(live)
+      }
+    },
+    label = "positions_from_client"
+  )
+
+  # State -> client: external sets move the corresponding nodes.
+  observeEvent(
+    rv(),
+    {
+      req(initialized())
+      to_push <- positions_diff(rv(), project_positions(state_input()))
+      if (length(to_push)) {
+        apply_node_positions(to_push, proxy)
+      }
+    },
+    ignoreInit = TRUE,
+    label = "positions_to_client"
+  )
+
+  rv
 }
 
 update_observer <- function(update, board, proxy) {

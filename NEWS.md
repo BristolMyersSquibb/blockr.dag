@@ -1,5 +1,13 @@
 # blockr.dag 0.1.2.9000
 
+## Breaking changes
+
+- The DAG extension no longer ingests or emits a full g6 graph object ([#119](https://github.com/BristolMyersSquibb/blockr.dag/issues/119)). `new_dag_extension()` drops the `graph` argument in favour of `positions`, a named list keyed by block id (`list(a = list(x = 100, y = 200))`) carrying only the board-independent view attributes the extension owns. The board is now the single source of truth: nodes, edges, combos and all styling (icons, labels, colors, ports) are always regenerated from it, and supplied positions are overlaid onto the corresponding nodes' coordinates. Serialization shrinks to positions only; no board-derived styling is persisted. The g6 graph wire format and its board/g6 converters (`new_graph()`, `as_graph()`, `g6_from_graph()`, ...) are now internal and no longer exported. This mirrors the dockview wire-format decoupling in `blockr.dock`. Note: the auto-layout still computes final node placement at cold start, so supplied positions are not yet honored over it; making positions pin over the layout is a planned follow-up (see [#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
+
+## New features
+
+- Node positions are externally controllable ([#120](https://github.com/BristolMyersSquibb/blockr.dag/issues/120)). The `positions` handle is registered via `external_ctrl`, so positions can be set programmatically (e.g. by an AI assistant) through the board update lifecycle: `update(list(extensions = list(mod = list(<ext_id> = list(positions = list(<block-id> = list(x = , y = )))))))` moves the corresponding nodes. The handle is bidirectional: it tracks live user drags (debounced) and pushes external writes to the client, with a whole-pixel-rounded equality guard that prevents the set/echo feedback loop.
+
 ## Internal changes
 
 - The DAG now renders with G6's default canvas renderer instead of the SVG renderer. The SVG element reports `offsetWidth == 0`, which broke `g-lite`'s client/canvas coordinate scaling under browser zoom other than 100% (drops and port grabs silently failed below 100%). The SVG renderer is still used for `shinytest2` end-to-end tests via the new `blockr.dag.svg_renderer` option (see `?new_dag_extension`). Requires `g6R (>= 0.6.0.9001)`, which keeps the create-edge assist node from crashing the canvas renderer.
