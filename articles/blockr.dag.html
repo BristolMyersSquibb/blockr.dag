@@ -87,28 +87,24 @@
 <code class="sourceCode R"><span><span class="co"># Create an empty board.</span></span>
 <span><span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.core/reference/serve.html" class="external-link">serve</a></span><span class="op">(</span><span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.dock/reference/dock.html" class="external-link">new_dock_board</a></span><span class="op">(</span>extensions <span class="op">=</span> <span class="fu"><a href="../reference/dag.html">new_dag_extension</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="level3"><h3 id="start-from-a-graph-object">Start from a graph object<a class="anchor" aria-label="anchor" href="#start-from-a-graph-object"></a>
+</section><section class="level3"><h3 id="pin-block-positions">Pin block positions<a class="anchor" aria-label="anchor" href="#pin-block-positions"></a>
 </h3>
-<p>You can also start with a custom graph structure:</p>
+<p>The board is the single source of truth for the DAG: nodes, edges, combos and their styling are always derived from it. The extension owns only board-independent view attributes, currently node positions, passed as <code>positions</code> (a named list keyed by block id) and persisted across save / restore. The auto-layout currently still computes final placement at cold start, so positions are not yet honored over it (a planned follow-up):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/graph.html">new_graph</a></span><span class="op">(</span></span>
-<span>  nodes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  edges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      source <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>      target <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>      style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labelText <span class="op">=</span> <span class="st">"1-2"</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.core/reference/serve.html" class="external-link">serve</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.core/reference/serve.html" class="external-link">serve</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.dock/reference/dock.html" class="external-link">new_dock_board</a></span><span class="op">(</span></span>
-<span>    extensions <span class="op">=</span> <span class="fu"><a href="../reference/dag.html">new_dag_extension</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
+<span>    blocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      a <span class="op">=</span> <span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.core/reference/new_data_block.html" class="external-link">new_dataset_block</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span>,</span>
+<span>      b <span class="op">=</span> <span class="fu"><a href="https://bristolmyerssquibb.github.io/blockr.core/reference/new_transform_block.html" class="external-link">new_head_block</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    links <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>from <span class="op">=</span> <span class="st">"a"</span>, to <span class="op">=</span> <span class="st">"b"</span>, input <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span>,</span>
+<span>    extensions <span class="op">=</span> <span class="fu"><a href="../reference/dag.html">new_dag_extension</a></span><span class="op">(</span></span>
+<span>      positions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">200</span>, y <span class="op">=</span> <span class="fl">150</span><span class="op">)</span>,</span>
+<span>        b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">200</span>, y <span class="op">=</span> <span class="fl">350</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>

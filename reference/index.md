@@ -7,18 +7,6 @@ Initialize a DAG extension
 - [`new_dag_extension()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/dag.md)
   : DAG extension
 
-## Graph
-
-Create and manipulate graph objects
-
-- [`new_graph()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  [`is_graph()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  [`graph_nodes()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  [`graph_edges()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  [`graph_combos()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  [`as_graph()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/graph.md)
-  : Graph object
-
 ## User Interface
 
 UI components and interactions

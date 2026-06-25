@@ -48,15 +48,23 @@ UI elements to manipulate the board.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">new_dag_extension</span><span class="op">(</span>graph <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">new_dag_extension</span><span class="op">(</span>positions <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-graph">graph<a class="anchor" aria-label="anchor" href="#arg-graph"></a></dt>
-<dd><p>A <code>graph</code> object (or <code>NULL</code>).</p></dd>
+<dl><dt id="arg-positions">positions<a class="anchor" aria-label="anchor" href="#arg-positions"></a></dt>
+<dd><p>Optional node positions overlaid on the board-derived
+nodes, as a named list keyed by block id, each element a list with numeric
+<code>x</code> and <code>y</code> (e.g. <code>list(a = list(x = 100, y = 200))</code>). Persisted across
+save / restore. Unknown or stale block ids are ignored. This handle is
+externally controllable: positions can be set programmatically through the
+board update lifecycle (<code>update(list(extensions = list(mod = list(&lt;ext_id&gt; = list(positions = ...)))))</code>), which moves the corresponding nodes. Note: the
+auto-layout currently computes final node placement at cold start, so
+supplied positions are not yet honored over it (a follow-up will let
+positions pin over the layout).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

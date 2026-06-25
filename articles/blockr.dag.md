@@ -23,29 +23,31 @@ extension:
 serve(new_dock_board(extensions = new_dag_extension()))
 ```
 
-### Start from a graph object
+### Pin block positions
 
-You can also start with a custom graph structure:
+The board is the single source of truth for the DAG: nodes, edges,
+combos and their styling are always derived from it. The extension owns
+only board-independent view attributes, currently node positions, passed
+as `positions` (a named list keyed by block id) and persisted across
+save / restore. The auto-layout currently still computes final placement
+at cold start, so positions are not yet honored over it (a planned
+follow-up):
 
 ``` r
 
-graph <- new_graph(
-  nodes = list(
-    list(id = 1),
-    list(id = 2)
-  ),
-  edges = list(
-    list(
-      source = 1,
-      target = 2,
-      style = list(labelText = "1-2")
-    )
-  )
-)
-
 serve(
   new_dock_board(
-    extensions = new_dag_extension(graph)
+    blocks = c(
+      a = new_dataset_block("iris"),
+      b = new_head_block()
+    ),
+    links = list(from = "a", to = "b", input = "data"),
+    extensions = new_dag_extension(
+      positions = list(
+        a = list(x = 200, y = 150),
+        b = list(x = 200, y = 350)
+      )
+    )
   )
 )
 ```
