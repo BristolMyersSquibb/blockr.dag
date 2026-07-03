@@ -321,3 +321,21 @@ test_that("extension_block_callback works", {
     }
   )
 })
+
+test_that("dag_badge_status maps errors and eval status to a badge (#145)", {
+
+  # An error condition always wins -> failed (covers a render-phase error on a
+  # block that is otherwise `ready`).
+  expect_identical(dag_badge_status(2L, "ready"), "failed")
+  expect_identical(dag_badge_status(1L, NULL), "failed")
+
+  # No errors: mirror the eval status for the indicator states.
+  expect_identical(dag_badge_status(0L, "waiting"), "waiting")
+  expect_identical(dag_badge_status(0L, "unset"), "unset")
+  expect_identical(dag_badge_status(0L, "failed"), "failed")
+
+  # `ready`, `dormant` and an absent status carry no badge.
+  expect_null(dag_badge_status(0L, "ready"))
+  expect_null(dag_badge_status(0L, "dormant"))
+  expect_null(dag_badge_status(0L, NULL))
+})

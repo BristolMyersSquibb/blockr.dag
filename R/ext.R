@@ -387,64 +387,77 @@ extension_block_callback.dag_extension <- function(x, ...) {
     ...,
     session = get_session()
   ) {
-    n_cnd <- reactive(
-      sum(lengths(conditions()$error)),
-      label = "n_cnd"
-    )
-
-    badge_count <- reactiveVal(0L)
-
     graph_ready <- reactive(
       isTRUE(dag_extension$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
       label = "graph_ready"
     )
 
-    observeEvent(
-      req(graph_ready(), n_cnd() > 0L, n_cnd() != badge_count()),
-      {
-        n <- n_cnd()
-
-        badge <- list(
-          text = "",
-          placement = "right-bottom",
-          backgroundFill = "#dc2626",
-          backgroundWidth = 10,
-          backgroundHeight = 10
-        )
-
-        node_config <- list(
-          list(
-            id = to_g6_node_id(id),
-            style = list(
-              badges = list(badge)
-            )
-          )
-        )
-
-        g6_update_nodes(dag_extension$proxy, node_config)
-        badge_count(n)
-      },
-      label = "show_error_badge"
+    badge_status <- reactive(
+      dag_badge_status(
+        sum(lengths(conditions()$error)),
+        reval_if(board$eval[[id]])
+      ),
+      label = "badge_status"
     )
 
+    drawn_status <- reactiveVal(NULL)
+
     observeEvent(
-      req(graph_ready(), n_cnd() == 0L, badge_count() > 0L),
+      list(graph_ready(), badge_status()),
       {
-        node_config <- list(
+        req(graph_ready())
+
+        status <- badge_status()
+
+        if (identical(status, drawn_status())) {
+          return()
+        }
+
+        badges <- if (is.null(status)) {
+          list()
+        } else {
+
+          spec <- blockr.dock::block_status_style(status)
+
           list(
-            id = to_g6_node_id(id),
-            style = list(
-              badges = list()
+            list(
+              text = "",
+              placement = spec$placement,
+              backgroundFill = spec$color,
+              backgroundWidth = spec$size,
+              backgroundHeight = spec$size
+            )
+          )
+        }
+
+        g6_update_nodes(
+          dag_extension$proxy,
+          list(
+            list(
+              id = to_g6_node_id(id),
+              style = list(badges = badges)
             )
           )
         )
 
-        g6_update_nodes(dag_extension$proxy, node_config)
-        badge_count(0L)
+        drawn_status(status)
       },
-      label = "clear_error_badge"
+      label = "update_status_badge"
     )
 
     NULL
   }
+}
+
+dag_badge_status <- function(error_count, status) {
+
+  if (error_count > 0L) {
+    return("failed")
+  }
+
+  if (isTRUE(status %in% c("waiting", "unset", "failed"))) {
+    return(status)
+  }
+
+  NULL
 }
