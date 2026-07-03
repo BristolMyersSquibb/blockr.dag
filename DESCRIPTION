@@ -47,6 +47,8 @@ Suggests:
     quarto,
     cyclocomp,
     shinytest2,
+    chromote,
+    withr,
     colorspace
 Config/testthat/edition: 3
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
