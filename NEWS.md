@@ -19,6 +19,7 @@
 - Fix [#86](https://github.com/BristolMyersSquibb/blockr.dag/issues/86).
 - Fix [#110](https://github.com/BristolMyersSquibb/blockr.dag/issues/110): copy/cut keyboard shortcuts no longer hijack plain text selections (column names, error messages, etc.).
 - Fix [#123](https://github.com/BristolMyersSquibb/blockr.dag/issues/123): renaming a block now relabels its DAG node instead of erroring. `update_observer()` handed blockr.core's partial-argument `blocks$mod` delta straight to `update_nodes()` (which needs full `block` objects); it now updates the node label directly from the delta.
+- Fix [#144](https://github.com/BristolMyersSquibb/blockr.dag/issues/144): copy/paste no longer corrupts `NULL`-valued block state. The clipboard serializer missed jsonlite's `null = "null"` option, so `NULL` state fields were encoded as `{}` and came back from paste as empty `list()`, making pasted blocks error (e.g. "argument is of length zero") once connected. The clipboard now matches blockr.core's serdes encoding.
 
 # blockr.dag 0.1.0
 

@@ -168,6 +168,54 @@ test_that("copy_selected_action sends clipboard message for selected nodes", {
   )
 })
 
+test_that("copy_selected_action round-trips NULL state values (#144)", {
+  cs <- make_clipboard_spy()
+  r_board <- reactiveValues(
+    board = copy_board,
+    blocks = list(
+      a = list(
+        server = list(state = list(dataset = "BOD", package = "datasets"))
+      ),
+      b = list(server = list(state = list(n = NULL)))
+    )
+  )
+  r_update <- reactiveVal(list())
+
+  testServer(
+    function(id, ...) {
+      moduleServer(
+        id,
+        module = copy_selected_action(
+          trigger = reactive(TRUE),
+          board = r_board,
+          update = r_update,
+          dag_extension = list(
+            proxy = g6_proxy("graph", session = cs$session)
+          )
+        )
+      )
+    },
+    {
+      dag_extension$proxy$session$setInputs(
+        "graph-selected_node" = c("node-a", "node-b")
+      )
+      session$flushReact()
+
+      expect_length(cs$spy$msgs, 1L)
+      json <- cs$spy$msgs[[1]]$message$json
+
+      # NULL must serialize as JSON null, not {} (an empty object comes
+      # back from fromJSON() as list(), corrupting the pasted block state)
+      expect_match(json, "\"n\":null", fixed = TRUE)
+
+      state <- jsonlite::fromJSON(json, simplifyDataFrame = FALSE)
+      payload <- state$payload$blocks$payload$b$payload
+      expect_true("n" %in% names(payload))
+      expect_null(payload$n)
+    }
+  )
+})
+
 test_that("copy_selected_action does nothing when nothing is selected", {
   cs <- make_clipboard_spy()
   r_board <- reactiveValues(board = copy_board, blocks = list())
