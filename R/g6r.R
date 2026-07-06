@@ -431,6 +431,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
           if (!reason) return null;
           const el = document.createElement('div');
           el.className = 'blockr-dag-status-tip';
+          el.style.fontFamily = 'Open Sans, system-ui, sans-serif';
           el.textContent = reason;
           return el;
         }"
