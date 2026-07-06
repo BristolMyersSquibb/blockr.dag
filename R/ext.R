@@ -421,7 +421,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
           list(
             list(
               text = "",
-              placement = spec$placement,
+              placement = "right-bottom",
               offsetX = -2,
               offsetY = -2,
               backgroundFill = spec$color,
