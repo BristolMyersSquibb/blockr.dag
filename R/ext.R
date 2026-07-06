@@ -413,12 +413,11 @@ extension_block_callback.dag_extension <- function(x, ...) {
           return()
         }
 
-        badges <- if (is.null(status)) {
+        spec <- if (is.null(status)) NULL else blockr.dock::block_status_style(status)
+
+        badges <- if (is.null(spec)) {
           list()
         } else {
-
-          spec <- blockr.dock::block_status_style(status)
-
           list(
             list(
               text = "",
@@ -437,6 +436,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
           list(
             list(
               id = to_g6_node_id(id),
+              data = list(status_reason = coal(spec$label, "")),
               style = list(badges = badges)
             )
           )
