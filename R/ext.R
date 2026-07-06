@@ -422,11 +422,14 @@ extension_block_callback.dag_extension <- function(x, ...) {
             list(
               text = "",
               placement = spec$placement,
+              offsetX = -2,
+              offsetY = -2,
               backgroundFill = spec$color,
-              backgroundStroke = "#fff",
+              backgroundStroke = "#ffffff",
               backgroundLineWidth = 2,
               backgroundWidth = spec$size,
-              backgroundHeight = spec$size
+              backgroundHeight = spec$size,
+              backgroundRadius = spec$size / 2
             )
           )
         }
