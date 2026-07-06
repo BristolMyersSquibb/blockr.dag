@@ -424,6 +424,8 @@ extension_block_callback.dag_extension <- function(x, ...) {
               text = "",
               placement = spec$placement,
               backgroundFill = spec$color,
+              backgroundStroke = "#fff",
+              backgroundLineWidth = 2,
               backgroundWidth = spec$size,
               backgroundHeight = spec$size
             )
