@@ -643,14 +643,16 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
 
   ids <- to_g6_node_id(names(blocks))
 
-  # Build base arguments for g6_node
+  # The node sizes itself to its icon image (custom-image-node adopts the
+  # image's natural size on load), and the icon comes from the shared
+  # `blockr.dock::blk_icon_data_uri()` -- so the DAG node and the dock block
+  # card show the same-sized icon without either side stating a size.
   base_args <- list(
     id = ids,
     style = map(
       list,
-      src = blks_icon(blocks, size = 48),
-      labelText = chr_ply(blocks, block_name),
-      MoreArgs = list(size = 48)
+      src = blks_icon(blocks),
+      labelText = chr_ply(blocks, block_name)
     ),
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
     ports = map(create_block_ports, blocks, ids),
