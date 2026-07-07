@@ -68,6 +68,17 @@
   `update_observer()` handed blockr.core’s partial-argument `blocks$mod`
   delta straight to `update_nodes()` (which needs full `block` objects);
   it now updates the node label directly from the delta.
+- Fix
+  [\#144](https://github.com/BristolMyersSquibb/blockr.dag/issues/144):
+  copy/paste no longer corrupts `NULL`-valued block state.
+  `copy_selection_to_clipboard()` serialized the clipboard with
+  `toJSON()`’s default `null = "list"`, encoding `NULL` as
+  [`{}`](https://rdrr.io/r/base/Paren.html) and deserializing it back
+  into [`list()`](https://rdrr.io/r/base/list.html); pasted blocks then
+  errored on first data (e.g. `nzchar(list())` -\> “argument is of
+  length zero” in the chart and table blocks). Now passes
+  `null = "null"` to match blockr.core’s save/restore serialization,
+  round-tripping `NULL` faithfully.
 
 ## blockr.dag 0.1.0
 
