@@ -1,5 +1,5 @@
 dag_ext_srv <- function(positions) {
-  function(id, board, update, dock, actions, ...) {
+  function(id, board, update, actions, ...) {
     dot_args <- list(...)
 
     moduleServer(
@@ -60,11 +60,11 @@ dag_ext_srv <- function(positions) {
             evt <- attr(sel, "eventType")
 
             if (length(sel) == 1L && !identical(evt, "brush_select")) {
-              blockr.dock::show_panel(
-                from_g6_node_id(sel),
-                board$board,
-                dock
-              )
+              delta <- reveal_panel_delta(board$board, from_g6_node_id(sel))
+
+              if (!is.null(delta)) {
+                update(delta)
+              }
             }
           },
           label = "selected_node"
@@ -81,6 +81,30 @@ dag_ext_srv <- function(positions) {
       }
     )
   }
+}
+
+# Reveal a block's panel in the *current* view: focus it if the view already
+# holds it, otherwise add it there -- never switch to another view that happens
+# to hold it. Builds a blockr.dock views-delta for `update()`; NULL when no view
+# is active (nothing to reveal into).
+reveal_panel_delta <- function(board, block) {
+
+  views <- blockr.dock::board_views(board)
+  view <- blockr.dock::active_view(views)
+
+  if (is.null(view)) {
+    return(NULL)
+  }
+
+  pid <- as.character(blockr.dock::as_block_panel_id(block))
+
+  ops <- if (pid %in% blockr.dock::view_members(views[[view]])) {
+    list(select = pid)
+  } else {
+    list(add = set_names(list(list()), pid), select = pid)
+  }
+
+  list(views = list(mod = set_names(list(ops), view)))
 }
 
 # Bidirectional sync for the externally-controllable `positions` handle.
