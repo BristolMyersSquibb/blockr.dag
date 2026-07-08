@@ -322,28 +322,6 @@ test_that("extension_block_callback works", {
   )
 })
 
-test_that("dag_badge_status maps errors and eval status to a badge (#145)", {
-
-  # An error condition always wins -> failed (covers a render-phase error on a
-  # block that is otherwise `ready`).
-  expect_identical(dag_badge_status(2L, "ready"), "failed")
-  expect_identical(dag_badge_status(1L, NULL), "failed")
-
-  # No errors: mirror the eval status for the indicator states.
-  expect_identical(dag_badge_status(0L, "waiting"), "waiting")
-  expect_identical(dag_badge_status(0L, "unset"), "unset")
-  expect_identical(dag_badge_status(0L, "failed"), "failed")
-
-  # `ready` and an absent status carry no badge.
-  expect_null(dag_badge_status(0L, "ready"))
-  expect_null(dag_badge_status(0L, NULL))
-
-  # `dormant` means the status is not currently computed: signal "leave the
-  # badge as-is" with `NA` rather than clearing it when a block drops out of
-  # the eval set.
-  expect_identical(dag_badge_status(0L, "dormant"), NA_character_)
-})
-
 test_that("a block going dormant keeps its badge (#146)", {
   pushed <- list()
   local_mocked_bindings(

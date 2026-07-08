@@ -392,35 +392,33 @@ extension_block_callback.dag_extension <- function(x, ...) {
       label = "graph_ready"
     )
 
-    badge_status <- reactive(
+    badge <- reactive(
       {
         errors <- sum(lengths(conditions()$error))
         status <- reval_if(board$eval[[id]])
 
         log_trace("dag node badge [{id}]: eval={coal(status, 'NA')} errors={errors}")
 
-        dag_badge_status(errors, status)
+        blockr.dock::block_status_badge(status, errors)
       },
-      label = "badge_status"
+      label = "badge"
     )
 
-    drawn_status <- reactiveVal(NULL)
+    drawn_badge <- reactiveVal(NULL)
 
     observeEvent(
-      list(graph_ready(), badge_status()),
+      list(graph_ready(), badge()),
       {
         req(graph_ready())
 
-        status <- badge_status()
+        spec <- badge()
 
         # `NA` means the block is dormant: its status is not currently
         # computed (nothing renders its output), so leave the badge as-is
         # rather than clearing it when the block drops out of the eval set.
-        if (isTRUE(is.na(status)) || identical(status, drawn_status())) {
+        if (isTRUE(is.na(spec)) || identical(spec, drawn_badge())) {
           return()
         }
-
-        spec <- if (is.null(status)) NULL else blockr.dock::block_status_style(status)
 
         badges <- if (is.null(spec)) {
           list()
@@ -432,8 +430,8 @@ extension_block_callback.dag_extension <- function(x, ...) {
               offsetX = -2,
               offsetY = -2,
               backgroundFill = spec$color,
-              backgroundStroke = "#ffffff",
-              backgroundLineWidth = 2,
+              backgroundStroke = spec$ring_color,
+              backgroundLineWidth = spec$ring,
               backgroundWidth = spec$size,
               backgroundHeight = spec$size,
               backgroundRadius = spec$size / 2
@@ -451,29 +449,11 @@ extension_block_callback.dag_extension <- function(x, ...) {
           )
         )
 
-        drawn_status(status)
+        drawn_badge(spec)
       },
       label = "update_status_badge"
     )
 
     NULL
   }
-}
-
-dag_badge_status <- function(error_count, status) {
-
-  if (error_count > 0L) {
-    return("failed")
-  }
-
-  # A dormant block has no computed status; signal "leave the badge alone".
-  if (isTRUE(status == "dormant")) {
-    return(NA_character_)
-  }
-
-  if (isTRUE(status %in% c("waiting", "unset", "failed"))) {
-    return(status)
-  }
-
-  NULL
 }
