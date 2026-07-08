@@ -334,8 +334,57 @@ test_that("dag_badge_status maps errors and eval status to a badge (#145)", {
   expect_identical(dag_badge_status(0L, "unset"), "unset")
   expect_identical(dag_badge_status(0L, "failed"), "failed")
 
-  # `ready`, `dormant` and an absent status carry no badge.
+  # `ready` and an absent status carry no badge.
   expect_null(dag_badge_status(0L, "ready"))
-  expect_null(dag_badge_status(0L, "dormant"))
   expect_null(dag_badge_status(0L, NULL))
+
+  # `dormant` means the status is not currently computed: signal "leave the
+  # badge as-is" with `NA` rather than clearing it when a block drops out of
+  # the eval set.
+  expect_identical(dag_badge_status(0L, "dormant"), NA_character_)
+})
+
+test_that("a block going dormant keeps its badge (#146)", {
+  pushed <- list()
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      pushed[[length(pushed) + 1L]] <<- nodes[[1]]$style$badges
+      invisible()
+    }
+  )
+
+  status <- reactiveVal("dormant")
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        cb <- extension_block_callback(new_dag_extension())
+        cb(
+          id = "a",
+          board = list(eval = list(a = status)),
+          update = reactiveVal(NULL),
+          conditions = reactive(list(error = list())),
+          dag_extension = list(proxy = list(session = session)),
+          session = session
+        )
+      })
+    },
+    {
+      session$setInputs("graph-initialized" = TRUE)
+      session$flushReact()
+
+      # Enters the eval set as `waiting` -> exactly one badge is drawn.
+      status("waiting")
+      session$flushReact()
+      expect_length(pushed, 1L)
+      expect_length(pushed[[1L]], 1L)
+
+      # Drops out of the eval set (`dormant`): the badge must be kept, so no
+      # clearing update is pushed. Under the pre-fix behaviour `dormant`
+      # cleared the badge here, adding a second (empty-badges) push.
+      status("dormant")
+      session$flushReact()
+      expect_length(pushed, 1L)
+    }
+  )
 })

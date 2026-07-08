@@ -419,23 +419,6 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       position = "left",
       getItems = JS(build_toolbar(tools)),
       onClick = JS(toolbar_item_js(tools, ns))
-    ),
-    tooltips(
-      key = "status-tooltip",
-      trigger = "hover",
-      enable = JS("(e) => e.targetType === 'node'"),
-      getContent = JS(
-        "(e, items) => {
-          const reason = items && items[0] && items[0].data &&
-            items[0].data.status_reason;
-          if (!reason) return null;
-          const el = document.createElement('div');
-          el.className = 'blockr-dag-status-tip';
-          el.style.fontFamily = 'Open Sans, system-ui, sans-serif';
-          el.textContent = reason;
-          return el;
-        }"
-      )
     )
   )
 }

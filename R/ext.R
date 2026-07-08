@@ -409,7 +409,10 @@ extension_block_callback.dag_extension <- function(x, ...) {
 
         status <- badge_status()
 
-        if (identical(status, drawn_status())) {
+        # `NA` means the block is dormant: its status is not currently
+        # computed (nothing renders its output), so leave the badge as-is
+        # rather than clearing it when the block drops out of the eval set.
+        if (isTRUE(is.na(status)) || identical(status, drawn_status())) {
           return()
         }
 
@@ -439,7 +442,6 @@ extension_block_callback.dag_extension <- function(x, ...) {
           list(
             list(
               id = to_g6_node_id(id),
-              data = list(status_reason = coal(spec$label, "")),
               style = list(badges = badges)
             )
           )
@@ -458,6 +460,11 @@ dag_badge_status <- function(error_count, status) {
 
   if (error_count > 0L) {
     return("failed")
+  }
+
+  # A dormant block has no computed status; signal "leave the badge alone".
+  if (isTRUE(status == "dormant")) {
+    return(NA_character_)
   }
 
   if (isTRUE(status %in% c("waiting", "unset", "failed"))) {
