@@ -34,7 +34,7 @@ Imports:
     htmltools
 Remotes:
     BristolMyersSquibb/blockr.core,
-    BristolMyersSquibb/blockr.dock,
+    BristolMyersSquibb/blockr.dock@314-shared-badge-derivation,
     BristolMyersSquibb/blockr.ui,
     cynkra/g6R,
     nbenn/shinytest2@wait-for-app-serving
