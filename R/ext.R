@@ -393,10 +393,14 @@ extension_block_callback.dag_extension <- function(x, ...) {
     )
 
     badge_status <- reactive(
-      dag_badge_status(
-        sum(lengths(conditions()$error)),
-        reval_if(board$eval[[id]])
-      ),
+      {
+        errors <- sum(lengths(conditions()$error))
+        status <- reval_if(board$eval[[id]])
+
+        log_trace("dag node badge [{id}]: eval={coal(status, 'NA')} errors={errors}")
+
+        dag_badge_status(errors, status)
+      },
       label = "badge_status"
     )
 
