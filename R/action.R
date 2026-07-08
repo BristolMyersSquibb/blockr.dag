@@ -100,7 +100,8 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
   json <- tryCatch(
     as.character(jsonlite::toJSON(
       blockr_ser(subboard, blocks = states),
-      auto_unbox = TRUE
+      auto_unbox = TRUE,
+      null = "null"
     )),
     error = function(e) {
       showNotification(
