@@ -276,13 +276,15 @@ test_that("extension_block_callback works", {
       })
       res <- ext_cb(
         id = "test",
-        board = test_board,
+        board = reactiveValues(board = test_board),
         update = reactiveVal(NULL),
         conditions = conditions,
-        dag_extension = list(
-          proxy = g6_proxy(
-            "graph",
-            session = session
+        extensions = list(
+          dag = list(
+            proxy = g6_proxy(
+              "graph",
+              session = session
+            )
           )
         ),
         session = session
