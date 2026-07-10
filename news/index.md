@@ -25,6 +25,21 @@
 
 ### New features
 
+- The node status badge reflects a block’s full eval status, not just
+  error conditions
+  ([\#145](https://github.com/BristolMyersSquibb/blockr.dag/issues/145)).
+  The badge is derived by
+  [`blockr.dock::block_status_badge()`](https://bristolmyerssquibb.github.io/blockr.dock/reference/meta.html)
+  – the single derivation the dock card icon and the DAG node badge
+  share – so a node shows the same amber `waiting`, yellow `unset` or
+  red `failed` dot as the dock, with identical colour and geometry. Any
+  error condition still shows red (a render-phase error leaves a block
+  `ready` but errored). A `ready` node carries no badge; a `dormant`
+  node – one whose status is not currently computed because nothing
+  renders its output – keeps its last-known badge rather than dropping
+  it, so every invalid block stays flagged even after it leaves the eval
+  set.
+
 - Node positions are externally controllable
   ([\#120](https://github.com/BristolMyersSquibb/blockr.dag/issues/120)).
   The `positions` handle is registered via `external_ctrl`, so positions
