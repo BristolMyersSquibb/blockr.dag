@@ -301,6 +301,51 @@ test_that("extension_block_callback works", {
   )
 })
 
+test_that("a block going dormant keeps its badge (#146)", {
+  pushed <- list()
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      pushed[[length(pushed) + 1L]] <<- nodes[[1]]$style$badges
+      invisible()
+    }
+  )
+
+  status <- reactiveVal("dormant")
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        cb <- extension_block_callback(new_dag_extension())
+        cb(
+          id = "a",
+          board = list(board = test_board, eval = list(a = status)),
+          update = reactiveVal(NULL),
+          conditions = reactive(list(error = list())),
+          extensions = list(dag = list(proxy = list(session = session))),
+          session = session
+        )
+      })
+    },
+    {
+      session$setInputs("graph-initialized" = TRUE)
+      session$flushReact()
+
+      # Enters the eval set as `waiting` -> exactly one badge is drawn.
+      status("waiting")
+      session$flushReact()
+      expect_length(pushed, 1L)
+      expect_length(pushed[[1L]], 1L)
+
+      # Drops out of the eval set (`dormant`): the badge must be kept, so no
+      # clearing update is pushed. Under the pre-fix behaviour `dormant`
+      # cleared the badge here, adding a second (empty-badges) push.
+      status("dormant")
+      session$flushReact()
+      expect_length(pushed, 1L)
+    }
+  )
+})
+
 test_that("reveal_panel_delta builds a valid current-view delta (#308)", {
 
   # Default layout: every block is a member of the sole view, so revealing is

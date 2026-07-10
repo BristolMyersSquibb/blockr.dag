@@ -387,65 +387,73 @@ extension_block_callback.dag_extension <- function(x, ...) {
     ...,
     session = get_session()
   ) {
-
     dag <- dag_ext_result(board, extensions)
-
-    n_cnd <- reactive(
-      sum(lengths(conditions()$error)),
-      label = "n_cnd"
-    )
-
-    badge_count <- reactiveVal(0L)
 
     graph_ready <- reactive(
       isTRUE(dag$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
       label = "graph_ready"
     )
 
-    observeEvent(
-      req(graph_ready(), n_cnd() > 0L, n_cnd() != badge_count()),
+    badge <- reactive(
       {
-        n <- n_cnd()
+        errors <- sum(lengths(conditions()$error))
+        status <- reval_if(board$eval[[id]])
 
-        badge <- list(
-          text = "",
-          placement = "right-bottom",
-          backgroundFill = "#dc2626",
-          backgroundWidth = 10,
-          backgroundHeight = 10
-        )
+        log_trace("dag node badge [{id}]: eval={coal(status, 'NA')} errors={errors}")
 
-        node_config <- list(
-          list(
-            id = to_g6_node_id(id),
-            style = list(
-              badges = list(badge)
-            )
-          )
-        )
-
-        g6_update_nodes(dag$proxy, node_config)
-        badge_count(n)
+        blockr.dock::block_status_badge(status, errors)
       },
-      label = "show_error_badge"
+      label = "badge"
     )
 
+    drawn_badge <- reactiveVal(NULL)
+
     observeEvent(
-      req(graph_ready(), n_cnd() == 0L, badge_count() > 0L),
+      list(graph_ready(), badge()),
       {
-        node_config <- list(
+        req(graph_ready())
+
+        spec <- badge()
+
+        # `NA` means the block is dormant: its status is not currently
+        # computed (nothing renders its output), so leave the badge as-is
+        # rather than clearing it when the block drops out of the eval set.
+        if (isTRUE(is.na(spec)) || identical(spec, drawn_badge())) {
+          return()
+        }
+
+        badges <- if (is.null(spec)) {
+          list()
+        } else {
           list(
-            id = to_g6_node_id(id),
-            style = list(
-              badges = list()
+            list(
+              text = "",
+              placement = "right-bottom",
+              offsetX = -2,
+              offsetY = -2,
+              backgroundFill = spec$color,
+              backgroundStroke = spec$ring_color,
+              backgroundLineWidth = spec$ring,
+              backgroundWidth = spec$size,
+              backgroundHeight = spec$size,
+              backgroundRadius = spec$size / 2
+            )
+          )
+        }
+
+        g6_update_nodes(
+          dag$proxy,
+          list(
+            list(
+              id = to_g6_node_id(id),
+              style = list(badges = badges)
             )
           )
         )
 
-        g6_update_nodes(dag$proxy, node_config)
-        badge_count(0L)
+        drawn_badge(spec)
       },
-      label = "clear_error_badge"
+      label = "update_status_badge"
     )
 
     NULL
