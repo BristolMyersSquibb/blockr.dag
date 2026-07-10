@@ -383,12 +383,14 @@ extension_block_callback.dag_extension <- function(x, ...) {
     board,
     update,
     conditions,
-    dag_extension,
+    extensions,
     ...,
     session = get_session()
   ) {
+    dag <- dag_ext_result(board, extensions)
+
     graph_ready <- reactive(
-      isTRUE(dag_extension$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
+      isTRUE(dag$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
       label = "graph_ready"
     )
 
@@ -440,7 +442,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
         }
 
         g6_update_nodes(
-          dag_extension$proxy,
+          dag$proxy,
           list(
             list(
               id = to_g6_node_id(id),

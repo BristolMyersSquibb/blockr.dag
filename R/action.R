@@ -1,4 +1,13 @@
-draw_link_action <- function(trigger, board, update, dag_extension, ...) {
+# Resolve this board's DAG extension result from the delivered bundle. dock
+# keys an extension by the container-assigned id (its class minus `_extension`,
+# or an explicit list name), so resolve the class to that id rather than
+# hard-coding it. Exact for the common single-DAG board; several DAG extensions
+# on one board would need the instance to disambiguate.
+dag_ext_result <- function(board, extensions) {
+  extensions[[blockr.dock::extension_ids(isolate(board$board), "dag_extension")]]
+}
+
+draw_link_action <- function(trigger, board, update, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
       proxy <- blockr_g6_proxy(session)
@@ -42,10 +51,10 @@ draw_link_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
-remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
+remove_selected_action <- function(trigger, board, update, extensions, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
-      input <- dag_extension[["proxy"]]$session$input
+      input <- dag_ext_result(board, extensions)[["proxy"]]$session$input
       observeEvent(
         trigger(),
         {
@@ -78,8 +87,9 @@ remove_selected_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
-copy_selection_to_clipboard <- function(board, dag_extension) {
-  input <- dag_extension[["proxy"]]$session$input
+copy_selection_to_clipboard <- function(board, extensions) {
+  dag <- dag_ext_result(board, extensions)
+  input <- dag[["proxy"]]$session$input
   selected_nodes <- input[[paste0(graph_id(), "-selected_node")]]
   selected_combos <- input[[paste0(graph_id(), "-selected_combo")]]
 
@@ -95,7 +105,7 @@ copy_selection_to_clipboard <- function(board, dag_extension) {
 
   states <- live_block_states(board, names(subboard$blocks))
 
-  session <- dag_extension[["proxy"]]$session
+  session <- dag[["proxy"]]$session
 
   json <- tryCatch(
     as.character(jsonlite::toJSON(
@@ -129,11 +139,11 @@ remove_subboard <- function(subboard, update) {
   ))
 }
 
-copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
+copy_selected_action <- function(trigger, board, update, extensions, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
       observeEvent(trigger(), {
-        copy_selection_to_clipboard(board, dag_extension)
+        copy_selection_to_clipboard(board, extensions)
       }, label = "copy_selected")
       NULL
     },
@@ -141,11 +151,11 @@ copy_selected_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
-cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
+cut_selected_action <- function(trigger, board, update, extensions, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
       observeEvent(trigger(), {
-        subboard <- copy_selection_to_clipboard(board, dag_extension)
+        subboard <- copy_selection_to_clipboard(board, extensions)
         if (!is.null(subboard)) remove_subboard(subboard, update)
       }, label = "cut_selected")
       NULL
@@ -154,7 +164,7 @@ cut_selected_action <- function(trigger, board, update, dag_extension, ...) {
   )
 }
 
-paste_action <- function(trigger, board, update, dag_extension, ...) {
+paste_action <- function(trigger, board, update, ...) {
   blockr.dock::new_action(
     function(input, output, session) {
       observeEvent(trigger(), {
