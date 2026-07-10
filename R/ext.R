@@ -383,10 +383,13 @@ extension_block_callback.dag_extension <- function(x, ...) {
     board,
     update,
     conditions,
-    dag_extension,
+    extensions,
     ...,
     session = get_session()
   ) {
+
+    dag <- dag_ext_result(board, extensions)
+
     n_cnd <- reactive(
       sum(lengths(conditions()$error)),
       label = "n_cnd"
@@ -395,7 +398,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
     badge_count <- reactiveVal(0L)
 
     graph_ready <- reactive(
-      isTRUE(dag_extension$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
+      isTRUE(dag$proxy$session$input[[paste0(graph_id(), "-initialized")]]),
       label = "graph_ready"
     )
 
@@ -421,7 +424,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
           )
         )
 
-        g6_update_nodes(dag_extension$proxy, node_config)
+        g6_update_nodes(dag$proxy, node_config)
         badge_count(n)
       },
       label = "show_error_badge"
@@ -439,7 +442,7 @@ extension_block_callback.dag_extension <- function(x, ...) {
           )
         )
 
-        g6_update_nodes(dag_extension$proxy, node_config)
+        g6_update_nodes(dag$proxy, node_config)
         badge_count(0L)
       },
       label = "clear_error_badge"

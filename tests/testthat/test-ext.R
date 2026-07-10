@@ -99,20 +99,6 @@ test_that("ext_ui works", {
 })
 
 
-# Can we make the scope of blockr.dock before?
-dock_view_proxy <- function(
-  id,
-  data = NULL,
-  session = getDefaultReactiveDomain()
-) {
-  if (is.null(session)) {
-    stop(
-      "dock_view_proxy must be called from the server function of a Shiny app."
-    )
-  }
-  structure(list(id = id, session = session), class = "dock_view_proxy")
-}
-
 test_board <- blockr.dock::new_dock_board(
   blocks = c(
     a = new_dataset_block("iris"),
@@ -135,15 +121,6 @@ testServer(
   args = list(
     board = reactiveValues(board = test_board),
     update = reactiveVal(NULL),
-    # Mock dock returned value
-    dock = list(
-      layout = reactive(NULL), #blockr.dock::new_dock_layout()
-      proxy = dock_view_proxy(
-        "dock",
-        session = MockShinySession$new()
-      ),
-      prev_active_group = reactiveVal(NULL)
-    ),
     actions = blockr.dock::action_triggers(
       unlst(
         c(
@@ -299,13 +276,15 @@ test_that("extension_block_callback works", {
       })
       res <- ext_cb(
         id = "test",
-        board = test_board,
+        board = reactiveValues(board = test_board),
         update = reactiveVal(NULL),
         conditions = conditions,
-        dag_extension = list(
-          proxy = g6_proxy(
-            "graph",
-            session = session
+        extensions = list(
+          dag = list(
+            proxy = g6_proxy(
+              "graph",
+              session = session
+            )
           )
         ),
         session = session
@@ -318,6 +297,69 @@ test_that("extension_block_callback works", {
         errors = c("error1", "error2")
       )
       session$setInputs(errors = character(0))
+    }
+  )
+})
+
+test_that("reveal_panel_delta builds a valid current-view delta (#308)", {
+
+  # Default layout: every block is a member of the sole view, so revealing is
+  # a plain select of the existing panel.
+  paneled <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block())
+  )
+  view <- blockr.dock::active_view(blockr.dock::board_views(paneled))
+
+  d_sel <- reveal_panel_delta(paneled, "a")
+  expect_identical(d_sel$views$mod[[view]], list(select = "block_panel-a"))
+  expect_no_error(blockr.core::augment_board_update(d_sel, paneled))
+
+  # A block the current view does not hold: add it there, then select it.
+  parked <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block()),
+    views  = list(main = "a")
+  )
+
+  d_add <- reveal_panel_delta(parked, "b")
+  expect_identical(names(d_add$views$mod$main), c("add", "select"))
+  expect_identical(names(d_add$views$mod$main$add), "block_panel-b")
+  expect_identical(d_add$views$mod$main$select, "block_panel-b")
+  expect_no_error(blockr.core::augment_board_update(d_add, parked))
+
+  # Neither delta carries a top-level `active`, so a reveal never jumps views.
+  expect_null(d_sel$views$active)
+  expect_null(d_add$views$active)
+})
+
+test_that("node click emits the reveal delta on update (#308)", {
+
+  board <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block()),
+    extensions = new_dag_extension()
+  )
+
+  testServer(
+    dag_ext_srv(NULL),
+    args = list(
+      board = reactiveValues(board = board),
+      update = reactiveVal(NULL),
+      actions = blockr.dock::action_triggers(
+        unlst(
+          c(
+            list(board_actions(board)),
+            board_actions(new_dag_extension())
+          )
+        )
+      )
+    ),
+    {
+      session$setInputs(`graph-initialized` = TRUE)
+      session$setInputs(`graph-selected_node` = "node-a")
+
+      delta <- update()
+      view <- names(delta$views$mod)
+
+      expect_identical(delta$views$mod[[view]], list(select = "block_panel-a"))
     }
   )
 })

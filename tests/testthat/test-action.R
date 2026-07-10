@@ -1,4 +1,4 @@
-my_board <- new_board(
+my_board <- blockr.dock::new_dock_board(
   blocks = c(
     a = new_dataset_block(),
     b = new_head_block(),
@@ -9,7 +9,8 @@ my_board <- new_board(
     from = "c",
     to = "d",
     input = "data"
-  )
+  ),
+  extensions = new_dag_extension()
 )
 
 test_draw_link_action <- function(edge, expected_updates) {
@@ -23,13 +24,7 @@ test_draw_link_action <- function(edge, expected_updates) {
         module = draw_link_action(
           trigger = reactive(edge),
           board = r_board,
-          update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy(
-              "graph",
-              session = MockShinySession$new()
-            )
-          )
+          update = r_update
         )
       )
     },
@@ -65,6 +60,9 @@ test_that("draw link action with valid target", {
 test_that("remove_selected_action works", {
   r_board <- reactiveValues(board = my_board)
   r_update <- reactiveVal(list())
+  dag_res <- list(
+    proxy = g6_proxy("graph", session = MockShinySession$new())
+  )
 
   testServer(
     function(id, ...) {
@@ -74,18 +72,13 @@ test_that("remove_selected_action works", {
           trigger = reactive(TRUE),
           board = r_board,
           update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy(
-              "graph",
-              session = MockShinySession$new()
-            )
-          )
+          extensions = list(dag = dag_res)
         )
       )
     },
     {
       expect_length(r_update(), 0L)
-      dag_extension$proxy$session$setInputs(
+      dag_res$proxy$session$setInputs(
         "graph-selected_node" = c("a", "b"),
         "graph-selected_edge" = "c-d"
       )
@@ -104,7 +97,7 @@ test_that("remove_selected_action works", {
 
 # --- Copy / Cut / Paste fixtures and helpers ---
 
-copy_board <- new_board(
+copy_board <- blockr.dock::new_dock_board(
   blocks = c(
     a = new_dataset_block(),
     b = new_head_block(),
@@ -112,7 +105,8 @@ copy_board <- new_board(
     d = new_scatter_block()
   ),
   links = list(from = "a", to = "b", input = "data"),
-  stacks = list(s1 = new_stack(c("a", "b")))
+  stacks = list(s1 = new_stack(c("a", "b"))),
+  extensions = new_dag_extension()
 )
 
 make_clipboard_spy <- function() {
@@ -131,6 +125,9 @@ test_that("copy_selected_action sends clipboard message for selected nodes", {
   cs <- make_clipboard_spy()
   r_board <- reactiveValues(board = copy_board, blocks = list())
   r_update <- reactiveVal(list())
+  dag_res <- list(
+    proxy = g6_proxy("graph", session = cs$session)
+  )
 
   testServer(
     function(id, ...) {
@@ -140,15 +137,13 @@ test_that("copy_selected_action sends clipboard message for selected nodes", {
           trigger = reactive(TRUE),
           board = r_board,
           update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = cs$session)
-          )
+          extensions = list(dag = dag_res)
         )
       )
     },
     {
       expect_length(r_update(), 0L)
-      dag_extension$proxy$session$setInputs(
+      dag_res$proxy$session$setInputs(
         "graph-selected_node" = c("node-a", "node-b")
       )
       session$flushReact()
@@ -172,6 +167,9 @@ test_that("copy_selected_action does nothing when nothing is selected", {
   cs <- make_clipboard_spy()
   r_board <- reactiveValues(board = copy_board, blocks = list())
   r_update <- reactiveVal(list())
+  dag_res <- list(
+    proxy = g6_proxy("graph", session = cs$session)
+  )
 
   testServer(
     function(id, ...) {
@@ -181,9 +179,7 @@ test_that("copy_selected_action does nothing when nothing is selected", {
           trigger = reactive(TRUE),
           board = r_board,
           update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = cs$session)
-          )
+          extensions = list(dag = dag_res)
         )
       )
     },
@@ -203,6 +199,9 @@ test_that("cut_selected_action copies to clipboard and removes", {
   cs <- make_clipboard_spy()
   r_board <- reactiveValues(board = copy_board, blocks = list())
   r_update <- reactiveVal(list())
+  dag_res <- list(
+    proxy = g6_proxy("graph", session = cs$session)
+  )
 
   testServer(
     function(id, ...) {
@@ -212,15 +211,13 @@ test_that("cut_selected_action copies to clipboard and removes", {
           trigger = reactive(TRUE),
           board = r_board,
           update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = cs$session)
-          )
+          extensions = list(dag = dag_res)
         )
       )
     },
     {
       expect_length(r_update(), 0L)
-      dag_extension$proxy$session$setInputs(
+      dag_res$proxy$session$setInputs(
         "graph-selected_node" = c("node-a", "node-b")
       )
       session$flushReact()
@@ -243,6 +240,9 @@ test_that("cut_selected_action does nothing when nothing is selected", {
   cs <- make_clipboard_spy()
   r_board <- reactiveValues(board = copy_board, blocks = list())
   r_update <- reactiveVal(list())
+  dag_res <- list(
+    proxy = g6_proxy("graph", session = cs$session)
+  )
 
   testServer(
     function(id, ...) {
@@ -252,9 +252,7 @@ test_that("cut_selected_action does nothing when nothing is selected", {
           trigger = reactive(TRUE),
           board = r_board,
           update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = cs$session)
-          )
+          extensions = list(dag = dag_res)
         )
       )
     },
@@ -286,10 +284,7 @@ test_that("paste_action adds remapped blocks/links/stacks", {
         module = paste_action(
           trigger = reactive(json_str),
           board = r_board,
-          update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = MockShinySession$new())
-          )
+          update = r_update
         )
       )
     },
@@ -321,10 +316,7 @@ test_that("paste_action ignores invalid JSON", {
         module = paste_action(
           trigger = reactive("not valid json {{{"),
           board = r_board,
-          update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = MockShinySession$new())
-          )
+          update = r_update
         )
       )
     },
@@ -352,10 +344,7 @@ test_that("paste_action with empty subboard produces empty add lists", {
         module = paste_action(
           trigger = reactive(json_str),
           board = r_board,
-          update = r_update,
-          dag_extension = list(
-            proxy = g6_proxy("graph", session = MockShinySession$new())
-          )
+          update = r_update
         )
       )
     },
