@@ -79,6 +79,24 @@
   length zero” in the chart and table blocks). Now passes
   `null = "null"` to match blockr.core’s save/restore serialization,
   round-tripping `NULL` faithfully.
+- Fix
+  [blockr.dock#308](https://github.com/BristolMyersSquibb/blockr.dock/issues/308):
+  single-clicking a DAG node opens the block’s panel again.
+  `blockr.dock` retired the live `dock` handle from the extension server
+  surface, which the node-select observer passed to
+  `blockr.dock::show_panel()`. The observer now emits a `views` update
+  delta built with `blockr.dock`’s panel-op grammar (`select`, or
+  `add` + `select` when absent) to reveal the block’s panel in the
+  current view, adding it there if the view does not already hold it —
+  without switching to another view.
+- Track `blockr.dock`’s extension-identity redesign. An extension’s
+  runtime id is now the container-assigned key (its class minus the
+  `_extension` suffix, or an explicit list name), and extension results
+  reach actions and block callbacks as one `extensions` bundle keyed by
+  that id rather than a splatted argument named after the id. The DAG
+  actions and the block-status callback now resolve their result with
+  `blockr.dock::extension_ids(board$board, "dag_extension")` and index
+  the bundle explicitly, instead of binding a `dag_extension` formal.
 
 ## blockr.dag 0.1.0
 

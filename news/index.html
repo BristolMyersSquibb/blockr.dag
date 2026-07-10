@@ -60,6 +60,8 @@
 <li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/110" class="external-link">#110</a>: copy/cut keyboard shortcuts no longer hijack plain text selections (column names, error messages, etc.).</li>
 <li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/123" class="external-link">#123</a>: renaming a block now relabels its DAG node instead of erroring. <code>update_observer()</code> handed blockr.core’s partial-argument <code>blocks$mod</code> delta straight to <code>update_nodes()</code> (which needs full <code>block</code> objects); it now updates the node label directly from the delta.</li>
 <li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dag/issues/144" class="external-link">#144</a>: copy/paste no longer corrupts <code>NULL</code>-valued block state. <code>copy_selection_to_clipboard()</code> serialized the clipboard with <code>toJSON()</code>’s default <code>null = "list"</code>, encoding <code>NULL</code> as <code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{}</a></code> and deserializing it back into <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>; pasted blocks then errored on first data (e.g. <code>nzchar(list())</code> -&gt; “argument is of length zero” in the chart and table blocks). Now passes <code>null = "null"</code> to match blockr.core’s save/restore serialization, round-tripping <code>NULL</code> faithfully.</li>
+<li>Fix <a href="https://github.com/BristolMyersSquibb/blockr.dock/issues/308" class="external-link">blockr.dock#308</a>: single-clicking a DAG node opens the block’s panel again. <code>blockr.dock</code> retired the live <code>dock</code> handle from the extension server surface, which the node-select observer passed to <code>blockr.dock::show_panel()</code>. The observer now emits a <code>views</code> update delta built with <code>blockr.dock</code>’s panel-op grammar (<code>select</code>, or <code>add</code> + <code>select</code> when absent) to reveal the block’s panel in the current view, adding it there if the view does not already hold it — without switching to another view.</li>
+<li>Track <code>blockr.dock</code>’s extension-identity redesign. An extension’s runtime id is now the container-assigned key (its class minus the <code>_extension</code> suffix, or an explicit list name), and extension results reach actions and block callbacks as one <code>extensions</code> bundle keyed by that id rather than a splatted argument named after the id. The DAG actions and the block-status callback now resolve their result with <code>blockr.dock::extension_ids(board$board, "dag_extension")</code> and index the bundle explicitly, instead of binding a <code>dag_extension</code> formal.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -75,7 +77,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
