@@ -116,13 +116,13 @@ live_block_states <- function(board, block_ids) {
 
 # --- ID remapping helpers ---
 
+# Block names are kept as-is on paste: a pasted group is offset on the canvas
+# and selected, so a " (copy)" suffix carries no extra provenance, while the
+# mass-renaming makes large copies painful. Stacks keep the suffix for
+# group-level provenance (see remap_stacks()).
 remap_blocks <- function(blocks, id_map) {
   blk_list <- as.list(blocks)
   names(blk_list) <- id_map[names(blk_list)]
-  blk_list <- lapply(blk_list, function(blk) {
-    block_name(blk) <- paste0(block_name(blk), " (copy)")
-    blk
-  })
   as_blocks(blk_list)
 }
 
