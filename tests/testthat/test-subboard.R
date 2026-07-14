@@ -197,20 +197,16 @@ test_that("empty subboard round-trips", {
 
 # --- remap_blocks() ---
 
-test_that("remap_blocks() remaps IDs and adds (copy) suffix", {
+test_that("remap_blocks() remaps IDs and keeps block names as-is", {
   sb <- extract_subboard(test_board, block_ids = c("a", "b"))
   id_map <- c(a = "x1", b = "x2")
 
   remapped <- remap_blocks(sb$blocks, id_map)
   expect_named(remapped, c("x1", "x2"))
-  expect_true(all(grepl(
-    "\\(copy\\)$",
-    vapply(
-      as.list(remapped),
-      block_name,
-      character(1)
-    )
-  )))
+  expect_identical(
+    vapply(as.list(remapped), block_name, character(1), USE.NAMES = FALSE),
+    vapply(as.list(sb$blocks), block_name, character(1), USE.NAMES = FALSE)
+  )
 })
 
 # --- remap_links() ---
@@ -278,12 +274,18 @@ test_that("remap_subboard_ids() preserves counts", {
   expect_length(remapped$stacks, length(sb$stacks))
 })
 
-test_that("remap_subboard_ids() adds (copy) suffix to block names", {
+test_that("remap_subboard_ids() keeps block names, suffixes stack names", {
   sb <- extract_subboard(test_board, block_ids = c("a", "b"))
   remapped <- remap_subboard_ids(sb, test_board)
 
   nms <- vapply(as.list(remapped$blocks), block_name, character(1))
-  expect_true(all(grepl("\\(copy\\)$", nms)))
+  expect_identical(
+    unname(nms),
+    unname(vapply(as.list(sb$blocks), block_name, character(1)))
+  )
+
+  stk_nms <- vapply(as.list(remapped$stacks), stack_name, character(1))
+  expect_true(all(grepl("\\(copy\\)$", stk_nms)))
 })
 
 test_that("remap_subboard_ids() links reference new block IDs", {
