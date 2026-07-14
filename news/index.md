@@ -40,6 +40,12 @@
   it, so every invalid block stays flagged even after it leaves the eval
   set.
 
+- Pasted blocks keep their original names; the `" (copy)"` suffix is
+  gone from blocks. A pasted group is offset on the canvas and selected,
+  so the label carried no extra information, and mass-renaming made
+  copying larger app parts painful. Stacks keep the suffix
+  (`Cohort (copy)`) as group-level provenance.
+
 - Node positions are externally controllable
   ([\#120](https://github.com/BristolMyersSquibb/blockr.dag/issues/120)).
   The `positions` handle is registered via `external_ctrl`, so positions
