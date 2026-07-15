@@ -264,39 +264,89 @@ test_that("a block-name mod delta relabels the node", {
   )
 })
 
-test_that("extension_block_callback works", {
-  ext_cb <- extension_block_callback(new_dag_extension())
+empty_cnd <- function() {
+  data.frame(
+    block = character(),
+    phase = character(),
+    severity = character(),
+    message = character(),
+    id = character()
+  )
+}
+
+err_cnd <- function(block) {
+  data.frame(
+    block = block,
+    phase = "eval",
+    severity = "error",
+    message = "boom",
+    id = "e1"
+  )
+}
+
+status_badge_test_board <- function(statuses, conditions = reactive(empty_cnd())) {
+  list(
+    blocks = set_names(vector("list", length(statuses)), names(statuses)),
+    eval = statuses,
+    conditions = conditions
+  )
+}
+
+test_that("status badges repaint changed nodes in one batched push", {
+  pushed <- list()
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      pushed[[length(pushed) + 1L]] <<- nodes
+      invisible()
+    }
+  )
+
+  a <- reactiveVal("ready")
+  b <- reactiveVal("ready")
+  d <- reactiveVal("ready")
+
+  board <- status_badge_test_board(list(a = a, b = b, d = d))
 
   testServer(
-    function(input, output, session) {
-      conditions <- reactive({
-        list(
-          errors = input$errors
-        )
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        status_badge_observer(board, NULL, session)
       })
-      res <- ext_cb(
-        id = "test",
-        board = reactiveValues(board = test_board),
-        update = reactiveVal(NULL),
-        conditions = conditions,
-        extensions = list(
-          dag = list(
-            proxy = g6_proxy(
-              "graph",
-              session = session
-            )
-          )
-        ),
-        session = session
-      )
     },
     {
-      expect_null(res)
-      session$setInputs(
-        `graph-initialized` = TRUE,
-        errors = c("error1", "error2")
+      session$setInputs("graph-initialized" = TRUE)
+      session$flushReact()
+
+      # `ready` carries no badge -> nothing is painted.
+      expect_length(pushed, 0L)
+
+      # Three blocks change status in a single flush -> ONE batched push
+      # carrying all three node configs. The pre-fix per-block observers would
+      # each fire and emit a separate `g6_update_nodes()` call.
+      a("waiting")
+      b("unset")
+      d("failed")
+      session$flushReact()
+
+      expect_length(pushed, 1L)
+      expect_length(pushed[[1L]], 3L)
+      expect_setequal(
+        vapply(pushed[[1L]], `[[`, character(1L), "id"),
+        to_g6_node_id(c("a", "b", "d"))
       )
-      session$setInputs(errors = character(0))
+
+      # Only `a` changes next -> a single-node push; `b` / `d` are untouched.
+      a("ready")
+      session$flushReact()
+
+      expect_length(pushed, 2L)
+      expect_length(pushed[[2L]], 1L)
+      expect_identical(pushed[[2L]][[1L]]$id, to_g6_node_id("a"))
+      expect_length(pushed[[2L]][[1L]]$style$badges, 0L)
+
+      # A flush that changes no status must not repaint anything.
+      session$flushReact()
+      expect_length(pushed, 2L)
     }
   )
 })
@@ -305,36 +355,34 @@ test_that("a block going dormant keeps its badge (#146)", {
   pushed <- list()
   local_mocked_bindings(
     g6_update_nodes = function(proxy, nodes) {
-      pushed[[length(pushed) + 1L]] <<- nodes[[1]]$style$badges
+      pushed[[length(pushed) + 1L]] <<- nodes
       invisible()
     }
   )
 
   status <- reactiveVal("dormant")
 
+  board <- status_badge_test_board(list(a = status))
+
   testServer(
     function(id) {
       moduleServer(id, function(input, output, session) {
-        cb <- extension_block_callback(new_dag_extension())
-        cb(
-          id = "a",
-          board = list(board = test_board, eval = list(a = status)),
-          update = reactiveVal(NULL),
-          conditions = reactive(list(error = list())),
-          extensions = list(dag = list(proxy = list(session = session))),
-          session = session
-        )
+        status_badge_observer(board, NULL, session)
       })
     },
     {
       session$setInputs("graph-initialized" = TRUE)
       session$flushReact()
 
+      # Dormant on entry: an `NA` spec paints nothing.
+      expect_length(pushed, 0L)
+
       # Enters the eval set as `waiting` -> exactly one badge is drawn.
       status("waiting")
       session$flushReact()
       expect_length(pushed, 1L)
-      expect_length(pushed[[1L]], 1L)
+      expect_identical(pushed[[1L]][[1L]]$id, to_g6_node_id("a"))
+      expect_length(pushed[[1L]][[1L]]$style$badges, 1L)
 
       # Drops out of the eval set (`dormant`): the badge must be kept, so no
       # clearing update is pushed. Under the pre-fix behaviour `dormant`
@@ -342,6 +390,49 @@ test_that("a block going dormant keeps its badge (#146)", {
       status("dormant")
       session$flushReact()
       expect_length(pushed, 1L)
+    }
+  )
+})
+
+test_that("a render-phase error promotes the badge to failed", {
+  pushed <- list()
+  local_mocked_bindings(
+    g6_update_nodes = function(proxy, nodes) {
+      pushed[[length(pushed) + 1L]] <<- nodes
+      invisible()
+    }
+  )
+
+  conditions <- reactiveVal(empty_cnd())
+
+  board <- status_badge_test_board(
+    list(a = reactiveVal("ready")),
+    conditions = conditions
+  )
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        status_badge_observer(board, NULL, session)
+      })
+    },
+    {
+      session$setInputs("graph-initialized" = TRUE)
+      session$flushReact()
+
+      # `ready` with no conditions carries no badge.
+      expect_length(pushed, 0L)
+
+      # An error condition promotes a `ready` block to a red `failed` badge.
+      conditions(err_cnd("a"))
+      session$flushReact()
+
+      expect_length(pushed, 1L)
+      expect_length(pushed[[1L]][[1L]]$style$badges, 1L)
+      expect_identical(
+        pushed[[1L]][[1L]]$style$badges[[1L]]$backgroundFill,
+        "#dc2626"
+      )
     }
   )
 })

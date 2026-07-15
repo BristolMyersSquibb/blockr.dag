@@ -72,6 +72,8 @@ dag_ext_srv <- function(positions) {
 
         empty_state_observer(board, session)
 
+        status_badge_observer(board, proxy, session)
+
         list(
           state = list(
             positions = ext_positions
@@ -319,4 +321,124 @@ empty_state_observer <- function(board, session) {
     },
     label = "empty_state"
   )
+}
+
+# Paint DAG node status badges from a single board-level observer. Each block's
+# status (`board$eval[[id]]`) transitively depends on the board-wide needed set,
+# so a per-block observer re-derives and re-fires across every node whenever the
+# eval set shifts -- O(n^2) during a construction storm, growing with the block
+# count. Reading all specs once per flush, diffing against the last-drawn set
+# and pushing only the changed nodes in one `g6_update_nodes()` call collapses
+# that to a single reactive.
+status_badge_observer <- function(board, proxy, session = get_session()) {
+
+  graph_ready <- reactive(
+    isTRUE(session$input[[paste0(graph_id(), "-initialized")]]),
+    label = "graph_ready"
+  )
+
+  specs <- reactive(
+    {
+      ids <- names(board$blocks)
+
+      if (!length(ids)) {
+        return(set_names(list(), character()))
+      }
+
+      errors <- block_error_counts(board$conditions(), ids)
+
+      set_names(
+        lapply(
+          ids,
+          function(id) {
+            blockr.dock::block_status_badge(
+              reval_if(board$eval[[id]]),
+              errors[[id]]
+            )
+          }
+        ),
+        ids
+      )
+    },
+    label = "status_badges"
+  )
+
+  drawn <- reactiveVal(set_names(list(), character()))
+
+  observeEvent(
+    list(graph_ready(), specs()),
+    {
+      req(graph_ready())
+
+      current <- specs()
+      last <- drawn()
+
+      changed <- Filter(
+        function(id) {
+          !isTRUE(is.na(current[[id]])) && !identical(current[[id]], last[[id]])
+        },
+        names(current)
+      )
+
+      if (!length(changed)) {
+        return()
+      }
+
+      log_trace("dag node badges: repainting {length(changed)} node(s)")
+
+      g6_update_nodes(
+        proxy,
+        lapply(changed, function(id) badge_node_config(id, current[[id]]))
+      )
+
+      for (id in changed) {
+        last[[id]] <- current[[id]]
+      }
+
+      drawn(last)
+    },
+    label = "status_badges"
+  )
+}
+
+# `spec` is a `blockr.dock::block_status_badge()` result: `NULL` clears the
+# node's badge, a style list paints a coloured dot. `NA` (dormant) is filtered
+# out before reaching here.
+badge_node_config <- function(id, spec) {
+
+  badges <- if (is.null(spec)) {
+    list()
+  } else {
+    list(
+      list(
+        text = "",
+        placement = "right-bottom",
+        offsetX = -2,
+        offsetY = -2,
+        backgroundFill = spec$color,
+        backgroundStroke = spec$ring_color,
+        backgroundLineWidth = spec$ring,
+        backgroundWidth = spec$size,
+        backgroundHeight = spec$size,
+        backgroundRadius = spec$size / 2
+      )
+    )
+  }
+
+  list(
+    id = to_g6_node_id(id),
+    style = list(badges = badges)
+  )
+}
+
+block_error_counts <- function(conditions, ids) {
+
+  errors <- conditions[
+    conditions$phase != "status" & conditions$severity == "error", ,
+    drop = FALSE
+  ]
+
+  errors <- errors[!duplicated(errors[c("block", "id")]), , drop = FALSE]
+
+  as.list(table(factor(errors$block, levels = ids)))
 }
