@@ -1,6 +1,6 @@
 Package: blockr.dag
 Title: A Directed Acyclic Graph Extension for 'blockr'
-Version: 0.1.2
+Version: 0.1.5
 Authors@R: 
     c(person(given = "David",
              family = "Granjon",
@@ -26,18 +26,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
-    blockr.core (>= 0.1.2.9000),
+    blockr.core (>= 0.1.3),
     blockr.dock (>= 0.1.2),
     shiny,
-    g6R (>= 0.6.0.9001),
+    g6R (>= 0.6.5),
     jsonlite,
     htmltools
-Remotes:
-    BristolMyersSquibb/blockr.core,
-    BristolMyersSquibb/blockr.dock,
-    BristolMyersSquibb/blockr.ui,
-    cynkra/g6R,
-    nbenn/shinytest2@wait-for-app-serving
 Suggests:
     knitr,
     rmarkdown,

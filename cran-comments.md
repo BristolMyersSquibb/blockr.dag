@@ -1,10 +1,13 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* This is a new release.
+## Comments
 
-## Note
+This release fixes the WARNING on the CRAN checks of blockr.dag 0.1.2
+(https://cran.r-project.org/web/checks/check_results_blockr.dag.html):
+"Missing or unexported object: 'blockr.dock::show_panel'". blockr.dag no
+longer uses that removed function.
 
-This will solve an issue with CRAN version: https://cran.r-project.org/web/checks/check_results_blockr.dag.html.
-blockr.dock has also been submitted earlier and on its way to CRAN. Hopefully the timing is good.
+This version depends on g6R (>= 0.6.5), which has been submitted to CRAN
+ahead of this package.
