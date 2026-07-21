@@ -37,7 +37,7 @@ Remotes:
     BristolMyersSquibb/blockr.dock,
     BristolMyersSquibb/blockr.ui,
     cynkra/g6R,
-    nbenn/shinytest2@wait-for-app-serving
+    rstudio/shinytest2
 Suggests:
     knitr,
     rmarkdown,
