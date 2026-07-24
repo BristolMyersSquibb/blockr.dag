@@ -79,11 +79,15 @@ resolve_mod_deltas <- function(deltas, current, updater, wrap) {
 }
 
 update_action_trigger <- function(action_name, input_name) {
-  function(actions, session = get_session()) {
-    observeEvent(
-      session$input[[input_name]],
-      actions[[action_name]](session$input[[input_name]]),
-      label = action_name
-    )
-  }
+  structure(
+    function(actions, session = get_session()) {
+      observeEvent(
+        session$input[[input_name]],
+        actions[[action_name]](session$input[[input_name]]),
+        label = action_name
+      )
+    },
+    action_name = action_name,
+    input_name = input_name
+  )
 }
