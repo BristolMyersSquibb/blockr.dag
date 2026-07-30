@@ -45,10 +45,10 @@ to_g6_port_id <- function(x, node) {
   x
 }
 
-g6_from_board <- function(board, positions = NULL) {
+g6_from_board <- function(board, positions = NULL, rankdir = "TB") {
   stopifnot(is_board(board))
 
-  graph <- g6_data_from_board(board)
+  graph <- g6_data_from_board(board, rankdir = rankdir)
 
   g6(
     nodes = merge_node_positions(graph_nodes(graph), positions),
@@ -169,8 +169,9 @@ use_svg_renderer <- function() {
   isTRUE(getOption("blockr.dag.svg_renderer", FALSE))
 }
 
-set_g6_options <- function(graph, ...) {
+set_g6_options <- function(graph, ..., rankdir = "TB") {
   renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
+  edge_type <- dag_orientation(rankdir)[["edge"]]
   g6_options(
     graph,
     ...,
@@ -214,7 +215,7 @@ set_g6_options <- function(graph, ...) {
       )
     ),
     edge = list(
-      type = "cubic-vertical",
+      type = edge_type,
       style = list(
         zIndex = -1,
         endArrow = TRUE,
@@ -254,22 +255,6 @@ set_g6_options <- function(graph, ...) {
 
 set_g6_layout <- function(graph, layout = NULL) {
   g6_layout(graph, layout = layout %||% default_dag_layout())
-}
-
-# Built-in DAG layout, tuned to stay compact on larger boards. Relative to the
-# g6 antv-dagre defaults: tighter `nodesep` so wide rows of siblings don't
-# blow up horizontally, `tight-tree` ranker which packs ranks more densely
-# than `network-simplex`, and `nodeSize` set to the node footprint (48px icon
-# plus padding) so dagre's collision spacing matches the rendered nodes.
-default_dag_layout <- function() {
-  antv_dagre_layout(
-    begin = c(150, 150),
-    nodesep = 20,
-    ranksep = 50,
-    ranker = "tight-tree",
-    nodeSize = 60,
-    sortByCombo = TRUE
-  )
 }
 
 set_g6_behaviors <- function(graph, ..., ns) {
@@ -442,12 +427,15 @@ init_g6 <- function(board, positions = NULL, layout = NULL, ...,
                     session = get_session()) {
   ns <- session$ns
 
+  # Port sides and edge curve follow the layout's flow direction.
+  rankdir <- layout_rankdir(layout %||% default_dag_layout())
+
   # The board is the single source of truth for nodes / edges / combos and
   # all board-derived styling. The extension owns only board-independent view
   # attributes: node positions overlaid on top, and the layout.
-  res <- g6_from_board(board, positions)
+  res <- g6_from_board(board, positions, rankdir = rankdir)
 
-  res <- set_g6_options(res)
+  res <- set_g6_options(res, rankdir = rankdir)
   res <- set_g6_layout(res, layout)
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
@@ -504,12 +492,13 @@ resolve_target_ports <- function(links, blocks) {
 #' @rdname g6r
 #' @param links Board links.
 #' @param blocks Board blocks
-g6_edges_from_links <- function(links, blocks) {
+g6_edges_from_links <- function(links, blocks, rankdir = "TB") {
   if (length(links) == 0) {
     return()
   }
   source_id <- to_g6_node_id(links$from)
   target_ports <- resolve_target_ports(links, blocks)
+  edge_type <- dag_orientation(rankdir)[["edge"]]
 
   res <- map(
     g6_edge,
@@ -526,7 +515,7 @@ g6_edges_from_links <- function(links, blocks) {
       # node id, we are good to go!
       targetPort = target_ports
     ),
-    MoreArgs = list(type = "cubic-vertical")
+    MoreArgs = list(type = edge_type)
   )
 
   if (length(res)) {
@@ -540,11 +529,12 @@ g6_edges_from_links <- function(links, blocks) {
 #' @param block Block object.
 #' @param id Block ID.
 #' @keywords internal
-create_block_ports <- function(block, id) {
+create_block_ports <- function(block, id, rankdir = "TB") {
   inputs <- blockr.core::block_inputs(block)
   arity <- blockr.core::block_arity(block)
   input_ports <- list()
   fill_col <- blks_color(block)
+  orient <- dag_orientation(rankdir)
 
   # variadic input
   if (is_variadic_block(block)) {
@@ -552,7 +542,7 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-in", id),
       label = "in",
       arity = Inf,
-      placement = "top",
+      placement = orient[["input"]],
       fill = fill_col,
       r = 3
     ))
@@ -562,24 +552,24 @@ create_block_ports <- function(block, id) {
       key = sprintf("%s-%s", id, inputs[1]),
       label = inputs[1],
       arity = 1,
-      placement = "top",
+      placement = orient[["input"]],
       fill = fill_col,
       r = 3
     ))
   } else if (length(inputs) > 1) {
-    # Multi input
+    # Multi input: spread the ports along the node's input edge.
     n <- length(inputs)
     if (n == 1) {
-      xs <- 0.5
+      fracs <- 0.5
     } else {
-      xs <- seq(0.15, 0.85, length.out = n)
+      fracs <- seq(0.15, 0.85, length.out = n)
     }
     input_ports <- lapply(seq_along(inputs), function(i) {
       g6_input_port(
         key = sprintf("%s-%s", id, inputs[i]),
         label = inputs[i],
         arity = 1,
-        placement = c(xs[i], 0),
+        placement = port_placement(orient, fracs[i]),
         fill = fill_col,
         r = 3
       )
@@ -594,7 +584,7 @@ create_block_ports <- function(block, id) {
       key = out_id,
       label = NULL,
       arity = Inf,
-      placement = "label-bottom",
+      placement = orient[["output"]],
       fill = fill_col,
       r = 3
     ))
@@ -629,7 +619,8 @@ get_children_from_links <- function(links) {
 #' @param stacks Board stacks.
 #' @param children Named list of children node IDs (optional).
 #' @keywords internal
-g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
+g6_nodes_from_blocks <- function(blocks, stacks, children = NULL,
+                                 rankdir = "TB") {
   stk_blks <- lapply(stacks, stack_blocks)
 
   stk_blks <- set_names(
@@ -651,7 +642,7 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
       labelText = chr_ply(blocks, block_name)
     ),
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
-    ports = map(create_block_ports, blocks, ids),
+    ports = map(create_block_ports, blocks, ids, MoreArgs = list(rankdir = rankdir)),
     collapse = lapply(blocks, function(block) {
       g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
     })
@@ -725,7 +716,7 @@ g6_combos_data_from_stacks <- function(stacks) {
 #' @keywords internal
 #' @param board Board object.
 #' @rdname g6r
-g6_data_from_board <- function(board) {
+g6_data_from_board <- function(board, rankdir = "TB") {
   # Cold start
   links <- board_links(board)
   blocks <- board_blocks(board)
@@ -734,9 +725,9 @@ g6_data_from_board <- function(board) {
   # Get children relationships from links
   children <- get_children_from_links(links)
 
-  edges_data <- g6_edges_from_links(links, blocks)
+  edges_data <- g6_edges_from_links(links, blocks, rankdir = rankdir)
   combos_data <- g6_combos_data_from_stacks(stacks)
-  nodes_data <- g6_nodes_from_blocks(blocks, stacks, children)
+  nodes_data <- g6_nodes_from_blocks(blocks, stacks, children, rankdir = rankdir)
 
   new_graph(
     nodes = nodes_data,
@@ -775,8 +766,9 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
-  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy(),
+                      rankdir = "TB") {
+  nodes <- g6_nodes_from_blocks(blocks, board_stacks(board), rankdir = rankdir)
 
   mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
   base_x <- mouse_pos$x %||% 150
@@ -822,8 +814,9 @@ relabel_nodes <- function(mods, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
-add_edges <- function(links, blocks, proxy = blockr_g6_proxy()) {
-  edges <- g6_edges_from_links(links, blocks)
+add_edges <- function(links, blocks, proxy = blockr_g6_proxy(),
+                      rankdir = "TB") {
+  edges <- g6_edges_from_links(links, blocks, rankdir = rankdir)
   g6_add_edges(proxy, edges)
 
   invisible()

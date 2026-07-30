@@ -53,7 +53,12 @@ dag_ext_srv <- function(positions, layout) {
         actions_observers(actions, proxy)
         setup_sidebar_retarget(c(context_menu, toolbar), actions, board, proxy)
 
-        update_observer(update, board, proxy)
+        update_observer(
+          update,
+          board,
+          proxy,
+          rankdir = layout_rankdir(layout %||% default_dag_layout())
+        )
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
@@ -171,14 +176,14 @@ setup_positions_ctrl <- function(positions, proxy, session = get_session()) {
   rv
 }
 
-update_observer <- function(update, board, proxy) {
+update_observer <- function(update, board, proxy, rankdir = "TB") {
   observeEvent(
     update(),
     {
       upd <- update()
 
       if (length(upd$blocks$add)) {
-        add_nodes(upd$blocks$add, board$board, proxy)
+        add_nodes(upd$blocks$add, board$board, proxy, rankdir = rankdir)
       }
 
       if (length(upd$blocks$mod)) {
@@ -194,7 +199,7 @@ update_observer <- function(update, board, proxy) {
         if (length(upd$blocks$add)) {
           blocks <- c(blocks, upd$blocks$add)
         }
-        add_edges(upd$links$add, blocks, proxy)
+        add_edges(upd$links$add, blocks, proxy, rankdir = rankdir)
       }
 
       if (length(upd$links$mod)) {

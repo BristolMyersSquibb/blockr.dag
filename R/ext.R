@@ -23,12 +23,11 @@
 #' auto-layout currently computes final node placement at cold start, so
 #' supplied positions are not yet honored over it (a follow-up will let
 #' positions pin over the layout).
-#' @param layout Layout for the DAG, as returned by a g6R layout function
-#' (e.g. [g6R::antv_dagre_layout()], [g6R::dagre_layout()],
-#' [g6R::d3_force_layout()]). `NULL` (default) uses a built-in `antv-dagre`
-#' layout tuned for larger boards. Persisted across save / restore for
-#' JSON-serializable layouts (layouts carrying `JS()` callbacks do not
-#' round-trip).
+#' @param layout DAG layout, as returned by [dag_layout()]. `NULL` (default)
+#' uses [dag_layout()]'s top-down default. For large, wide boards pass
+#' `dag_layout(rankdir = "LR")` to keep the graph compact and avoid label
+#' overlap. The flow direction also sets the node port sides and edge curve.
+#' Persisted across save / restore.
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system

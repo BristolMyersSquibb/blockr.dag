@@ -124,22 +124,22 @@ test_that("g6_from_board builds a widget from the board", {
   expect_s3_class(res, c("g6", "htmlwidget"))
 })
 
-test_that("default_dag_layout is a serializable antv-dagre layout", {
+test_that("default_dag_layout is a serializable top-down antv-dagre", {
   lay <- default_dag_layout()
   expect_identical(lay$type, "antv-dagre")
-  expect_identical(lay$nodesep, 20)
-  expect_identical(lay$ranker, "tight-tree")
+  expect_identical(lay$rankdir, "TB")
+  expect_identical(lay$ranker, "network-simplex")
   # No JS callbacks, so it survives a JSON round trip (save / restore)
   rt <- jsonlite::fromJSON(jsonlite::toJSON(lay, auto_unbox = TRUE))
   expect_identical(rt$type, "antv-dagre")
-  expect_identical(rt$ranker, "tight-tree")
+  expect_identical(rt$rankdir, "TB")
 })
 
-test_that("set_g6_layout falls back to the tuned default when layout is NULL", {
+test_that("set_g6_layout falls back to the default when layout is NULL", {
   board <- new_board(blocks = c(a = new_dataset_block("iris")))
   g <- set_g6_layout(g6_from_board(board))
   expect_identical(g$x$layout$type, "antv-dagre")
-  expect_identical(g$x$layout$nodesep, 20)
+  expect_identical(g$x$layout$rankdir, "TB")
 })
 
 test_that("set_g6_layout honors a supplied layout", {
@@ -291,6 +291,18 @@ test_that("create_block ports works", {
   expect_length(ports, 2)
   expect_identical(ports[[1]]$type, "input")
   expect_identical(ports[[2]]$type, "output")
+})
+
+test_that("create_block_ports places ports by flow direction", {
+  blk <- new_head_block() # mono input
+
+  tb <- create_block_ports(blk, "x", rankdir = "TB")
+  expect_identical(tb[[1]]$placement, "top")
+  expect_identical(tb[[2]]$placement, "label-bottom")
+
+  lr <- create_block_ports(blk, "x", rankdir = "LR")
+  expect_identical(lr[[1]]$placement, "left")
+  expect_identical(lr[[2]]$placement, "right")
 })
 
 test_that("resolve_target_ports works", {

@@ -430,7 +430,7 @@ test_that("node click emits the reveal delta on update (#308)", {
   )
 
   testServer(
-    dag_ext_srv(NULL),
+    dag_ext_srv(NULL, NULL),
     args = list(
       board = reactiveValues(board = board, board_id = "board"),
       update = reactiveVal(NULL),
