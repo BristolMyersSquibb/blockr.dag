@@ -1,6 +1,6 @@
 # Changelog
 
-## blockr.dag 0.1.2.9000
+## blockr.dag 0.1.5
 
 ### Breaking changes
 
@@ -66,23 +66,23 @@
   renderer is still used for `shinytest2` end-to-end tests via the new
   `blockr.dag.svg_renderer` option (see
   [`?new_dag_extension`](https://bristolmyerssquibb.github.io/blockr.dag/reference/dag.md)).
-  Requires `g6R (>= 0.6.0.9001)`, which keeps the create-edge assist
-  node from crashing the canvas renderer.
-- Label observers for OTEL support.
-- Add support for collapsible nodes and combos, through g6R.
-- Reworked actions. Inherits from `blockr.dock`.
-- Added support for node ports from g6R.
+  Requires `g6R (>= 0.6.5)`, which keeps the create-edge assist node
+  from crashing the canvas renderer and fixes a combo/layout crash when
+  a stack is created at runtime.
 - Reworked block ports: ports are now always visible (rather than
   hover-only) with a fixed radius, and the output port uses the
   `label-bottom` placement. Pairs with g6R’s port-grab tolerance so a
-  near-miss on a port still starts an edge. Requires
-  `g6R (>= 0.6.0.9000)`.
-- Fix
-  [\#86](https://github.com/BristolMyersSquibb/blockr.dag/issues/86).
-- Fix
-  [\#110](https://github.com/BristolMyersSquibb/blockr.dag/issues/110):
-  copy/cut keyboard shortcuts no longer hijack plain text selections
-  (column names, error messages, etc.).
+  near-miss on a port still starts an edge.
+- Fix stack renames/recolors not reflecting in the DAG:
+  `update_observer()` still expected `stacks$mod` to carry full `stacks`
+  objects after blockr.core switched the delta to partial-argument
+  lists; the deltas are now resolved against the board before updating
+  the combos.
+- Fix links between stacked blocks being unselectable: edges render at
+  `zIndex = -1` (under nodes) while combos sat at G6’s default `0`, so a
+  stack’s rectangle swallowed every click aimed at the edges between its
+  member nodes. Combos now render at `zIndex = -2` (node \> edge \>
+  combo), keeping the stack itself clickable in its padding area.
 - Fix
   [\#123](https://github.com/BristolMyersSquibb/blockr.dag/issues/123):
   renaming a block now relabels its DAG node instead of erroring.
@@ -118,6 +118,25 @@
   actions and the block-status callback now resolve their result with
   `blockr.dock::extension_ids(board$board, "dag_extension")` and index
   the bundle explicitly, instead of binding a `dag_extension` formal.
+
+## blockr.dag 0.1.2
+
+CRAN release: 2026-04-29
+
+### Internal changes
+
+- Label observers for OTEL support.
+- Add support for collapsible nodes and combos, through g6R.
+- Reworked actions. Inherits from `blockr.dock`.
+- Added support for node ports from g6R.
+- Fix
+  [\#86](https://github.com/BristolMyersSquibb/blockr.dag/issues/86):
+  links can now be drawn repeatedly; previously the create-link gesture
+  only worked once.
+- Fix
+  [\#110](https://github.com/BristolMyersSquibb/blockr.dag/issues/110):
+  copy/cut keyboard shortcuts no longer hijack plain text selections
+  (column names, error messages, etc.).
 
 ## blockr.dag 0.1.0
 
