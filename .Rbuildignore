@@ -13,3 +13,5 @@
 ^vignettes/.quarto$
 ^\.lintr$
 _\.new\.png$
+^CLAUDE\.local\.md$
+^\.claude$

@@ -207,7 +207,10 @@ set_g6_options <- function(graph, ...) {
       type = "rect-combo-with-extra-button",
       style = list(
         # more bottom padding, because of the badge
-        padding = c(20, 20, 40, 20)
+        padding = c(20, 20, 40, 20),
+        # below edges (-1): a combo otherwise swallows clicks meant for the
+        # edges between its member nodes, making in-stack links unselectable
+        zIndex = -2
       )
     ),
     edge = list(
