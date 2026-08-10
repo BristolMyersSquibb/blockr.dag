@@ -2,6 +2,8 @@
 
 ## blockr.dag 0.1.5
 
+CRAN release: 2026-07-30
+
 ### Breaking changes
 
 - The DAG extension no longer ingests or emits a full g6 graph object
@@ -24,6 +26,19 @@
   [\#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
 
 ### New features
+
+- Selecting an element re-points a pinned sidebar editor at it
+  ([\#162](https://github.com/BristolMyersSquibb/blockr.dag/issues/162)).
+  When a sidebar is pinned open on an editor, clicking another element
+  of the kind that editor operates on re-targets it there, with no
+  second trip through the context menu – the stack editor (Edit stack)
+  follows combo clicks, and the node-anchored editors (Create link,
+  Append block) follow node clicks. Each editor decides via its own
+  context-menu condition, so a pinned editor is never taken over by a
+  selection of a kind it does not handle. Re-targeting also stops as
+  soon as anything else fills the panel: opening Create stack or the
+  toolbar’s Add stack in a pinned sidebar releases it, so a later
+  selection leaves the newly opened form alone.
 
 - The node status badge reflects a block’s full eval status, not just
   error conditions
