@@ -84,7 +84,9 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_add_link"
       ),
       condition = function(board, target) target$type == "node",
-      id = "create_link"
+      id = "create_link",
+      sidebar = "actions_sidebar",
+      retarget = TRUE
     ),
     new_context_menu_entry(
       name = "Remove block",
@@ -141,7 +143,9 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_append_block"
       ),
       condition = function(board, target) target$type == "node",
-      id = "append_block"
+      id = "append_block",
+      sidebar = "append_block_sidebar",
+      retarget = TRUE
     ),
     new_context_menu_entry(
       name = "Add block",
@@ -158,7 +162,8 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_add_block"
       ),
       condition = function(board, target) target$type == "canvas",
-      id = "add_block"
+      id = "add_block",
+      sidebar = "add_block_sidebar"
     ),
     new_context_menu_entry(
       name = "Create stack",
@@ -175,7 +180,8 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_create_stack"
       ),
       condition = function(board, target) target$type == "canvas",
-      id = "create_stack"
+      id = "create_stack",
+      sidebar = "actions_sidebar"
     ),
     new_context_menu_entry(
       name = "Remove stack",
@@ -215,7 +221,9 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_edit_stack"
       ),
       condition = function(board, target) target$type == "combo",
-      id = "edit_stack"
+      id = "edit_stack",
+      sidebar = "actions_sidebar",
+      retarget = TRUE
     ),
     new_context_menu_entry(
       name = "Copy",
@@ -338,7 +346,8 @@ toolbar_items.dag_extension <- function(x) {
       action = update_action_trigger(
         action_name = "add_block_action",
         input_name = "tool_add_block"
-      )
+      ),
+      sidebar = "add_block_sidebar"
     ),
     new_toolbar_item(
       id = "add_stack",
@@ -354,7 +363,8 @@ toolbar_items.dag_extension <- function(x) {
       action = update_action_trigger(
         action_name = "add_stack_action",
         input_name = "tool_add_stack"
-      )
+      ),
+      sidebar = "actions_sidebar"
     ),
     new_toolbar_item(
       id = "remove_selected",

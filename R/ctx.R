@@ -9,6 +9,15 @@
 #' @param condition Condition to determine if the entry should be shown.
 #' @param id Unique identifier for the context menu entry.
 #'   Inferred from `name` if not provided
+#' @param sidebar Id of the sidebar panel the entry's `action` populates,
+#'   or `NULL` for entries that open no sidebar. Firing the entry hands
+#'   that panel to it, releasing whichever entry held it before. The
+#'   `action` must expose its trigger names, as `update_action_trigger()`
+#'   does.
+#' @param retarget When `TRUE`, the entry keeps `sidebar` while it is
+#'   pinned: selecting another element whose type its `condition` accepts
+#'   re-points the entry at that element. Entries that leave this `FALSE`
+#'   simply release the panel, so nothing re-points a panel they filled.
 #' @param x Object to test or extract context menu items from.
 #'
 #' @details
@@ -53,7 +62,9 @@ new_context_menu_entry <- function(
   js,
   action = NULL,
   condition = TRUE,
-  id = tolower(gsub(" +", "_", name))
+  id = tolower(gsub(" +", "_", name)),
+  sidebar = NULL,
+  retarget = FALSE
 ) {
   if (is.null(action)) {
     action <- function(...) NULL
@@ -76,11 +87,34 @@ new_context_menu_entry <- function(
     is_string(name)
   )
 
-  structure(
+  entry <- structure(
     list(condition = condition, action = action, js = js),
     name = name,
     id = id,
     class = "context_menu_entry"
+  )
+
+  stopifnot(!isTRUE(retarget) || not_null(sidebar))
+
+  if (not_null(sidebar)) {
+    attr(entry, "sidebar") <- new_sidebar_spec(sidebar, action, retarget)
+  }
+
+  entry
+}
+
+new_sidebar_spec <- function(panel, action, retarget) {
+
+  stopifnot(
+    is_string(panel),
+    is_string(attr(action, "input_name")),
+    !isTRUE(retarget) || is_string(attr(action, "action_name"))
+  )
+
+  list(
+    panel = panel,
+    input = attr(action, "input_name"),
+    action = if (isTRUE(retarget)) attr(action, "action_name")
   )
 }
 
@@ -96,6 +130,25 @@ context_menu_entry_name <- function(x) attr(x, "name")
 
 context_menu_entry_condition <- function(x, ...) {
   x[["condition"]](...)
+}
+
+sidebar_spec <- function(x) attr(x, "sidebar")
+
+is_sidebar_entry <- function(x) not_null(sidebar_spec(x))
+
+sidebar_panel <- function(x) sidebar_spec(x)[["panel"]]
+
+sidebar_claim <- function(x) {
+  if (not_null(sidebar_spec(x)[["action"]])) x
+}
+
+should_retarget <- function(owner, board, type, id, pinned) {
+  not_null(owner) &&
+    isTRUE(pinned) &&
+    length(id) == 1L &&
+    isTRUE(
+      context_menu_entry_condition(owner, board, list(type = type, id = id))
+    )
 }
 
 context_menu_entry_action <- function(x, actions, session = get_session()) {
