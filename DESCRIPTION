@@ -32,6 +32,8 @@ Imports:
     g6R (>= 0.6.5),
     jsonlite,
     htmltools
+Remotes:
+    cynkra/g6R
 Suggests:
     knitr,
     rmarkdown,
