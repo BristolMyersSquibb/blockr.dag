@@ -20,7 +20,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(edge, "value"),
-    "remove_link"
+    c("remove_link", "edit_link")
   )
 
   canv <- build_context_menu(ctx, target = list(type = "canvas"))
@@ -51,7 +51,10 @@ test_that("sidebar entries declare the panel they fill", {
 
   expect_setequal(
     chr_ply(Filter(is_sidebar_entry, ctx), context_menu_entry_id),
-    c("create_link", "append_block", "edit_stack", "add_block", "create_stack")
+    c(
+      "create_link", "append_block", "edit_stack", "edit_link", "add_block",
+      "create_stack"
+    )
   )
 
   expect_false(is_sidebar_entry(by_id[["remove_block"]]))
@@ -64,6 +67,15 @@ test_that("sidebar entries declare the panel they fill", {
       panel = "actions_sidebar",
       input = "ctx_edit_stack",
       action = "edit_stack_action"
+    )
+  )
+
+  expect_identical(
+    sidebar_spec(by_id[["edit_link"]]),
+    list(
+      panel = "actions_sidebar",
+      input = "ctx_edit_link",
+      action = "edit_link_action"
     )
   )
 
@@ -86,6 +98,11 @@ test_that("only re-targeting entries claim a panel", {
   expect_identical(
     sidebar_claim(by_id[["edit_stack"]]),
     by_id[["edit_stack"]]
+  )
+
+  expect_identical(
+    sidebar_claim(by_id[["edit_link"]]),
+    by_id[["edit_link"]]
   )
 
   expect_null(sidebar_claim(by_id[["create_stack"]]))
@@ -114,6 +131,7 @@ test_that("re-target matches the panel owner's concern, only when pinned", {
 
   stack_editor <- by_id[["edit_stack"]]
   node_editor <- by_id[["create_link"]]
+  link_editor <- by_id[["edit_link"]]
 
   expect_true(
     should_retarget(stack_editor, NULL, "combo", "s1", pinned = TRUE)
@@ -127,6 +145,16 @@ test_that("re-target matches the panel owner's concern, only when pinned", {
   )
   expect_false(
     should_retarget(node_editor, NULL, "edge", "e1", pinned = TRUE)
+  )
+
+  expect_true(
+    should_retarget(link_editor, NULL, "edge", "e1", pinned = TRUE)
+  )
+  expect_false(
+    should_retarget(link_editor, NULL, "node", "n1", pinned = TRUE)
+  )
+  expect_false(
+    should_retarget(link_editor, NULL, "edge", "e1", pinned = FALSE)
   )
 
   expect_false(

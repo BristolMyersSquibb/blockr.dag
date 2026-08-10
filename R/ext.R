@@ -125,6 +125,30 @@ context_menu_items.dag_extension <- function(x) {
       id = "remove_link"
     ),
     new_context_menu_entry(
+      name = "Edit link",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            if (current.id === undefined) return;
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^edge-/, ''),
+              {priority: 'event'}
+            );
+          }",
+          ns("ctx_edit_link")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "edit_link_action",
+        input_name = "ctx_edit_link"
+      ),
+      condition = function(board, target) target$type == "edge",
+      id = "edit_link",
+      sidebar = "actions_sidebar",
+      retarget = TRUE
+    ),
+    new_context_menu_entry(
       name = "Append block",
       js = function(ns) {
         sprintf(
