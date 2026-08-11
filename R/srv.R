@@ -305,56 +305,25 @@ actions_observers <- function(actions, proxy) {
 
 setup_sidebar_retarget <- function(items, actions, board, proxy) {
 
-  writers <- Filter(is_sidebar_entry, items)
+  editors <- Filter(is_sidebar_entry, items)
 
-  if (!length(writers)) {
+  if (!length(editors)) {
     return(invisible(NULL))
   }
 
   input <- proxy$session$input
-  root_input <- proxy$session$rootScope()$input
   board_id <- isolate(board$board_id)
-
-  owners <- reactiveValues()
-
-  panel_state <- function(panel) root_input[[NS(board_id, panel)]]
-
-  lapply(writers, sidebar_claim_observer, owners, input)
-
-  lapply(
-    unique(chr_ply(writers, sidebar_panel)),
-    sidebar_release_observer,
-    owners,
-    panel_state
-  )
-
-  # A drop onto empty canvas prepends through the shared panel without
-  # going past a menu entry, so it releases that panel by hand.
-  observeEvent(
-    req(
-      input$added_edge$targetType == "canvas",
-      input$added_edge$portType == "input"
-    ),
-    owners[["actions_sidebar"]] <- NULL,
-    label = "release_prepend_sidebar"
-  )
 
   retarget <- function(type, id) {
 
-    for (panel in names(owners)) {
+    for (editor in editors) {
 
-      owner <- owners[[panel]]
+      action <- sidebar_spec(editor)$action
 
-      hit <- should_retarget(
-        owner,
-        board$board,
-        type,
-        id,
-        panel_state(panel)$pinned
-      )
+      held <- blockr.dock::sidebar_owned_by(action, board_id)
 
-      if (hit) {
-        actions[[sidebar_spec(owner)$action]](id)
+      if (should_retarget(editor, board$board, type, id, held$pinned)) {
+        actions[[action]](id)
       }
     }
   }
@@ -364,25 +333,6 @@ setup_sidebar_retarget <- function(items, actions, board, proxy) {
   retarget_selection_observer("combo", input, retarget)
 
   invisible(NULL)
-}
-
-sidebar_claim_observer <- function(item, owners, input) {
-
-  spec <- sidebar_spec(item)
-
-  observeEvent(
-    input[[spec$input]],
-    owners[[spec$panel]] <- sidebar_claim(item),
-    label = paste0("claim_sidebar_", attr(item, "id"))
-  )
-}
-
-sidebar_release_observer <- function(panel, owners, panel_state) {
-  observeEvent(
-    panel_state(panel),
-    if (!isTRUE(panel_state(panel)$open)) owners[[panel]] <- NULL,
-    label = paste0("release_sidebar_", panel)
-  )
 }
 
 retarget_selection_observer <- function(type, input, retarget) {

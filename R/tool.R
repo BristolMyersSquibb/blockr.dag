@@ -8,10 +8,6 @@
 #' @param js JavaScript code to execute when the entry is selected.
 #' @param tooltip Optional tooltip text for the entry.
 #' @param action Action to perform when the entry is selected.
-#' @param sidebar Id of the sidebar panel the item's `action` populates, or
-#'   `NULL` for items that open no sidebar. Firing the item releases that
-#'   panel: a toolbar item carries no element condition, so nothing it
-#'   opens can be re-pointed by a canvas selection.
 #' @param x Object to test or extract toolbar items from.
 #'
 #' @details
@@ -50,8 +46,7 @@
 #'   \item{`toolbar_items()`}{A list of toolbar
 #' items for the given object.}
 #' }
-new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL,
-                             sidebar = NULL) {
+new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL) {
   if (is_string(js)) {
     js_string <- js
     js <- function(...) js_string
@@ -76,10 +71,6 @@ new_toolbar_item <- function(id, icon, js, action = NULL, tooltip = NULL,
     tooltip = tooltip,
     class = "toolbar_item"
   )
-
-  if (not_null(sidebar)) {
-    attr(item, "sidebar") <- new_sidebar_spec(sidebar, action, retarget = FALSE)
-  }
 
   item
 }
