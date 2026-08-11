@@ -6,7 +6,7 @@ interface.
 ## Usage
 
 ``` r
-new_toolbar_item(id, icon, js, action = NULL, tooltip = NULL, sidebar = NULL)
+new_toolbar_item(id, icon, js, action = NULL, tooltip = NULL)
 
 is_toolbar_item(x)
 
@@ -34,13 +34,6 @@ toolbar_items(x)
 - tooltip:
 
   Optional tooltip text for the entry.
-
-- sidebar:
-
-  Id of the sidebar panel the item's `action` populates, or `NULL` for
-  items that open no sidebar. Firing the item releases that panel: a
-  toolbar item carries no element condition, so nothing it opens can be
-  re-pointed by a canvas selection.
 
 - x:
 

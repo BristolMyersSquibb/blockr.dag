@@ -6,6 +6,20 @@ CRAN release: 2026-07-30
 
 ### Breaking changes
 
+- [`new_context_menu_entry()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/ctx.md)
+  and
+  [`new_toolbar_item()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/tool.md)
+  no longer take a `sidebar` argument. An entry that fills a sidebar
+  panel no longer names it: `blockr.dock` stamps the writing action onto
+  the panel as it writes
+  ([blockr.dock#391](https://github.com/BristolMyersSquibb/blockr.dock/issues/391)),
+  and ownership is read back with
+  [`blockr.dock::sidebar_owned_by()`](https://bristolmyerssquibb.github.io/blockr.dock/reference/action.html)
+  rather than tracked here. `retarget = TRUE` is now the whole
+  declaration, and an entry that fills a panel without re-targeting
+  declares nothing at all. Requires a `blockr.dock` carrying
+  [`sidebar_owned_by()`](https://bristolmyerssquibb.github.io/blockr.dock/reference/action.html).
+
 - The DAG extension no longer ingests or emits a full g6 graph object
   ([\#119](https://github.com/BristolMyersSquibb/blockr.dag/issues/119)).
   [`new_dag_extension()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/dag.md)
@@ -39,6 +53,16 @@ CRAN release: 2026-07-30
   soon as anything else fills the panel: opening Create stack or the
   toolbar’s Add stack in a pinned sidebar releases it, so a later
   selection leaves the newly opened form alone.
+
+- The DAG edge context menu offers an “Edit link” entry
+  ([\#154](https://github.com/BristolMyersSquibb/blockr.dag/issues/154)).
+  Right-clicking an edge and choosing “Edit link” opens `blockr.dock`’s
+  link editor for that link, so renaming a positional input, switching
+  its slot or redirecting an endpoint no longer means removing the edge
+  and drawing it again. It fills the shared actions sidebar and
+  re-targets like the other editors
+  ([\#162](https://github.com/BristolMyersSquibb/blockr.dag/issues/162)):
+  while pinned, clicking another edge re-points it at that link.
 
 - The node status badge reflects a block’s full eval status, not just
   error conditions

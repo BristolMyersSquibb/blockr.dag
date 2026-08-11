@@ -11,7 +11,6 @@ new_context_menu_entry(
   action = NULL,
   condition = TRUE,
   id = tolower(gsub(" +", "_", name)),
-  sidebar = NULL,
   retarget = FALSE
 )
 
@@ -43,19 +42,16 @@ context_menu_items(x)
   Unique identifier for the context menu entry. Inferred from `name` if
   not provided
 
-- sidebar:
-
-  Id of the sidebar panel the entry's `action` populates, or `NULL` for
-  entries that open no sidebar. Firing the entry hands that panel to it,
-  releasing whichever entry held it before. The `action` must expose its
-  trigger names, as `update_action_trigger()` does.
-
 - retarget:
 
-  When `TRUE`, the entry keeps `sidebar` while it is pinned: selecting
-  another element whose type its `condition` accepts re-points the entry
-  at that element. Entries that leave this `FALSE` simply release the
-  panel, so nothing re-points a panel they filled.
+  When `TRUE`, the entry follows the selection while it holds a pinned
+  sidebar panel: selecting another element whose type its `condition`
+  accepts re-fires the `action` on that element. Which panel the entry
+  fills is not declared here: `blockr.dock` stamps the writing action
+  onto the panel as it writes, and
+  [`blockr.dock::sidebar_owned_by()`](https://bristolmyerssquibb.github.io/blockr.dock/reference/action.html)
+  reads that back. The `action` must expose its name, as
+  `update_action_trigger()` does.
 
 - x:
 

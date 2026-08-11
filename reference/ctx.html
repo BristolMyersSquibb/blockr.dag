@@ -54,7 +54,6 @@ menu entries.</p>
 <span>  action <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  condition <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">tolower</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">" +"</span>, <span class="st">"_"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  sidebar <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  retarget <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -88,19 +87,14 @@ menu entries.</p>
 Inferred from <code>name</code> if not provided</p></dd>
 
 
-<dt id="arg-sidebar">sidebar<a class="anchor" aria-label="anchor" href="#arg-sidebar"></a></dt>
-<dd><p>Id of the sidebar panel the entry's <code>action</code> populates,
-or <code>NULL</code> for entries that open no sidebar. Firing the entry hands
-that panel to it, releasing whichever entry held it before. The
-<code>action</code> must expose its trigger names, as <code>update_action_trigger()</code>
-does.</p></dd>
-
-
 <dt id="arg-retarget">retarget<a class="anchor" aria-label="anchor" href="#arg-retarget"></a></dt>
-<dd><p>When <code>TRUE</code>, the entry keeps <code>sidebar</code> while it is
-pinned: selecting another element whose type its <code>condition</code> accepts
-re-points the entry at that element. Entries that leave this <code>FALSE</code>
-simply release the panel, so nothing re-points a panel they filled.</p></dd>
+<dd><p>When <code>TRUE</code>, the entry follows the selection while it
+holds a pinned sidebar panel: selecting another element whose type its
+<code>condition</code> accepts re-fires the <code>action</code> on that element. Which panel
+the entry fills is not declared here: <code>blockr.dock</code> stamps the writing
+action onto the panel as it writes, and
+<code><a href="https://bristolmyerssquibb.github.io/blockr.dock/reference/action.html" class="external-link">blockr.dock::sidebar_owned_by()</a></code> reads that back. The <code>action</code> must
+expose its name, as <code>update_action_trigger()</code> does.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
