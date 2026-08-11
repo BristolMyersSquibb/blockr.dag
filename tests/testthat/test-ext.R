@@ -119,7 +119,7 @@ testServer(
   #system.file("examples/stacks/app.R", package = "blockr.dag"),
   dag_ext_srv(NULL),
   args = list(
-    board = reactiveValues(board = test_board),
+    board = reactiveValues(board = test_board, board_id = "board"),
     update = reactiveVal(NULL),
     actions = blockr.dock::action_triggers(
       unlst(
@@ -386,7 +386,7 @@ test_that("node click emits the reveal delta on update (#308)", {
   testServer(
     dag_ext_srv(NULL),
     args = list(
-      board = reactiveValues(board = board),
+      board = reactiveValues(board = board, board_id = "board"),
       update = reactiveVal(NULL),
       actions = blockr.dock::action_triggers(
         unlst(

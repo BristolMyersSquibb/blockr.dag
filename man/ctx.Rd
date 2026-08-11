@@ -12,7 +12,6 @@ new_context_menu_entry(
   action = NULL,
   condition = TRUE,
   id = tolower(gsub(" +", "_", name)),
-  sidebar = NULL,
   retarget = FALSE
 )
 
@@ -32,16 +31,13 @@ context_menu_items(x)
 \item{id}{Unique identifier for the context menu entry.
 Inferred from \code{name} if not provided}
 
-\item{sidebar}{Id of the sidebar panel the entry's \code{action} populates,
-or \code{NULL} for entries that open no sidebar. Firing the entry hands
-that panel to it, releasing whichever entry held it before. The
-\code{action} must expose its trigger names, as \code{update_action_trigger()}
-does.}
-
-\item{retarget}{When \code{TRUE}, the entry keeps \code{sidebar} while it is
-pinned: selecting another element whose type its \code{condition} accepts
-re-points the entry at that element. Entries that leave this \code{FALSE}
-simply release the panel, so nothing re-points a panel they filled.}
+\item{retarget}{When \code{TRUE}, the entry follows the selection while it
+holds a pinned sidebar panel: selecting another element whose type its
+\code{condition} accepts re-fires the \code{action} on that element. Which panel
+the entry fills is not declared here: \code{blockr.dock} stamps the writing
+action onto the panel as it writes, and
+\code{\link[blockr.dock:action]{blockr.dock::sidebar_owned_by()}} reads that back. The \code{action} must
+expose its name, as \code{update_action_trigger()} does.}
 
 \item{x}{Object}
 }

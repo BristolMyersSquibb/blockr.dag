@@ -44,84 +44,33 @@ test_that("context menu", {
   )
 })
 
-test_that("sidebar entries declare the panel they fill", {
+test_that("only re-targeting entries declare anything", {
 
   ctx <- context_menu_items(new_dag_extension())
   by_id <- set_names(ctx, chr_ply(ctx, context_menu_entry_id))
 
   expect_setequal(
     chr_ply(Filter(is_sidebar_entry, ctx), context_menu_entry_id),
-    c(
-      "create_link", "append_block", "edit_stack", "edit_link", "add_block",
-      "create_stack"
-    )
+    c("create_link", "append_block", "edit_stack", "edit_link")
   )
-
-  expect_false(is_sidebar_entry(by_id[["remove_block"]]))
-  expect_false(is_sidebar_entry(by_id[["remove_link"]]))
-  expect_false(is_sidebar_entry(by_id[["copy"]]))
 
   expect_identical(
     sidebar_spec(by_id[["edit_stack"]]),
-    list(
-      panel = "actions_sidebar",
-      input = "ctx_edit_stack",
-      action = "edit_stack_action"
-    )
+    list(action = "edit_stack_action")
   )
 
   expect_identical(
     sidebar_spec(by_id[["edit_link"]]),
-    list(
-      panel = "actions_sidebar",
-      input = "ctx_edit_link",
-      action = "edit_link_action"
-    )
+    list(action = "edit_link_action")
   )
 
-  expect_identical(
-    sidebar_panel(by_id[["append_block"]]),
-    "append_block_sidebar"
-  )
+  # Panel-filling entries that cannot re-target name nothing at all: the
+  # panel they fill is stamped by `show_sidebar()`, not declared here.
+  expect_null(sidebar_spec(by_id[["add_block"]]))
+  expect_null(sidebar_spec(by_id[["create_stack"]]))
+  expect_null(sidebar_spec(by_id[["remove_link"]]))
 
-  expect_identical(
-    sidebar_spec(by_id[["create_stack"]]),
-    list(panel = "actions_sidebar", input = "ctx_create_stack", action = NULL)
-  )
-})
-
-test_that("only re-targeting entries claim a panel", {
-
-  ctx <- context_menu_items(new_dag_extension())
-  by_id <- set_names(ctx, chr_ply(ctx, context_menu_entry_id))
-
-  expect_identical(
-    sidebar_claim(by_id[["edit_stack"]]),
-    by_id[["edit_stack"]]
-  )
-
-  expect_identical(
-    sidebar_claim(by_id[["edit_link"]]),
-    by_id[["edit_link"]]
-  )
-
-  expect_null(sidebar_claim(by_id[["create_stack"]]))
-  expect_null(sidebar_claim(by_id[["add_block"]]))
-
-  tools <- toolbar_items(new_dag_extension())
-  by_tool <- set_names(tools, chr_ply(tools, toolbar_item_id))
-
-  expect_setequal(
-    chr_ply(Filter(is_sidebar_entry, tools), toolbar_item_id),
-    c("add_block", "add_stack")
-  )
-
-  expect_identical(
-    sidebar_spec(by_tool[["add_stack"]]),
-    list(panel = "actions_sidebar", input = "tool_add_stack", action = NULL)
-  )
-
-  expect_null(sidebar_claim(by_tool[["add_stack"]]))
+  expect_length(Filter(is_sidebar_entry, toolbar_items(new_dag_extension())), 0L)
 })
 
 test_that("re-target matches the panel owner's concern, only when pinned", {

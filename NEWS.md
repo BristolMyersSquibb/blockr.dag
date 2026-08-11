@@ -2,6 +2,8 @@
 
 ## Breaking changes
 
+- `new_context_menu_entry()` and `new_toolbar_item()` no longer take a `sidebar` argument. An entry that fills a sidebar panel no longer names it: `blockr.dock` stamps the writing action onto the panel as it writes ([blockr.dock#391](https://github.com/BristolMyersSquibb/blockr.dock/issues/391)), and ownership is read back with `blockr.dock::sidebar_owned_by()` rather than tracked here. `retarget = TRUE` is now the whole declaration, and an entry that fills a panel without re-targeting declares nothing at all. Requires a `blockr.dock` carrying `sidebar_owned_by()`.
+
 - The DAG extension no longer ingests or emits a full g6 graph object ([#119](https://github.com/BristolMyersSquibb/blockr.dag/issues/119)). `new_dag_extension()` drops the `graph` argument in favour of `positions`, a named list keyed by block id (`list(a = list(x = 100, y = 200))`) carrying only the board-independent view attributes the extension owns. The board is now the single source of truth: nodes, edges, combos and all styling (icons, labels, colors, ports) are always regenerated from it, and supplied positions are overlaid onto the corresponding nodes' coordinates. Serialization shrinks to positions only; no board-derived styling is persisted. The g6 graph wire format and its board/g6 converters (`new_graph()`, `as_graph()`, `g6_from_graph()`, ...) are now internal and no longer exported. This mirrors the dockview wire-format decoupling in `blockr.dock`. Note: the auto-layout still computes final node placement at cold start, so supplied positions are not yet honored over it; making positions pin over the layout is a planned follow-up (see [#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
 
 ## New features
