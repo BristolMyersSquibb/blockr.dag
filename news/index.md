@@ -41,6 +41,17 @@ CRAN release: 2026-07-30
 
 ### New features
 
+- The DAG node context menu offers an “Edit inputs” entry
+  ([\#158](https://github.com/BristolMyersSquibb/blockr.dag/issues/158)).
+  Right-clicking a node and choosing “Edit inputs” opens `blockr.dock`’s
+  per-block input editor, so a block’s incoming links can be renamed,
+  reordered and removed together instead of one edge at a time – the
+  per-node counterpart to “Edit link”. It fills the shared actions
+  sidebar and re-targets like the other editors
+  ([\#162](https://github.com/BristolMyersSquibb/blockr.dag/issues/162)):
+  while pinned, clicking another node re-points it at that block’s
+  inputs.
+
 - Selecting an element re-points a pinned sidebar editor at it
   ([\#162](https://github.com/BristolMyersSquibb/blockr.dag/issues/162)).
   When a sidebar is pinned open on an editor, clicking another element
