@@ -169,6 +169,29 @@ context_menu_items.dag_extension <- function(x) {
       retarget = TRUE
     ),
     new_context_menu_entry(
+      name = "Edit inputs",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            if (current.id === undefined) return;
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^node-/, ''),
+              {priority: 'event'}
+            );
+          }",
+          ns("ctx_edit_inputs")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "edit_inputs_action",
+        input_name = "ctx_edit_inputs"
+      ),
+      condition = function(board, target) target$type == "node",
+      id = "edit_inputs",
+      retarget = TRUE
+    ),
+    new_context_menu_entry(
       name = "Add block",
       js = function(ns) {
         sprintf(

@@ -10,7 +10,10 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(node, "value"),
-    c("create_link", "remove_block", "append_block", "copy", "cut")
+    c(
+      "create_link", "remove_block", "append_block", "edit_inputs", "copy",
+      "cut"
+    )
   )
 
   edge <- build_context_menu(ctx, target = list(type = "edge"))
@@ -51,7 +54,7 @@ test_that("only re-targeting entries declare anything", {
 
   expect_setequal(
     chr_ply(Filter(is_sidebar_entry, ctx), context_menu_entry_id),
-    c("create_link", "append_block", "edit_stack", "edit_link")
+    c("create_link", "append_block", "edit_inputs", "edit_stack", "edit_link")
   )
 
   expect_identical(
@@ -62,6 +65,11 @@ test_that("only re-targeting entries declare anything", {
   expect_identical(
     sidebar_spec(by_id[["edit_link"]]),
     list(action = "edit_link_action")
+  )
+
+  expect_identical(
+    sidebar_spec(by_id[["edit_inputs"]]),
+    list(action = "edit_inputs_action")
   )
 
   # Panel-filling entries that cannot re-target name nothing at all: the
@@ -81,6 +89,7 @@ test_that("re-target matches the panel owner's concern, only when pinned", {
   stack_editor <- by_id[["edit_stack"]]
   node_editor <- by_id[["create_link"]]
   link_editor <- by_id[["edit_link"]]
+  inputs_editor <- by_id[["edit_inputs"]]
 
   expect_true(
     should_retarget(stack_editor, NULL, "combo", "s1", pinned = TRUE)
@@ -104,6 +113,13 @@ test_that("re-target matches the panel owner's concern, only when pinned", {
   )
   expect_false(
     should_retarget(link_editor, NULL, "edge", "e1", pinned = FALSE)
+  )
+
+  expect_true(
+    should_retarget(inputs_editor, NULL, "node", "n1", pinned = TRUE)
+  )
+  expect_false(
+    should_retarget(inputs_editor, NULL, "edge", "e1", pinned = TRUE)
   )
 
   expect_false(
