@@ -64,6 +64,15 @@ CRAN release: 2026-07-30
   ([\#162](https://github.com/BristolMyersSquibb/blockr.dag/issues/162)):
   while pinned, clicking another edge re-points it at that link.
 
+- The DAG canvas now reflects in-place link edits
+  ([\#156](https://github.com/BristolMyersSquibb/blockr.dag/issues/156)).
+  A board update whose only link change is a modification (`links$mod`)
+  – redirecting an endpoint, switching a finite input’s slot, or
+  renaming a variadic input, as the “Edit link” action emits – redraws
+  the affected edge from the updated board: it moves to its new source,
+  target and port and relabels, rather than leaving the stale edge on
+  screen until an unrelated redraw.
+
 - The node status badge reflects a block’s full eval status, not just
   error conditions
   ([\#145](https://github.com/BristolMyersSquibb/blockr.dag/issues/145)).
