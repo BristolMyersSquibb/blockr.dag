@@ -191,6 +191,23 @@ update_observer <- function(update, board, proxy) {
         add_edges(upd$links$add, blocks, proxy)
       }
 
+      if (length(upd$links$mod)) {
+        # A `links$mod` delta re-points an existing edge (new source,
+        # target, port, or label). g6 has no in-place re-point primitive,
+        # so drop the stale edge and re-add it rebuilt from the merged
+        # link. See `resolve_mod_deltas()` for why we merge the delta
+        # ourselves rather than reading it back off `board$board`.
+        links <- resolve_mod_deltas(
+          upd$links$mod,
+          board_links(board$board),
+          blockr.core::update_link,
+          blockr.core::as_links
+        )
+
+        remove_edges(names(upd$links$mod), proxy = proxy)
+        add_edges(links, board_blocks(board$board), proxy)
+      }
+
       if (length(upd$stacks$add)) {
         add_combos(upd$stacks$add, proxy)
       }

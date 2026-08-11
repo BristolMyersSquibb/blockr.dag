@@ -264,6 +264,52 @@ test_that("a block-name mod delta relabels the node", {
   )
 })
 
+test_that("a links mod delta re-points the edge", {
+  removed <- NULL
+  added <- NULL
+  local_mocked_bindings(
+    g6_remove_edges = function(proxy, edges) {
+      removed <<- edges
+      invisible()
+    },
+    g6_add_edges = function(proxy, edges) {
+      added <<- edges
+      invisible()
+    }
+  )
+
+  repoint_board <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), m = new_merge_block()),
+    links = c(l1 = new_link("a", "m", "x"))
+  )
+
+  testServer(
+    function(id, board, update) {
+      moduleServer(
+        id,
+        function(input, output, session) {
+          update_observer(update, board, blockr_g6_proxy(session))
+        }
+      )
+    },
+    args = list(
+      board = reactiveValues(board = repoint_board),
+      update = reactiveVal(NULL)
+    ),
+    {
+      update(
+        list(links = list(mod = list(l1 = list(input = "y"))))
+      )
+      session$flushReact()
+
+      expect_identical(removed, to_g6_edge_id("l1"))
+      expect_identical(added[[1L]]$id, to_g6_edge_id("l1"))
+      expect_identical(added[[1L]]$style$labelText, "y")
+      expect_identical(added[[1L]]$style$targetPort, "node-m-y")
+    }
+  )
+})
+
 test_that("extension_block_callback works", {
   ext_cb <- extension_block_callback(new_dag_extension())
 
