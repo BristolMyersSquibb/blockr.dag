@@ -4,7 +4,7 @@
 \alias{new_dag_extension}
 \title{DAG extension}
 \usage{
-new_dag_extension(positions = NULL, ...)
+new_dag_extension(positions = NULL, layout = NULL, ...)
 }
 \arguments{
 \item{positions}{Optional node positions overlaid on the board-derived
@@ -16,6 +16,12 @@ board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> 
 auto-layout currently computes final node placement at cold start, so
 supplied positions are not yet honored over it (a follow-up will let
 positions pin over the layout).}
+
+\item{layout}{DAG layout, as returned by \code{\link[=dag_layout]{dag_layout()}}. \code{NULL} (default)
+uses \code{\link[=dag_layout]{dag_layout()}}'s top-down default. For large, wide boards pass
+\code{dag_layout(rankdir = "LR")} to keep the graph compact and avoid label
+overlap. The flow direction also sets the node port sides and edge curve.
+Persisted across save / restore.}
 
 \item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
 }

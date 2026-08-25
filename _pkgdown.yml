@@ -29,6 +29,11 @@ reference:
     contents:
       - new_dag_extension
 
+  - title: Layout
+    desc: Configure the DAG layout
+    contents:
+      - dag_layout
+
   - title: User Interface
     desc: UI components and interactions
   - subtitle: Context Menu

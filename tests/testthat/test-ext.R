@@ -117,7 +117,7 @@ test_board <- blockr.dock::new_dock_board(
 testServer(
   # Path to app.R is easier than trying to mock all board and dock stuff.
   #system.file("examples/stacks/app.R", package = "blockr.dag"),
-  dag_ext_srv(NULL),
+  dag_ext_srv(NULL, NULL),
   args = list(
     board = reactiveValues(board = test_board, board_id = "board"),
     update = reactiveVal(NULL),
@@ -430,7 +430,7 @@ test_that("node click emits the reveal delta on update (#308)", {
   )
 
   testServer(
-    dag_ext_srv(NULL),
+    dag_ext_srv(NULL, NULL),
     args = list(
       board = reactiveValues(board = board, board_id = "board"),
       update = reactiveVal(NULL),

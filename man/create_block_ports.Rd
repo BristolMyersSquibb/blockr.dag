@@ -4,7 +4,7 @@
 \alias{create_block_ports}
 \title{Create block ports for g6 node}
 \usage{
-create_block_ports(block, id)
+create_block_ports(block, id, rankdir = "TB")
 }
 \arguments{
 \item{block}{Block object.}

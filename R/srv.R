@@ -1,4 +1,4 @@
-dag_ext_srv <- function(positions) {
+dag_ext_srv <- function(positions, layout) {
   function(id, board, update, actions, ...) {
     dot_args <- list(...)
 
@@ -33,6 +33,7 @@ dag_ext_srv <- function(positions) {
         init_g6(
           board = initial_board,
           positions = positions,
+          layout = layout,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
@@ -52,7 +53,12 @@ dag_ext_srv <- function(positions) {
         actions_observers(actions, proxy)
         setup_sidebar_retarget(c(context_menu, toolbar), actions, board, proxy)
 
-        update_observer(update, board, proxy)
+        update_observer(
+          update,
+          board,
+          proxy,
+          rankdir = layout_rankdir(layout %||% default_dag_layout())
+        )
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
@@ -75,7 +81,12 @@ dag_ext_srv <- function(positions) {
 
         list(
           state = list(
-            positions = ext_positions
+            positions = ext_positions,
+            # Layout is set at construction and not changed at runtime, so the
+            # state echoes the constructor value back (NULL stays NULL, so a
+            # restored board picks up the current default). It round-trips for
+            # JSON-serializable layouts; see `?new_dag_extension`.
+            layout = layout
           ),
           proxy = proxy
         )
@@ -165,14 +176,14 @@ setup_positions_ctrl <- function(positions, proxy, session = get_session()) {
   rv
 }
 
-update_observer <- function(update, board, proxy) {
+update_observer <- function(update, board, proxy, rankdir = "TB") {
   observeEvent(
     update(),
     {
       upd <- update()
 
       if (length(upd$blocks$add)) {
-        add_nodes(upd$blocks$add, board$board, proxy)
+        add_nodes(upd$blocks$add, board$board, proxy, rankdir = rankdir)
       }
 
       if (length(upd$blocks$mod)) {
@@ -188,7 +199,7 @@ update_observer <- function(update, board, proxy) {
         if (length(upd$blocks$add)) {
           blocks <- c(blocks, upd$blocks$add)
         }
-        add_edges(upd$links$add, blocks, proxy)
+        add_edges(upd$links$add, blocks, proxy, rankdir = rankdir)
       }
 
       if (length(upd$links$mod)) {

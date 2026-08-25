@@ -23,15 +23,20 @@
 #' auto-layout currently computes final node placement at cold start, so
 #' supplied positions are not yet honored over it (a follow-up will let
 #' positions pin over the layout).
+#' @param layout DAG layout, as returned by [dag_layout()]. `NULL` (default)
+#' uses [dag_layout()]'s top-down default. For large, wide boards pass
+#' `dag_layout(rankdir = "LR")` to keep the graph compact and avoid label
+#' overlap. The flow direction also sets the node port sides and edge curve.
+#' Persisted across save / restore.
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system
 #' for visualizing and manipulating DAG workflows.
 #' @rdname dag
 #' @export
-new_dag_extension <- function(positions = NULL, ...) {
+new_dag_extension <- function(positions = NULL, layout = NULL, ...) {
   blockr.dock::new_dock_extension(
-    dag_ext_srv(positions),
+    dag_ext_srv(positions, layout),
     dag_ext_ui,
     name = "Workflow",
     description = dag_ext_description(),
