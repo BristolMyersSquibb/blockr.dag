@@ -48,6 +48,7 @@ Suggests:
     withr,
     colorspace
 Config/testthat/edition: 3
+Config/Needs/lint: shinytest2
 URL: https://bristolmyerssquibb.github.io/blockr.dag/
 VignetteBuilder: 
     quarto
