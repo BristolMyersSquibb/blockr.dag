@@ -98,6 +98,31 @@ serve(new_dock_board(extensions = new_dag_extension()))
 - **Ctrl + Backspace**: Remove selected elements.
 - **Alt/Option(Mac) + Drag**: Multi-select elements.
 
+### Finding your way around a large board
+
+Past a few dozen blocks the DAG stops being readable at fit-to-view, so two
+panels sit at the top-right of the canvas:
+
+- **Search**: type a block name or id and the view moves to that block and
+  selects it, which reveals its panel just like clicking the node would.
+  Stacks are matched too, and are listed before blocks so the two kinds never
+  interleave.
+- **Board contents**: the outline, a dropdown under the search box. It lists
+  the board as a tree, each stack an accordion holding its blocks in flow
+  order, with the number of blocks on the right. Clicking a row goes to that
+  block or stack; folding a stack in the list leaves the canvas untouched, so
+  the board can be skimmed without redrawing it.
+
+The two work with collapsing rather than against it. Collapse a stack on the
+canvas (double-click it, or use its collapse control) and it folds in the
+outline too, but searching for a block inside a collapsed stack opens that
+stack on the way. So the canvas does not have to stay legible for every block
+to remain two clicks away, which is what makes collapsing a workable answer to
+a wide board.
+
+Both panels name things the way a board does -- block, stack, link -- rather
+than in g6's vocabulary of node, combo and edge.
+
 ## Developer Guide
 
 ### Where does blockr.dag fit in?
