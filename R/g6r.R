@@ -408,6 +408,27 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
         )
       )
     ),
+    # Navigating a large board: search jumps to a named block, the outline lists
+    # what is there. The outline hangs under the search box as a dropdown, so
+    # the two read as one control; it must follow the search in this list, since
+    # that is what it anchors to.
+    g6_search(
+      outputId = graph_id(ns),
+      placeholder = "Search blocks",
+      # Top-right: the toolbar already owns the left edge, and the search box
+      # plus its outline dropdown would sit on top of it.
+      position = "top-right",
+      width = 260,
+      # `combo` is g6's word for what a board calls a stack.
+      labels = c(node = "block", combo = "stack", edge = "link")
+    ),
+    g6_outline(
+      outputId = graph_id(ns),
+      title = "Board contents",
+      anchor = "search",
+      open = FALSE,
+      labels = c(node = "block", combo = "stack", edge = "link")
+    ),
     toolbar(
       style = list(
         backgroundColor = "#f5f5f5",
