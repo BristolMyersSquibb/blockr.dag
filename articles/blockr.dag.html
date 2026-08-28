@@ -187,7 +187,18 @@
 <strong>Ctrl + Backspace</strong>: Remove selected elements.</li>
 <li>
 <strong>Alt/Option(Mac) + Drag</strong>: Multi-select elements.</li>
-</ul></section></section><section class="level2"><h2 id="developer-guide">Developer Guide<a class="anchor" aria-label="anchor" href="#developer-guide"></a>
+</ul></section><section class="level3"><h3 id="finding-your-way-around-a-large-board">Finding your way around a large board<a class="anchor" aria-label="anchor" href="#finding-your-way-around-a-large-board"></a>
+</h3>
+<p>Past a few dozen blocks the DAG stops being readable at fit-to-view, so two panels sit at the top-right of the canvas:</p>
+<ul>
+<li>
+<strong>Search</strong>: type a block name or id and the view moves to that block and selects it, which reveals its panel just like clicking the node would. Stacks are matched too, and are listed before blocks so the two kinds never interleave.</li>
+<li>
+<strong>Board contents</strong>: the outline, a dropdown under the search box. It lists the board as a tree, each stack an accordion holding its blocks in flow order, with the number of blocks on the right. Clicking a row goes to that block or stack; folding a stack in the list leaves the canvas untouched, so the board can be skimmed without redrawing it.</li>
+</ul>
+<p>The two work with collapsing rather than against it. Collapse a stack on the canvas (double-click it, or use its collapse control) and it folds in the outline too, but searching for a block inside a collapsed stack opens that stack on the way. So the canvas does not have to stay legible for every block to remain two clicks away, which is what makes collapsing a workable answer to a wide board.</p>
+<p>Both panels name things the way a board does – block, stack, link – rather than in g6’s vocabulary of node, combo and edge.</p>
+</section></section><section class="level2"><h2 id="developer-guide">Developer Guide<a class="anchor" aria-label="anchor" href="#developer-guide"></a>
 </h2>
 <section class="level3"><h3 id="where-does-blockr-dag-fit-in">Where does blockr.dag fit in?<a class="anchor" aria-label="anchor" href="#where-does-blockr-dag-fit-in"></a>
 </h3>

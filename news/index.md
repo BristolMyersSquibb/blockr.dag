@@ -41,6 +41,24 @@ CRAN release: 2026-07-30
 
 ### New features
 
+- The DAG carries a search box and a board outline, for boards too large
+  to read at fit-to-view
+  ([\#139](https://github.com/BristolMyersSquibb/blockr.dag/issues/139)).
+  Type a block name or id in the box, top-right of the canvas, and the
+  view moves to that block and selects it, which reveals its panel like
+  any other node click. Under the box sits the outline: open it to list
+  the whole board as a tree, each stack an accordion holding its blocks
+  in flow order, with the number of blocks it holds on the right, and
+  the board’s own totals on the panel header so the size of it reads
+  without opening anything. Clicking a row goes to that block or stack.
+  The two are one control rather than two panels, and both name things
+  the way a board does – “block”, “stack”, “link”, not g6’s “node”,
+  “combo”, “edge”. Searching a block inside a collapsed stack opens that
+  stack on the way, which is what makes collapsing usable: a large board
+  no longer has to be legible on the canvas for every block to stay
+  reachable. Requires a `g6R` carrying `g6_search()` and `g6_outline()`
+  ([cynkra/g6R#65](https://github.com/cynkra/g6R/issues/65)).
+
 - The DAG node context menu offers an “Edit inputs” entry
   ([\#158](https://github.com/BristolMyersSquibb/blockr.dag/issues/158)).
   Right-clicking a node and choosing “Edit inputs” opens `blockr.dock`’s
