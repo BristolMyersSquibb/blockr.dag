@@ -23,7 +23,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(edge, "value"),
-    c("remove_link", "edit_link")
+    c("remove_link", "edit_link", "insert_block")
   )
 
   canv <- build_context_menu(ctx, target = list(type = "canvas"))
@@ -54,7 +54,10 @@ test_that("only re-targeting entries declare anything", {
 
   expect_setequal(
     chr_ply(Filter(is_sidebar_entry, ctx), context_menu_entry_id),
-    c("create_link", "append_block", "edit_inputs", "edit_stack", "edit_link")
+    c(
+      "create_link", "append_block", "edit_inputs", "edit_stack", "edit_link",
+      "insert_block"
+    )
   )
 
   expect_identical(
@@ -70,6 +73,11 @@ test_that("only re-targeting entries declare anything", {
   expect_identical(
     sidebar_spec(by_id[["edit_inputs"]]),
     list(action = "edit_inputs_action")
+  )
+
+  expect_identical(
+    sidebar_spec(by_id[["insert_block"]]),
+    list(action = "insert_block_action")
   )
 
   # Panel-filling entries that cannot re-target name nothing at all: the
