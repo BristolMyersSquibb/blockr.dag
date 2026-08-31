@@ -189,6 +189,14 @@ update_observer <- function(update, board, proxy) {
           blocks <- c(blocks, upd$blocks$add)
         }
         add_edges(upd$links$add, blocks, proxy)
+
+        # A block spliced into a wire lands where the click did, which is on
+        # the wire itself: reposition it and open the space it needs.
+        ins <- spliced_link(upd)
+
+        if (!is.null(ins)) {
+          space_spliced_node(ins, upd, board$board, proxy)
+        }
       }
 
       if (length(upd$links$mod)) {
