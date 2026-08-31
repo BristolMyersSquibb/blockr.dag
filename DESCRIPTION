@@ -27,7 +27,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     blockr.core (>= 0.1.3),
-    blockr.dock (>= 0.1.3),
+    blockr.dock (>= 0.1.3.9000),
     shiny,
     g6R (>= 0.6.5.9001),
     jsonlite,
