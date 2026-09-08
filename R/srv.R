@@ -179,6 +179,14 @@ update_observer <- function(update, board, proxy) {
         relabel_nodes(upd$blocks$mod, proxy)
       }
 
+      # Removals before additions, per entity: a delta may re-use an id it is
+      # dropping in the same breath, which is how an insert re-points the link
+      # it splits. Adding first would draw the new element and then have the
+      # removal take it straight back off the canvas (#165).
+      if (length(upd$links$rm)) {
+        remove_edges(upd$links$rm, proxy = proxy)
+      }
+
       if (length(upd$links$add)) {
         blocks <- board_blocks(board$board)
         # If new blocks are added in the same update as new links, for instance
@@ -216,6 +224,10 @@ update_observer <- function(update, board, proxy) {
         add_edges(links, board_blocks(board$board), proxy)
       }
 
+      if (length(upd$stacks$rm)) {
+        remove_combos(upd$stacks$rm, proxy)
+      }
+
       if (length(upd$stacks$add)) {
         add_combos(upd$stacks$add, proxy)
       }
@@ -234,14 +246,6 @@ update_observer <- function(update, board, proxy) {
           board$board,
           proxy
         )
-      }
-
-      if (length(upd$stacks$rm)) {
-        remove_combos(upd$stacks$rm, proxy)
-      }
-
-      if (length(upd$links$rm)) {
-        remove_edges(upd$links$rm, proxy = proxy)
       }
 
       if (length(upd$blocks$rm)) {

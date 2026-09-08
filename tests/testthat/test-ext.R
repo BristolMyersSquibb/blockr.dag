@@ -310,6 +310,61 @@ test_that("a links mod delta re-points the edge", {
   )
 })
 
+test_that("a delta re-using a link id leaves the edge on the canvas (#165)", {
+
+  # An insert re-points the link it splits by carrying that link's id in both
+  # `add` and `rm`: core replaces it in place, which is what holds a blank
+  # variadic slot's position. Drawing before erasing would take the re-added
+  # edge straight back off the canvas.
+  calls <- character()
+
+  local_mocked_bindings(
+    g6_add_edges = function(proxy, edges) {
+      calls <<- c(calls, paste0("add:", paste(chr_xtr(edges, "id"), collapse = ",")))
+      invisible()
+    },
+    g6_remove_edges = function(proxy, edges) {
+      calls <<- c(calls, paste0("rm:", paste(edges, collapse = ",")))
+      invisible()
+    }
+  )
+
+  board <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), m = new_merge_block()),
+    links = c(l1 = new_link("a", "m", "x"))
+  )
+
+  testServer(
+    function(id, board, update) {
+      moduleServer(
+        id,
+        function(input, output, session) {
+          update_observer(update, board, blockr_g6_proxy(session))
+        }
+      )
+    },
+    args = list(
+      board = reactiveValues(board = board),
+      update = reactiveVal(NULL)
+    ),
+    {
+      update(
+        list(
+          links = list(
+            add = as_links(c(l1 = new_link("a", "m", "y"))),
+            rm = "l1"
+          )
+        )
+      )
+      session$flushReact()
+
+      expect_length(calls, 2L)
+      expect_match(calls[[1L]], "^rm:")
+      expect_match(calls[[2L]], "^add:")
+    }
+  )
+})
+
 test_that("extension_block_callback works", {
   ext_cb <- extension_block_callback(new_dag_extension())
 
