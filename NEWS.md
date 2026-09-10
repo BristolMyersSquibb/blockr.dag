@@ -1,14 +1,8 @@
-# blockr.dag 0.1.5
+# blockr.dag 0.1.5.9000
 
 ## Breaking changes
 
 - `new_context_menu_entry()` and `new_toolbar_item()` no longer take a `sidebar` argument. An entry that fills a sidebar panel no longer names it: `blockr.dock` stamps the writing action onto the panel as it writes ([blockr.dock#391](https://github.com/BristolMyersSquibb/blockr.dock/issues/391)), and ownership is read back with `blockr.dock::sidebar_owned_by()` rather than tracked here. `retarget = TRUE` is now the whole declaration, and an entry that fills a panel without re-targeting declares nothing at all. Requires a `blockr.dock` carrying `sidebar_owned_by()`.
-
-- The DAG extension no longer ingests or emits a full g6 graph object ([#119](https://github.com/BristolMyersSquibb/blockr.dag/issues/119)). `new_dag_extension()` drops the `graph` argument in favour of `positions`, a named list keyed by block id (`list(a = list(x = 100, y = 200))`) carrying only the board-independent view attributes the extension owns. The board is now the single source of truth: nodes, edges, combos and all styling (icons, labels, colors, ports) are always regenerated from it, and supplied positions are overlaid onto the corresponding nodes' coordinates. Serialization shrinks to positions only; no board-derived styling is persisted. The g6 graph wire format and its board/g6 converters (`new_graph()`, `as_graph()`, `g6_from_graph()`, ...) are now internal and no longer exported. This mirrors the dockview wire-format decoupling in `blockr.dock`. Note: the auto-layout still computes final node placement at cold start, so supplied positions are not yet honored over it; making positions pin over the layout is a planned follow-up (see [#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
-
-## Bug fixes
-
-- The canvas applies each entity's removals before its additions ([#165](https://github.com/BristolMyersSquibb/blockr.dag/issues/165)). A delta may legitimately re-use an id it drops in the same breath, which `modify_board_links()` treats as replacing that element in place. Drawing first and erasing after took the re-added element straight back off the canvas, leaving the board and the drawing disagreeing.
 
 ## New features
 
@@ -26,6 +20,18 @@
 
 - The DAG canvas now reflects in-place link edits ([#156](https://github.com/BristolMyersSquibb/blockr.dag/issues/156)). A board update whose only link change is a modification (`links$mod`) -- redirecting an endpoint, switching a finite input's slot, or renaming a variadic input, as the "Edit link" action emits -- redraws the affected edge from the updated board: it moves to its new source, target and port and relabels, rather than leaving the stale edge on screen until an unrelated redraw.
 
+## Bug fixes
+
+- The canvas applies each entity's removals before its additions ([#165](https://github.com/BristolMyersSquibb/blockr.dag/issues/165)). A delta may legitimately re-use an id it drops in the same breath, which `modify_board_links()` treats as replacing that element in place. Drawing first and erasing after took the re-added element straight back off the canvas, leaving the board and the drawing disagreeing.
+
+# blockr.dag 0.1.5
+
+## Breaking changes
+
+- The DAG extension no longer ingests or emits a full g6 graph object ([#119](https://github.com/BristolMyersSquibb/blockr.dag/issues/119)). `new_dag_extension()` drops the `graph` argument in favour of `positions`, a named list keyed by block id (`list(a = list(x = 100, y = 200))`) carrying only the board-independent view attributes the extension owns. The board is now the single source of truth: nodes, edges, combos and all styling (icons, labels, colors, ports) are always regenerated from it, and supplied positions are overlaid onto the corresponding nodes' coordinates. Serialization shrinks to positions only; no board-derived styling is persisted. The g6 graph wire format and its board/g6 converters (`new_graph()`, `as_graph()`, `g6_from_graph()`, ...) are now internal and no longer exported. This mirrors the dockview wire-format decoupling in `blockr.dock`. Note: the auto-layout still computes final node placement at cold start, so supplied positions are not yet honored over it; making positions pin over the layout is a planned follow-up (see [#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
+
+## New features
+
 - The node status badge reflects a block's full eval status, not just error conditions ([#145](https://github.com/BristolMyersSquibb/blockr.dag/issues/145)). The badge is derived by `blockr.dock::block_status_badge()` -- the single derivation the dock card icon and the DAG node badge share -- so a node shows the same amber `waiting`, yellow `unset` or red `failed` dot as the dock, with identical colour and geometry. Any error condition still shows red (a render-phase error leaves a block `ready` but errored). A `ready` node carries no badge; a `dormant` node -- one whose status is not currently computed because nothing renders its output -- keeps its last-known badge rather than dropping it, so every invalid block stays flagged even after it leaves the eval set.
 
 - Pasted blocks keep their original names; the `" (copy)"` suffix is gone from blocks. A pasted group is offset on the canvas and selected, so the label carried no extra information, and mass-renaming made copying larger app parts painful. Stacks keep the suffix (`Cohort (copy)`) as group-level provenance.
@@ -35,12 +41,19 @@
 ## Internal changes
 
 - The DAG now renders with G6's default canvas renderer instead of the SVG renderer. The SVG element reports `offsetWidth == 0`, which broke `g-lite`'s client/canvas coordinate scaling under browser zoom other than 100% (drops and port grabs silently failed below 100%). The SVG renderer is still used for `shinytest2` end-to-end tests via the new `blockr.dag.svg_renderer` option (see `?new_dag_extension`). Requires `g6R (>= 0.6.5)`, which keeps the create-edge assist node from crashing the canvas renderer and fixes a combo/layout crash when a stack is created at runtime.
+
 - Reworked block ports: ports are now always visible (rather than hover-only) with a fixed radius, and the output port uses the `label-bottom` placement. Pairs with g6R's port-grab tolerance so a near-miss on a port still starts an edge.
+
 - Fix stack renames/recolors not reflecting in the DAG: `update_observer()` still expected `stacks$mod` to carry full `stacks` objects after blockr.core switched the delta to partial-argument lists; the deltas are now resolved against the board before updating the combos.
+
 - Fix links between stacked blocks being unselectable: edges render at `zIndex = -1` (under nodes) while combos sat at G6's default `0`, so a stack's rectangle swallowed every click aimed at the edges between its member nodes. Combos now render at `zIndex = -2` (node > edge > combo), keeping the stack itself clickable in its padding area.
+
 - Fix [#123](https://github.com/BristolMyersSquibb/blockr.dag/issues/123): renaming a block now relabels its DAG node instead of erroring. `update_observer()` handed blockr.core's partial-argument `blocks$mod` delta straight to `update_nodes()` (which needs full `block` objects); it now updates the node label directly from the delta.
+
 - Fix [#144](https://github.com/BristolMyersSquibb/blockr.dag/issues/144): copy/paste no longer corrupts `NULL`-valued block state. `copy_selection_to_clipboard()` serialized the clipboard with `toJSON()`'s default `null = "list"`, encoding `NULL` as `{}` and deserializing it back into `list()`; pasted blocks then errored on first data (e.g. `nzchar(list())` -> "argument is of length zero" in the chart and table blocks). Now passes `null = "null"` to match blockr.core's save/restore serialization, round-tripping `NULL` faithfully.
+
 - Fix [blockr.dock#308](https://github.com/BristolMyersSquibb/blockr.dock/issues/308): single-clicking a DAG node opens the block's panel again. `blockr.dock` retired the live `dock` handle from the extension server surface, which the node-select observer passed to `blockr.dock::show_panel()`. The observer now emits a `views` update delta built with `blockr.dock`'s panel-op grammar (`select`, or `add` + `select` when absent) to reveal the block's panel in the current view, adding it there if the view does not already hold it — without switching to another view.
+
 - Track `blockr.dock`'s extension-identity redesign. An extension's runtime id is now the container-assigned key (its class minus the `_extension` suffix, or an explicit list name), and extension results reach actions and block callbacks as one `extensions` bundle keyed by that id rather than a splatted argument named after the id. The DAG actions and the block-status callback now resolve their result with `blockr.dock::extension_ids(board$board, "dag_extension")` and index the bundle explicitly, instead of binding a `dag_extension` formal.
 
 # blockr.dag 0.1.2
