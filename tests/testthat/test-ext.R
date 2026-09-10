@@ -365,6 +365,59 @@ test_that("a delta re-using a link id leaves the edge on the canvas (#165)", {
   )
 })
 
+test_that("a delta re-using a stack id leaves the combo on the canvas (#165)", {
+
+  # The links half of this is covered above. Stacks invert the same way and
+  # were fixed in the same pass, so pin both: `modify_board_stacks()` is
+  # stricter than its links counterpart, but the canvas ordering is what
+  # decides whether a re-used id is a replacement or an erasure.
+  calls <- character()
+
+  local_mocked_bindings(
+    g6_add_combos = function(proxy, combos) {
+      calls <<- c(calls, "add")
+      invisible()
+    },
+    g6_remove_combos = function(proxy, combos) {
+      calls <<- c(calls, "rm")
+      invisible()
+    }
+  )
+
+  board <- blockr.dock::new_dock_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block()),
+    stacks = c(s1 = blockr.dock::new_dock_stack("a"))
+  )
+
+  testServer(
+    function(id, board, update) {
+      moduleServer(
+        id,
+        function(input, output, session) {
+          update_observer(update, board, blockr_g6_proxy(session))
+        }
+      )
+    },
+    args = list(
+      board = reactiveValues(board = board),
+      update = reactiveVal(NULL)
+    ),
+    {
+      update(
+        list(
+          stacks = list(
+            add = as_stacks(c(s1 = blockr.dock::new_dock_stack(c("a", "b")))),
+            rm = "s1"
+          )
+        )
+      )
+      session$flushReact()
+
+      expect_identical(calls, c("rm", "add"))
+    }
+  )
+})
+
 test_that("extension_block_callback works", {
   ext_cb <- extension_block_callback(new_dag_extension())
 
