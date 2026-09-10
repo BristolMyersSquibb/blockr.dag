@@ -147,6 +147,32 @@ context_menu_items.dag_extension <- function(x) {
       retarget = TRUE
     ),
     new_context_menu_entry(
+      name = "Insert block",
+      js = function(ns) {
+        sprintf(
+          "(value, target, current) => {
+            if (current.id === undefined) return;
+            Shiny.setInputValue(
+              '%s',
+              current.id.replace(/^edge-/, ''),
+              {priority: 'event'}
+            );
+          }",
+          ns("ctx_insert_block")
+        )
+      },
+      action = update_action_trigger(
+        action_name = "insert_block_action",
+        input_name = "ctx_insert_block"
+      ),
+      condition = function(board, target) target$type == "edge",
+      id = "insert_block",
+      # Re-targets like the other link-scoped editor: a pinned panel follows
+      # the edge the user selects, so the insert lands on the wire they are
+      # looking at rather than the one they opened with.
+      retarget = TRUE
+    ),
+    new_context_menu_entry(
       name = "Append block",
       js = function(ns) {
         sprintf(

@@ -787,6 +787,99 @@ remove_combos <- function(combos, asis = FALSE, proxy = blockr_g6_proxy()) {
   invisible()
 }
 
+# An insert splices a block into an existing wire: one block added, the link
+# it split removed, and two links added, one into the new block and one out
+# of it. Recognising that shape is what lets the DAG make room, rather than
+# leaving the block sitting on the wire where the click landed.
+spliced_link <- function(upd) {
+
+  if (length(upd$blocks$add) != 1L || length(upd$links$add) != 2L ||
+        !length(upd$links$rm)) {
+    return(NULL)
+  }
+
+  id <- names(upd$blocks$add)
+  lnk <- as.data.frame(upd$links$add)
+  from <- lnk[["from"]][lnk[["to"]] == id]
+  to <- lnk[["to"]][lnk[["from"]] == id]
+
+  if (length(from) != 1L || length(to) != 1L) {
+    return(NULL)
+  }
+
+  list(block = id, from = from, to = to)
+}
+
+# Everything reachable downstream of `id`. A spliced block needs the whole
+# branch below it to move, not just the block it now feeds, or the crowding
+# is merely pushed one rank further along.
+downstream_of <- function(id, links) {
+
+  seen <- character()
+  front <- id
+
+  while (length(front)) {
+    front <- setdiff(links[["to"]][links[["from"]] %in% front], c(seen, id))
+    seen <- c(seen, front)
+  }
+
+  seen
+}
+
+# Where a spliced block goes: one gap past its source, with its target and
+# everything below shifted down by the same gap. The gap is the one the wire
+# already had, so a loosely laid out board stays loose and a tight one stays
+# tight, and `min_gap` keeps a wire whose ends nearly touch from producing an
+# unreadable result. `add_nodes()` uses the same figure to space several
+# blocks added at once.
+space_spliced_node <- function(ins, upd, board, proxy = blockr_g6_proxy(),
+                               min_gap = 130) {
+
+  pos <- project_positions(
+    proxy$session$input[[paste0(graph_id(), "-state")]]
+  )
+
+  src <- pos[[ins$from]]
+  tgt <- pos[[ins$to]]
+
+  if (is.null(src) || is.null(tgt)) {
+    return(invisible())
+  }
+
+  # Along whichever axis the wire runs: the layout is top-down, but nothing
+  # stops a user having dragged these two into a row.
+  axis <- if (abs(tgt$y - src$y) >= abs(tgt$x - src$x)) "y" else "x"
+  off <- if (axis == "y") "x" else "y"
+
+  span <- tgt[[axis]] - src[[axis]]
+  gap <- max(abs(span), min_gap) * if (span < 0) -1 else 1
+
+  # The links the board will have: the split one is on its way out, and the
+  # board has not been updated yet when this runs.
+  links <- as.data.frame(board_links(board))
+  links <- links[!links[["id"]] %in% upd$links$rm, c("from", "to")]
+
+  moved <- c(ins$to, downstream_of(ins$to, links))
+  shift <- 2 * gap - span
+
+  spliced <- list()
+  spliced[[axis]] <- src[[axis]] + gap
+  spliced[[off]] <- (src[[off]] + tgt[[off]]) / 2
+
+  out <- set_names(list(spliced[c("x", "y")]), ins$block)
+
+  for (id in moved) {
+    at <- pos[[id]]
+    if (is.null(at)) {
+      next
+    }
+    at[[axis]] <- at[[axis]] + shift
+    out[[id]] <- at[c("x", "y")]
+  }
+
+  apply_node_positions(out, proxy)
+}
+
 add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
 
