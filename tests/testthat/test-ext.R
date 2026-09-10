@@ -312,9 +312,9 @@ test_that("a links mod delta re-points the edge", {
 
 test_that("a delta re-using a link id leaves the edge on the canvas (#165)", {
 
-  # An insert re-points the link it splits by carrying that link's id in both
-  # `add` and `rm`: core replaces it in place, which is what holds a blank
-  # variadic slot's position. Drawing before erasing would take the re-added
+  # `modify_board_links()` treats an id present in both `add` and `rm` as a
+  # replacement in place rather than a drop and an append, so a delta may
+  # legitimately carry one. Drawing before erasing would take the re-added
   # edge straight back off the canvas.
   calls <- character()
 
