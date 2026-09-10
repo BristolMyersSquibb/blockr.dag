@@ -34,34 +34,61 @@ new_dag_extension <- function(positions = NULL, ...) {
     dag_ext_srv(positions),
     dag_ext_ui,
     name = "Workflow",
-    description = dag_ext_description(),
+    description = dag_ext_meta(),
     class = "dag_extension",
     external_ctrl = "positions",
     ...
   )
 }
 
-# Surfaced to LLM assistants via `blockr.dock`'s extension external-control
-# tooling (`tool_list_extensions` reports it as the extension `description`,
-# explaining how to drive `modify_extension`). Spells out the `positions`
-# schema, which the model cannot infer from the variable name alone.
-dag_ext_description <- function() {
+# Model-facing metadata, surfaced by `blockr.dock`'s external-control tooling
+# (`tool_list_extensions`) to a client driving the extension through
+# `modify_extension`. Structured rather than one blob so each part reaches the
+# client on its own: what the view is, what the one controllable variable
+# takes, and how to drive it.
+dag_ext_meta <- function() {
+  blockr.dock::new_ext_meta(
+    description = paste(
+      "Workflow diagram: the directed-acyclic-graph view of the board's",
+      "blocks and the links between them."
+    ),
+    arguments = blockr.core::new_arg_specs(
+      positions = blockr.core::new_arg_spec(
+        description = dag_positions_description(),
+        example = list(
+          my_block = list(x = 120, y = 80),
+          other_block = list(x = 270, y = 80)
+        )
+      )
+    ),
+    guidance = paste(
+      "A block's place in this diagram is a canvas coordinate, not a",
+      "dockview panel or view: move a block with `modify_extension` on",
+      "`positions`, never with the view or panel tools."
+    ),
+    examples = list(
+      list(positions = list(my_block = list(x = 120, y = 80)))
+    )
+  )
+}
+
+# The `positions` schema plus the arithmetic for placing one block relative to
+# another. Kept as prose: the outer block-id map is open, which the closed
+# `arg_object()` record cannot express, so only the example carries the shape
+# machine-readably.
+dag_positions_description <- function() {
   paste(
-    "Directed-acyclic-graph view of the board's blocks. The externally",
-    "controllable variable `positions` sets where each block (node) sits on",
-    "the workflow canvas. This is the in-diagram coordinate of a block, NOT a",
-    "dockview panel or view: to move a block around the workflow diagram use",
-    "modify_extension with `positions`, never the view/panel tools.",
-    "`positions` is a JSON object mapping block id to an object with numeric",
-    "`x` and `y` canvas-pixel coordinates (origin top-left, x rightward, y",
-    "downward), e.g. {\"my_block\": {\"x\": 120, \"y\": 80}}. Set only the",
-    "blocks you move; omitted blocks keep their current positions.",
-    "Coordinates are absolute, so to place a block relative to another (to",
-    "its left/right/above/below) first read both blocks' current coordinates",
-    "from the `values` field of list_extensions, then compute the target:",
-    "nodes are about 50px, so leave ~150px between centres (left = same y and",
-    "smaller x, right = same y and larger x, above = same x and smaller y,",
-    "below = same x and larger y)."
+    "Where each block sits on the workflow canvas.",
+    "JSON object mapping block id to an object with numeric `x` and `y`",
+    "canvas-pixel coordinates (origin top-left, x rightward, y downward),",
+    "e.g. {\"my_block\": {\"x\": 120, \"y\": 80}}. Set only the blocks you",
+    "move; omitted blocks keep their current positions. Coordinates are",
+    "absolute, so to place a block relative to another (to its",
+    "left/right/above/below) first read both blocks' current coordinates from",
+    "the `values` field of list_extensions, then compute the target: nodes are",
+    "about 50px, so leave ~150px between centres (left = same y and smaller x,",
+    "right = same y and larger x, above = same x and smaller y, below = same x",
+    "and larger y)."
   )
 }
 
