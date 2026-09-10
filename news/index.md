@@ -39,7 +39,38 @@ CRAN release: 2026-07-30
   follow-up (see
   [\#141](https://github.com/BristolMyersSquibb/blockr.dag/issues/141)).
 
+### Bug fixes
+
+- The canvas applies each entity’s removals before its additions
+  ([\#165](https://github.com/BristolMyersSquibb/blockr.dag/issues/165)).
+  A delta may legitimately re-use an id it drops in the same breath,
+  which
+  [`modify_board_links()`](https://bristolmyerssquibb.github.io/blockr.core/reference/board_blocks.html)
+  treats as replacing that element in place. Drawing first and erasing
+  after took the re-added element straight back off the canvas, leaving
+  the board and the drawing disagreeing.
+
 ### New features
+
+- Right-clicking a link in the DAG offers “Insert block”, which puts a
+  new block into that wire
+  ([blockr.dock#459](https://github.com/BristolMyersSquibb/blockr.dock/issues/459)).
+  Picking a block for `A -> B` drops that link and wires `A -> C -> B`
+  in one update, so splitting a wire is one gesture rather than three
+  (remove the link, append to the source, link into the target,
+  re-picking the target’s input slot from memory). The panel names the
+  wire it will split, and the far end takes the split link’s place in
+  the board’s link order, so an entry’s argument position survives the
+  split whether it is named or blank (see the `blockr.dock` entry). It
+  re-targets like “Edit link”, so a pinned panel follows the edge you
+  select. The inserted block is also placed rather than dropped where
+  the click landed: it takes the wire’s own gap from its source, and its
+  target moves down by that same gap along with everything below it, so
+  the two new wires are as long as the one they replaced instead of half
+  as long. A loosely spaced board therefore stays loose and a tight one
+  is opened to a readable minimum, and a wire the user has dragged
+  sideways is spaced along its own axis rather than vertically. Requires
+  a `blockr.dock` carrying `insert_block_action`.
 
 - The DAG carries a search box and a board outline, for boards too large
   to read at fit-to-view
