@@ -41,9 +41,9 @@ new_dag_extension <- function(positions = NULL, ...) {
   )
 }
 
-# Model-facing metadata, surfaced by `blockr.dock`'s external-control tooling
-# (`tool_list_extensions`) to a client driving the extension through
-# `modify_extension`. Structured rather than one blob so each part reaches the
+# Model-facing metadata, surfaced by `blockr.assistant`'s extension tools
+# (`list_extensions`, `describe_extension`) to a client driving the extension
+# through `modify_extension`. Structured rather than one blob so each part reaches the
 # client on its own: what the view is, what the one controllable variable
 # takes, and how to drive it.
 dag_ext_meta <- function() {
@@ -85,10 +85,10 @@ dag_positions_description <- function() {
     "move; omitted blocks keep their current positions. Coordinates are",
     "absolute, so to place a block relative to another (to its",
     "left/right/above/below) first read both blocks' current coordinates from",
-    "the `values` field of list_extensions, then compute the target: nodes are",
-    "about 50px, so leave ~150px between centres (left = same y and smaller x,",
-    "right = same y and larger x, above = same x and smaller y, below = same x",
-    "and larger y)."
+    "the `values` field of describe_extension, then compute the target: nodes",
+    "are about 50px, so leave ~150px between centres (left = same y and",
+    "smaller x, right = same y and larger x, above = same x and smaller y,",
+    "below = same x and larger y)."
   )
 }
 
