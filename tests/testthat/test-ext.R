@@ -455,7 +455,7 @@ test_that("extension_block_callback works", {
   )
 })
 
-test_that("a block leaving the eval set keeps its badge (#146)", {
+test_that("a node badge is pushed only when it changes (#146)", {
   pushed <- list()
   local_mocked_bindings(
     g6_update_nodes = function(proxy, nodes) {
@@ -464,15 +464,17 @@ test_that("a block leaving the eval set keeps its badge (#146)", {
     }
   )
 
-  # Core's status reactive reads `needed()`, so leaving the eval set re-fires
-  # it, and a parked block reports the outcome of its last check.
-  needed <- reactiveVal(TRUE)
-  status <- reactive(
-    {
-      needed()
-      "waiting"
-    }
+  # Which status draws which badge is blockr.dock's to decide, so stub it:
+  # every status draws the same badge, and a missing one draws none.
+  spec <- list(color = "#000000", ring_color = "#ffffff", ring = 2L, size = 8L)
+  local_mocked_bindings(
+    block_status_badge = function(status, error_count = 0L) {
+      if (is.null(status)) NULL else spec
+    },
+    .package = "blockr.dock"
   )
+
+  status <- reactiveVal("first")
 
   testServer(
     function(id) {
@@ -494,11 +496,15 @@ test_that("a block leaving the eval set keeps its badge (#146)", {
       expect_length(pushed, 1L)
       expect_length(pushed[[1L]], 1L)
 
-      # The re-fired status recomputes the badge already drawn, so nothing is
-      # pushed: neither a clearing update nor a redraw of the same badge.
-      needed(FALSE)
+      # A different status that draws the same badge pushes nothing.
+      status("second")
       session$flushReact()
       expect_length(pushed, 1L)
+
+      status(NULL)
+      session$flushReact()
+      expect_length(pushed, 2L)
+      expect_length(pushed[[2L]], 0L)
     }
   )
 })
