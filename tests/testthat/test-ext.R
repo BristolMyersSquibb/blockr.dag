@@ -455,7 +455,7 @@ test_that("extension_block_callback works", {
   )
 })
 
-test_that("a block going dormant keeps its badge (#146)", {
+test_that("a block leaving the eval set keeps its badge (#146)", {
   pushed <- list()
   local_mocked_bindings(
     g6_update_nodes = function(proxy, nodes) {
@@ -464,7 +464,15 @@ test_that("a block going dormant keeps its badge (#146)", {
     }
   )
 
-  status <- reactiveVal("dormant")
+  # Core's status reactive reads `needed()`, so leaving the eval set re-fires
+  # it, and a parked block reports the outcome of its last check.
+  needed <- reactiveVal(TRUE)
+  status <- reactive(
+    {
+      needed()
+      "waiting"
+    }
+  )
 
   testServer(
     function(id) {
@@ -483,17 +491,12 @@ test_that("a block going dormant keeps its badge (#146)", {
     {
       session$setInputs("graph-initialized" = TRUE)
       session$flushReact()
-
-      # Enters the eval set as `waiting` -> exactly one badge is drawn.
-      status("waiting")
-      session$flushReact()
       expect_length(pushed, 1L)
       expect_length(pushed[[1L]], 1L)
 
-      # Drops out of the eval set (`dormant`): the badge must be kept, so no
-      # clearing update is pushed. Under the pre-fix behaviour `dormant`
-      # cleared the badge here, adding a second (empty-badges) push.
-      status("dormant")
+      # The re-fired status recomputes the badge already drawn, so nothing is
+      # pushed: neither a clearing update nor a redraw of the same badge.
+      needed(FALSE)
       session$flushReact()
       expect_length(pushed, 1L)
     }
