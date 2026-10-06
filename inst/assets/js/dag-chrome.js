@@ -89,7 +89,92 @@
     graph.draw();
   }
 
+  // --- Find: the panel behind the toolbar's "Search blocks" tool -----------
+  //
+  // A layer (design system, "Dismissing"): the tool, Escape, a click outside
+  // and a pick close it. Opening starts from the whole board with the focus in
+  // the filter box.
+
+  function findBox(container) {
+    return container && container.querySelector('.g6-search');
+  }
+
+  function setFind(container, open) {
+    const box = findBox(container);
+    if (!box) return;
+    container.classList.toggle('dag-find-open', open);
+    const input = box.querySelector('.g6-search-input');
+    if (open && input) {
+      input.value = '';
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    }
+  }
+
+  function toggleFind(container) {
+    setFind(container, !container.classList.contains('dag-find-open'));
+  }
+
+  // Close after the pick has been read: the plugins act on mousedown/click.
+  function closeSoon(container) {
+    setTimeout(() => setFind(container, false), 0);
+  }
+
+  function wireFind(container) {
+    const box = findBox(container);
+    if (!box || box.dataset.dagFind) return;
+    box.dataset.dagFind = '1';
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setFind(container, false);
+        const tool = container.querySelector('.g6-toolbar-item[value="find"]');
+        if (tool) tool.focus();
+      } else if (e.key === 'Enter' && box.querySelector('.g6-search-result')) {
+        closeSoon(container);
+      }
+    });
+    // Capture: the outline stops its clicks from bubbling past itself.
+    box.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.g6-search-result')) closeSoon(container);
+    }, true);
+    box.addEventListener('click', (e) => {
+      if (e.target.closest('.g6-outline-row') &&
+          !e.target.closest('.g6-outline-caret')) {
+        closeSoon(container);
+      }
+    }, true);
+  }
+
+  document.addEventListener('pointerdown', (e) => {
+    document.querySelectorAll('.dag-canvas-container.dag-find-open')
+      .forEach((container) => {
+        if (e.target.closest('.g6-search') ||
+            e.target.closest('.g6-toolbar-item[value="find"]')) return;
+        setFind(container, false);
+      });
+  }, true);
+
+  // The tool's magnifier, as a symbol the toolbar's `<use>` can point at:
+  // G6's icon font draws it in another hand than the other tools.
+  function addSymbols() {
+    if (document.getElementById('blockr-dag-symbols')) return;
+    const sprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    sprite.id = 'blockr-dag-symbols';
+    sprite.setAttribute('aria-hidden', 'true');
+    sprite.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    sprite.innerHTML =
+      '<symbol id="blockr-search" viewBox="-1 -1 18 18">' +
+      '<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078' +
+      '.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0' +
+      '-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></symbol>';
+    document.body.appendChild(sprite);
+  }
+
+  window.blockrDag = Object.assign(window.blockrDag || {}, { toggleFind });
+
   function adopt(container) {
+    wireFind(container);
     container.querySelectorAll('.g6-toolbar-item[title]').forEach((item) => {
       item.setAttribute(ATTR, item.getAttribute('title'));
       item.removeAttribute('title');
@@ -123,5 +208,6 @@
   });
 
   $(document).on('shiny:value shiny:bound', scan);
+  $(addSymbols);
   $(scan);
 })();

@@ -1,6 +1,6 @@
 Package: blockr.dag
 Title: A Directed Acyclic Graph Extension for 'blockr'
-Version: 0.1.5.9001
+Version: 0.1.5.9003
 Authors@R: 
     c(person(given = "David",
              family = "Granjon",
