@@ -137,25 +137,37 @@
   background-color: var(--blockr-color-bg-hover);
 }
 
-/* Results and the board outline: the list-of-values surface. */
+/* Results and the board outline: the menu surface, holding block-list rows
+   (design system, "Block lists" and "Picking a block"). */
 .dag-canvas-container .g6-search-results,
 .dag-canvas-container .g6-outline {
   background: var(--blockr-color-bg-raised);
   border: 1px solid var(--blockr-color-border-default);
   border-radius: var(--blockr-radius-lg, 8px);
   box-shadow: var(--blockr-shadow-md);
+  font-size: var(--blockr-font-size-base);
 }
 
-.dag-canvas-container .g6-search-results {
-  padding: 4px;
+.dag-canvas-container .g6-search-results,
+.dag-canvas-container .g6-outline-body {
+  padding: 6px;
   max-height: 320px;
 }
 
-.dag-canvas-container .g6-search-result {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: var(--blockr-radius-sm, 4px);
+/* A row: 34px, radius 6, 8px between its parts; the 24px mark, the name at
+   14px text-default on one line, then the row's end. */
+.dag-canvas-container .g6-search-result,
+.dag-canvas-container .g6-outline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--blockr-radius-md, 6px);
+  color: var(--blockr-color-text-default);
+  line-height: 1.2;
   text-align: left;
+  cursor: pointer;
 }
 
 .dag-canvas-container .g6-search-label,
@@ -172,38 +184,145 @@
   background: var(--blockr-color-bg-hover);
 }
 
+/* The block you are on: the selected row's accent tint. */
+.dag-canvas-container .g6-outline-row[data-current="true"] {
+  background: var(--blockr-color-bg-selected);
+  color: var(--blockr-color-text-accent-strong);
+  font-weight: inherit;
+}
+
+/* The block's mark, as on its card. */
+.dag-canvas-container img.g6-panel-glyph {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+/* A stack's mark: the stack icon in the stack's colour on an 18% tint of it,
+   as in the board outline. */
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"] {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--blockr-radius-md, 6px);
+  color: var(--g6-element-color, var(--blockr-color-text-muted));
+  background: color-mix(in srgb, currentcolor 18%, transparent);
+}
+
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"] svg {
+  display: none;
+}
+
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"]::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: currentcolor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5 9-5z'/%3E%3Cpath d='m3 13 9 5 9-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5 9-5z'/%3E%3Cpath d='m3 13 9 5 9-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Meta text at the row's end: 13px text-muted, default on a hovered row. */
 .dag-canvas-container .g6-panel-kind,
 .dag-canvas-container .g6-search-kind,
-.dag-canvas-container .g6-outline-total,
-.dag-canvas-container .g6-outline-count,
-.dag-canvas-container .g6-outline-caret,
-.dag-canvas-container .g6-panel-glyph,
-.dag-canvas-container .g6-panel-glyph[data-type="edge"] {
+.dag-canvas-container .g6-outline-count {
+  flex: none;
+  margin-left: 0;
+  padding-left: 0;
+  font-size: var(--blockr-font-size-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--blockr-color-text-muted);
 }
 
-.dag-canvas-container .g6-panel-kind,
-.dag-canvas-container .g6-search-kind {
-  font-size: var(--blockr-font-size-xs);
-}
-
-/* On a hovered row, meta text turns default (muted falls under 4.5:1). */
 .dag-canvas-container .g6-search-result:hover .g6-search-kind,
 .dag-canvas-container .g6-search-result[data-active="true"] .g6-search-kind,
 .dag-canvas-container .g6-outline-row:hover .g6-outline-count {
   color: var(--blockr-color-text-default);
 }
 
+/* The outline lists blocks flat inside their stack's band: no indent, and
+   no caret column on a block's row. */
+.dag-canvas-container .g6-outline {
+  --g6-outline-gutter: 0px;
+  --g6-outline-indent: 0px;
+}
+
+/* A block outside a stack lines up with the blocks inside one, which sit in
+   the band's 2px padding. */
+.dag-canvas-container .g6-outline-body > .g6-outline-list > .g6-outline-item:not([data-type="combo"]) {
+  padding: 0 2px;
+}
+
+.dag-canvas-container .g6-outline-row > .g6-outline-caret:not([data-open]) {
+  display: none;
+}
+
+/* The fold chevron sits at the row's end (design system, "Chevrons"): 12px,
+   text-muted, default under the pointer. */
+.dag-canvas-container .g6-outline-row > .g6-outline-caret,
+.dag-canvas-container .g6-outline-toggle > .g6-outline-caret {
+  order: 99;
+  width: 12px;
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-outline-caret svg {
+  width: 12px;
+  height: 12px;
+  transition: transform var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-outline-row:hover > .g6-outline-caret,
+.dag-canvas-container .g6-outline-toggle:hover > .g6-outline-caret {
+  color: var(--blockr-color-text-default);
+}
+
+/* A stack is a tinted band: its colour at 7% on the surface, radius 8, 2px
+   padding, no border. Its header row carries the name at weight 600; the
+   pointer on it deepens the band to 14%. */
+.dag-canvas-container .g6-outline-item[data-type="combo"] {
+  margin: 2px 0;
+  padding: 2px;
+  border-radius: var(--blockr-radius-lg, 8px);
+  background: color-mix(in srgb,
+    var(--g6-element-color, var(--blockr-color-text-muted)) 7%,
+    var(--blockr-color-bg-surface));
+  transition: background-color var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"]:has(> .g6-outline-row:hover) {
+  background: color-mix(in srgb,
+    var(--g6-element-color, var(--blockr-color-text-muted)) 14%,
+    var(--blockr-color-bg-surface));
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row:hover {
+  background: transparent;
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row .g6-panel-label {
+  font-weight: var(--blockr-font-weight-semibold, 600);
+}
+
+/* The panel's head: a section title with the board's totals, its chevron at
+   the end. */
 .dag-canvas-container .g6-outline[data-anchor="search"] {
   border-radius: var(--blockr-radius-lg, 8px);
 }
 
 .dag-canvas-container .g6-outline-toggle {
-  height: 32px;
-  padding: 0 10px;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
   background: var(--blockr-color-bg-raised);
-  color: var(--blockr-color-text-default);
-  font-size: var(--blockr-font-size-sm);
+  color: var(--blockr-color-text-muted);
+  font-size: var(--blockr-font-size-xs);
+  font-weight: var(--blockr-font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid var(--blockr-color-border-default);
 }
 
@@ -211,22 +330,15 @@
   border-bottom: 0;
 }
 
-.dag-canvas-container .g6-outline-body {
-  padding: 4px;
-  max-height: 320px;
+.dag-canvas-container .g6-outline-total {
+  font-size: var(--blockr-font-size-xs);
+  font-weight: var(--blockr-font-weight-normal, 400);
+  letter-spacing: 0;
+  color: var(--blockr-color-text-muted);
 }
 
-.dag-canvas-container .g6-outline-row {
-  min-height: 28px;
-  border-radius: var(--blockr-radius-sm, 4px);
-  color: var(--blockr-color-text-default);
-}
-
-/* The block you are on: the selected row's accent tint. */
-.dag-canvas-container .g6-outline-row[data-current="true"] {
-  background: var(--blockr-color-bg-selected);
-  color: var(--blockr-color-text-accent-strong);
-  font-weight: var(--blockr-font-weight-medium, 500);
+.dag-canvas-container .g6-outline-total .g6-panel-glyph {
+  color: var(--blockr-color-text-muted);
 }
 
 /* --- Canvas ------------------------------------------------------------- */
