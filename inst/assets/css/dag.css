@@ -17,6 +17,16 @@
 
 /* --- Toolbar: 26px tools on the floating surface ------------------------- */
 
+.dag-canvas-container .g6-toolbar {
+  gap: 2px;
+  padding: 4px;
+  background: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+  opacity: 1;
+}
+
 .dag-canvas-container .g6-toolbar .g6-toolbar-item {
   width: 16px;
   height: 16px;

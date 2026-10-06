@@ -211,6 +211,8 @@ set_g6_options <- function(graph, ...) {
       style = list(
         # more bottom padding, because of the badge
         padding = c(20, 20, 40, 20),
+        labelFill = "#111827", # text-default
+        labelFontFamily = "Open Sans, system-ui, sans-serif",
         # below edges (-1): a combo otherwise swallows clicks meant for the
         # edges between its member nodes, making in-stack links unselectable
         zIndex = -2
@@ -432,17 +434,10 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       open = FALSE,
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
-    # The floating surface of menus and tooltips: bg-raised, border-default,
-    # radius-lg, shadow-md. The 26px tools inside are styled in dag.css.
+    # The floating surface and its colours are set in dag.css, from tokens,
+    # so the toolbar follows the scheme.
     toolbar(
       style = list(
-        backgroundColor = "#ffffff",
-        padding = "4px",
-        boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)",
-        borderRadius = "8px",
-        border = "1px solid #e5e7eb",
-        opacity = "1",
-        gap = "2px",
         marginTop = "12px",
         marginLeft = "12px"
       ),
