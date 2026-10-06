@@ -36,7 +36,7 @@ Imports:
 Remotes:
     BristolMyersSquibb/blockr.dock,
     BristolMyersSquibb/blockr.ui,
-    cynkra/g6R
+    cynkra/g6R@feat/panel-images
 Suggests:
     knitr,
     rmarkdown,
