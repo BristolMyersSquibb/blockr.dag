@@ -1,0 +1,246 @@
+/* The DAG's chrome on the blockr.ui design system: tokens from
+   blockr-tokens.css, surfaces as in the spec's "Floating layer". g6R ships
+   neutral styles for its plugins; these rules, scoped to the DAG's container,
+   restyle them. Canvas styles (nodes, links) are set in R/g6r.R. */
+
+/* --- Empty canvas: one italic line where the graph would be ------------- */
+
+.dag-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* --- Toolbar: 26px tools on the floating surface ------------------------- */
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item {
+  width: 16px;
+  height: 16px;
+  padding: 5px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  color: var(--blockr-color-text-muted);
+  transition: background-color var(--blockr-transition, 0.15s ease),
+    color var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item svg {
+  fill: currentcolor;
+}
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item:hover {
+  background-color: var(--blockr-color-bg-hover);
+  color: var(--blockr-color-text-default);
+}
+
+/* --- Right-click menu: a menu of actions -------------------------------- */
+
+.dag-canvas-container .g6-contextmenu {
+  font: inherit;
+  font-size: var(--blockr-font-size-base);
+  color: var(--blockr-color-text-default);
+  background-color: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+  z-index: var(--blockr-z-menu, 1070);
+}
+
+.dag-canvas-container .g6-contextmenu-ul {
+  min-width: 180px;
+  max-width: 320px;
+  padding: 6px;
+}
+
+.dag-canvas-container .g6-contextmenu-li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--blockr-radius-md, 6px);
+  white-space: nowrap;
+}
+
+.dag-canvas-container .g6-contextmenu-li:hover {
+  background-color: var(--blockr-color-bg-hover);
+}
+
+/* The destructive row: its own group after a divider, red only under the
+   pointer. The menu orders it last (build_context_menu()). */
+.dag-canvas-container .g6-contextmenu-li:not([value^="remove_"]) + .g6-contextmenu-li[value^="remove_"] {
+  margin-top: 13px;
+}
+
+.dag-canvas-container .g6-contextmenu-li:not([value^="remove_"]) + .g6-contextmenu-li[value^="remove_"]::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: -6px;
+  right: -6px;
+  height: 1px;
+  background: var(--blockr-color-border-default);
+}
+
+.dag-canvas-container .g6-contextmenu-li[value^="remove_"]:hover {
+  color: var(--blockr-color-text-danger);
+  background-color: var(--blockr-color-bg-danger);
+}
+
+/* --- Search: the spec's search field ------------------------------------ */
+
+.dag-canvas-container .g6-search {
+  font: inherit;
+  font-size: var(--blockr-font-size-sm);
+}
+
+.dag-canvas-container .g6-search-input {
+  height: var(--blockr-control-h-sm, 30px);
+  padding: 0 6px 0 30px;
+  font: inherit;
+  font-size: var(--blockr-font-size-sm);
+  color: var(--blockr-color-text-default);
+  background: var(--blockr-color-bg-field)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='%236b7280'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E")
+    no-repeat 9px center;
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-md, 6px);
+  box-shadow: none;
+}
+
+.dag-canvas-container .g6-search-input::placeholder {
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-search-input:focus {
+  background-color: var(--blockr-color-bg-surface);
+  border-color: var(--blockr-color-border-accent);
+  box-shadow: var(--blockr-focus-ring, 0 0 0 3px rgba(37, 99, 235, 0.12));
+}
+
+/* The clear button: a thin x in text-muted. */
+.dag-canvas-container .g6-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' stroke='%236b7280' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M1 1l8 8M9 1l-8 8'/%3E%3C/svg%3E")
+    no-repeat center;
+  cursor: pointer;
+}
+
+.dag-canvas-container .g6-search-input::-webkit-search-cancel-button:hover {
+  background-color: var(--blockr-color-bg-hover);
+}
+
+/* Results and the board outline: the list-of-values surface. */
+.dag-canvas-container .g6-search-results,
+.dag-canvas-container .g6-outline {
+  background: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+}
+
+.dag-canvas-container .g6-search-results {
+  padding: 4px;
+  max-height: 320px;
+}
+
+.dag-canvas-container .g6-search-result {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  text-align: left;
+}
+
+.dag-canvas-container .g6-search-label,
+.dag-canvas-container .g6-panel-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.dag-canvas-container .g6-search-result:hover,
+.dag-canvas-container .g6-search-result[data-active="true"],
+.dag-canvas-container .g6-outline-row:hover,
+.dag-canvas-container .g6-outline-toggle:hover {
+  background: var(--blockr-color-bg-hover);
+}
+
+.dag-canvas-container .g6-panel-kind,
+.dag-canvas-container .g6-search-kind,
+.dag-canvas-container .g6-outline-total,
+.dag-canvas-container .g6-outline-count,
+.dag-canvas-container .g6-outline-caret,
+.dag-canvas-container .g6-panel-glyph,
+.dag-canvas-container .g6-panel-glyph[data-type="edge"] {
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-panel-kind,
+.dag-canvas-container .g6-search-kind {
+  font-size: var(--blockr-font-size-xs);
+}
+
+/* On a hovered row, meta text turns default (muted falls under 4.5:1). */
+.dag-canvas-container .g6-search-result:hover .g6-search-kind,
+.dag-canvas-container .g6-search-result[data-active="true"] .g6-search-kind,
+.dag-canvas-container .g6-outline-row:hover .g6-outline-count {
+  color: var(--blockr-color-text-default);
+}
+
+.dag-canvas-container .g6-outline[data-anchor="search"] {
+  border-radius: var(--blockr-radius-lg, 8px);
+}
+
+.dag-canvas-container .g6-outline-toggle {
+  height: 32px;
+  padding: 0 10px;
+  background: var(--blockr-color-bg-raised);
+  color: var(--blockr-color-text-default);
+  font-size: var(--blockr-font-size-sm);
+  border-bottom: 1px solid var(--blockr-color-border-default);
+}
+
+.dag-canvas-container .g6-outline-toggle[aria-expanded="false"] {
+  border-bottom: 0;
+}
+
+.dag-canvas-container .g6-outline-body {
+  padding: 4px;
+  max-height: 320px;
+}
+
+.dag-canvas-container .g6-outline-row {
+  min-height: 28px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  color: var(--blockr-color-text-default);
+}
+
+/* The block you are on: the selected row's accent tint. */
+.dag-canvas-container .g6-outline-row[data-current="true"] {
+  background: var(--blockr-color-bg-selected);
+  color: var(--blockr-color-text-accent-strong);
+  font-weight: var(--blockr-font-weight-medium, 500);
+}
+
+/* --- Canvas ------------------------------------------------------------- */
+
+/* G6 edge label transitions - target all child elements */
+g[id^="edge-"] * {
+  transition: opacity 0.3s ease-in-out, fill-opacity 0.3s ease-in-out !important;
+}
+
+/* Prevent browser text selection on G6 canvas and dag container when dragging */
+.dag-canvas-container,
+.dag-canvas-container *,
+.g6-component,
+.g6-component * {
+  user-select: none;
+  -webkit-user-select: none;
+}

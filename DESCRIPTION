@@ -27,6 +27,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     blockr.core (>= 0.1.3),
+    blockr.ui,
     blockr.dock (>= 0.1.3.9000),
     shiny,
     g6R (>= 0.6.5.9001),
@@ -34,6 +35,7 @@ Imports:
     htmltools
 Remotes:
     BristolMyersSquibb/blockr.dock,
+    BristolMyersSquibb/blockr.ui,
     cynkra/g6R
 Suggests:
     knitr,

@@ -16,7 +16,7 @@ test_that("blks_color works", {
   expect_length(cat1, 1L)
 
   # Unknown block
-  default <- blockr.dock::blk_color(default_category())
+  default <- blockr.ui::category_color(default_category())
 
   blk2 <- new_dummy_blk()
   cat2 <- blks_color(blk2)
@@ -37,9 +37,11 @@ test_that("blks_icon works", {
   expect_length(icn1, 1L)
 
   # Unknown block
-  default <- blockr.dock::blk_icon_data_uri(
+  default <- blockr.ui::block_mark_svg(
     default_icon(),
-    blockr.dock::blk_color(default_category())
+    default_category(),
+    size = 32,
+    uri = TRUE
   )
 
   blk2 <- new_dummy_blk()
