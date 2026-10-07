@@ -45,13 +45,14 @@ to_g6_port_id <- function(x, node) {
   x
 }
 
-g6_from_board <- function(board, positions = NULL) {
+g6_from_board <- function(board, positions = NULL, cards = NULL) {
   stopifnot(is_board(board))
 
   graph <- g6_data_from_board(board)
+  nodes <- as_card_nodes(graph_nodes(graph), board_blocks(board), cards)
 
   g6(
-    nodes = merge_node_positions(graph_nodes(graph), positions),
+    nodes = merge_node_positions(nodes, positions),
     edges = graph_edges(graph),
     combos = graph_combos(graph)
   )
@@ -169,7 +170,7 @@ use_svg_renderer <- function() {
   isTRUE(getOption("blockr.dag.svg_renderer", FALSE))
 }
 
-set_g6_options <- function(graph, ...) {
+set_g6_options <- function(graph, ..., cards = FALSE) {
   renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
   g6_options(
     graph,
@@ -177,7 +178,8 @@ set_g6_options <- function(graph, ...) {
     renderer = renderer,
     animation = FALSE,
     node = list(
-      type = "custom-image-node",
+      # the options' type wins over the nodes' own, so card nodes need it here
+      type = if (cards) "custom-html-node" else "custom-image-node",
       style = list(
         labelFill = "#6b7280",
         labelBackground = TRUE,
@@ -252,13 +254,16 @@ set_g6_options <- function(graph, ...) {
   )
 }
 
-set_g6_layout <- function(graph) {
+set_g6_layout <- function(graph, cards = FALSE) {
+  # card nodes are far larger than icon nodes, and need room between them for
+  # the links to read
+  sep <- if (cards) 80 else 50
   g6_layout(
     graph,
     layout = antv_dagre_layout(
       begin = c(150, 150),
-      nodesep = 50,
-      ranksep = 50,
+      nodesep = sep,
+      ranksep = sep,
       sortByCombo = TRUE
     )
   )
@@ -451,16 +456,18 @@ blockr_g6_proxy <- function(session = get_session()) {
   g6_proxy(graph_id(session$ns), session = session)
 }
 
-init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
+init_g6 <- function(board, positions = NULL, ..., cards = NULL,
+                    session = get_session()) {
   ns <- session$ns
 
   # The board is the single source of truth for nodes / edges / combos and
   # all board-derived styling. The extension owns only board-independent view
-  # attributes, which for now is node positions overlaid on top.
-  res <- g6_from_board(board, positions)
+  # attributes, which for now is node positions overlaid on top. On a DAG
+  # board, `cards` turns the nodes into block cards (see as_card_nodes()).
+  res <- g6_from_board(board, positions, cards)
 
-  res <- set_g6_options(res)
-  res <- set_g6_layout(res)
+  res <- set_g6_options(res, cards = !is.null(cards))
+  res <- set_g6_layout(res, cards = !is.null(cards))
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 
@@ -880,8 +887,10 @@ space_spliced_node <- function(ins, upd, board, proxy = blockr_g6_proxy(),
   apply_node_positions(out, proxy)
 }
 
-add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy(),
+                      cards = NULL) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  nodes <- as_card_nodes(nodes, blocks, cards)
 
   mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
   base_x <- mouse_pos$x %||% 150

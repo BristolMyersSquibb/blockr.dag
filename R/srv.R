@@ -30,12 +30,19 @@ dag_ext_srv <- function(positions) {
 
         toolbar <- toolbar_items(initial_board)
 
+        # On a DAG board the canvas is the whole front end, and the nodes are
+        # the block cards (see as_card_nodes()).
+        cards <- if (is_dag_board(initial_board)) {
+          block_cards(board, dot_args[["plugins"]])
+        }
+
         init_g6(
           board = initial_board,
           positions = positions,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
+          cards = cards,
           session = session
         )
 
@@ -52,7 +59,7 @@ dag_ext_srv <- function(positions) {
         actions_observers(actions, proxy)
         setup_sidebar_retarget(c(context_menu, toolbar), actions, board, proxy)
 
-        update_observer(update, board, proxy)
+        update_observer(update, board, proxy, cards)
 
         observeEvent(
           input[[paste0(graph_id(), "-selected_node")]],
@@ -60,7 +67,9 @@ dag_ext_srv <- function(positions) {
             sel <- input[[paste0(graph_id(), "-selected_node")]]
             evt <- attr(sel, "eventType")
 
-            if (length(sel) == 1L && !identical(evt, "brush_select")) {
+            # a DAG board has no panels: its blocks are on the canvas already
+            if (length(sel) == 1L && !identical(evt, "brush_select") &&
+                  is.null(cards)) {
               delta <- reveal_panel_delta(board$board, from_g6_node_id(sel))
 
               if (!is.null(delta)) {
@@ -165,14 +174,14 @@ setup_positions_ctrl <- function(positions, proxy, session = get_session()) {
   rv
 }
 
-update_observer <- function(update, board, proxy) {
+update_observer <- function(update, board, proxy, cards = NULL) {
   observeEvent(
     update(),
     {
       upd <- update()
 
       if (length(upd$blocks$add)) {
-        add_nodes(upd$blocks$add, board$board, proxy)
+        add_nodes(upd$blocks$add, board$board, proxy, cards)
       }
 
       if (length(upd$blocks$mod)) {

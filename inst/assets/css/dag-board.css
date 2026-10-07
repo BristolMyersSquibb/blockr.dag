@@ -1,0 +1,36 @@
+/* The DAG board: one canvas filling the page, block cards as its nodes. */
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.blockr-dag-board {
+  position: fixed;
+  inset: 0;
+}
+
+/* A block card fills its node and scrolls when its content is taller. */
+.blockr-dag-board .g6-node-content > .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--blockr-surface, #fff);
+  border: 1px solid var(--blockr-grey-200, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: var(--blockr-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+  overflow: hidden;
+}
+
+.blockr-dag-board .g6-node-content > .card > .card-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 10px;
+}
+
+.blockr-dag-board .g6-node-content .blockr-block-header {
+  cursor: move;
+}
