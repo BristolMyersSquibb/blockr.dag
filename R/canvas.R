@@ -30,9 +30,11 @@ as_card_nodes <- function(nodes, blocks, cards) {
 as_card_node <- function(node, ui) {
 
   node$type <- "custom-html-node"
+  # The label is not drawn (the card shows the block's name) but kept, since
+  # search and the outline find and list nodes by it, and renames update it.
   node$style <- c(
-    node$style[setdiff(names(node$style), c("src", "labelText"))],
-    list(size = card_size(), autoHeight = TRUE)
+    node$style[setdiff(names(node$style), "src")],
+    list(size = card_size(), autoHeight = TRUE, label = FALSE)
   )
 
   # an icon node places its output under its label; a card has none

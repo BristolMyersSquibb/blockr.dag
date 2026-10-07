@@ -489,6 +489,12 @@ extension_block_callback.dag_extension <- function(x, ...) {
     ...,
     session = get_session()
   ) {
+    # A DAG board's nodes are block cards, whose header shows the block's
+    # status already, from the same blockr.dock::block_status_badge().
+    if (is_dag_board(isolate(board$board))) {
+      return(NULL)
+    }
+
     dag <- dag_ext_result(board, extensions)
 
     graph_ready <- reactive(

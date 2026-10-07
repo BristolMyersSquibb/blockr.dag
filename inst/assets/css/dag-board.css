@@ -29,3 +29,9 @@ body {
 .blockr-dag-board .g6-node-content .blockr-block-header {
   cursor: move;
 }
+
+/* Selection: g6R mirrors the node's states onto its HTML wrapper. */
+.blockr-dag-board .g6-html-node[data-g6-states~="selected"] > .g6-node-content > .card {
+  border-color: var(--blockr-primary-500, #0d99ff);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--blockr-primary-500, #0d99ff) 25%, transparent);
+}

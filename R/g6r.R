@@ -900,9 +900,11 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy(),
     nodes[[1]]$style$x <- base_x
     nodes[[1]]$style$y <- base_y
   } else if (length(nodes) > 1) {
+    # cards stack by their (starting) height, icon nodes by a fixed step
+    step <- if (is.null(cards)) 130 else card_size()[2] + 80
     for (i in seq_along(nodes)) {
       nodes[[i]]$style$x <- base_x
-      nodes[[i]]$style$y <- base_y + (i - 1) * 130
+      nodes[[i]]$style$y <- base_y + (i - 1) * step
     }
   }
 
