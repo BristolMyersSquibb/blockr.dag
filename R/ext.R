@@ -92,6 +92,12 @@ dag_positions_description <- function() {
   )
 }
 
+# Adding, appending and inserting a block open the dock's "+" menu in place,
+# so their entries send where the click happened along with the target, as
+# the `at` of the action's trigger (see blockr.dock::new_action()). The
+# context menu hides right after the click, so rather than the entry's id
+# they send the bottom-left corner of its box, in viewport pixels: the menu
+# then hangs under the entry as it would under an element named by id.
 #' @export
 context_menu_items.dag_extension <- function(x) {
   list(
@@ -179,9 +185,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^edge-/, ''),
+              {
+                target: current.id.replace(/^edge-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -204,9 +214,13 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^node-/, ''),
+              {
+                target: current.id.replace(/^node-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -249,7 +263,12 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
+            const box = target.getBoundingClientRect();
+            Shiny.setInputValue(
+              '%s',
+              {target: true, at: {x: box.left, y: box.bottom}},
+              {priority: 'event'}
+            );
           }",
           ns("ctx_add_block")
         )
@@ -429,10 +448,17 @@ toolbar_items.dag_extension <- function(x) {
     new_toolbar_item(
       id = "add_block",
       icon = "icon-roundaddfill",
+      # The item has no id to name, so it sends the corner of its box like
+      # "Add block" in the context menu, and the "+" menu hangs under it.
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
+            const box = target.getBoundingClientRect();
+            Shiny.setInputValue(
+              '%s',
+              {target: true, at: {x: box.left, y: box.bottom}},
+              {priority: 'event'}
+            );
           }",
           ns("tool_add_block")
         )

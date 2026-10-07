@@ -299,7 +299,8 @@ actions_observers <- function(actions, proxy) {
     label = "paste_clipboard"
   )
 
-  # Append/prepend from canvas drop
+  # Append/prepend from canvas drop, with the "+" menu opening where the edge
+  # was dropped
   observeEvent(
     req(input$added_edge$targetType == "canvas"),
     {
@@ -308,8 +309,8 @@ actions_observers <- function(actions, proxy) {
 
       switch(
         edge$portType,
-        output = actions[["append_block_action"]](edge$source),
-        input = actions[["prepend_block_action"]](edge$source)
+        output = actions[["append_block_action"]](edge$source, at = edge$at),
+        input = actions[["prepend_block_action"]](edge$source, at = edge$at)
       )
     },
     label = "canvas_drop"
