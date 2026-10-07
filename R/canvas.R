@@ -5,7 +5,9 @@
 # produce icon nodes for the DAG extension; as_card_nodes() turns them into
 # card nodes, so both share the node ids, stacks, ports and positions.
 
-card_size <- function() c(380, 320)
+# Width of a card, and the height it starts at: its node then takes the
+# card's height (g6R's autoHeight), so a card never scrolls as a whole.
+card_size <- function() c(380, 200)
 
 # `cards` is a function of a `blocks` object returning one card per block,
 # in order (see block_cards()); NULL leaves the nodes as they are.
@@ -30,7 +32,7 @@ as_card_node <- function(node, ui) {
   node$type <- "custom-html-node"
   node$style <- c(
     node$style[setdiff(names(node$style), c("src", "labelText"))],
-    list(size = card_size())
+    list(size = card_size(), autoHeight = TRUE)
   )
 
   # an icon node places its output under its label; a card has none
