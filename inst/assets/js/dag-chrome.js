@@ -6,20 +6,23 @@
 // - The canvas cannot read CSS variables, so R/g6r.R writes the tokens' light
 //   values. Here the graph takes the tokens' current values instead, on start
 //   and whenever the scheme changes (`data-bs-theme` on <html>, the attribute
-//   the tokens' dark file keys off).
+//   the tokens' dark file keys off). The colours in an element's data, such
+//   as a node's status dot, are resolved as G6 draws it.
 (function () {
   const ATTR = 'data-blockr-tooltip';
 
   // A token as a colour the canvas can paint: resolved by the browser (it may
   // be a color-mix()), then flattened onto bg-surface through a 1px canvas,
-  // since a translucent tint has to look as it does on the surface.
+  // since a translucent tint has to look as it does on the surface. A token
+  // also comes as a `var()` with its light value as the fallback, the form the
+  // colours in the graph's data take.
   const probe = document.createElement('span');
   const pixel = document.createElement('canvas');
   pixel.width = pixel.height = 1;
   const ctx = pixel.getContext('2d', { willReadFrequently: true });
 
   function resolve(token, over) {
-    probe.style.color = `var(${token})`;
+    probe.style.color = token.startsWith('var(') ? token : `var(${token})`;
     document.body.appendChild(probe);
     const value = getComputedStyle(probe).color;
     probe.remove();
@@ -45,6 +48,29 @@
       selected: resolve('--blockr-color-bg-selected', surface)
     };
   }
+
+  // The colours an element carries in its data, such as a node's status dot
+  // and collapse button, which R/g6r.R writes as `var()`s. G6 asks for them
+  // each time it draws the element, so each is resolved once and kept until
+  // the scheme changes.
+  let inks = new Map();
+
+  function ink(value) {
+    if (typeof value === 'string') {
+      if (!value.startsWith('var(')) return value;
+      if (!inks.has(value)) inks.set(value, resolve(value));
+      return inks.get(value);
+    }
+    if (Array.isArray(value)) return value.map(ink);
+    if (value !== null && typeof value === 'object') {
+      return Object.fromEntries(
+        Object.entries(value).map(([key, x]) => [key, ink(x)])
+      );
+    }
+    return value;
+  }
+
+  window.blockrDag = Object.assign(window.blockrDag || {}, { ink });
 
   function paint(container) {
     const el = container.querySelector('.html-widget.g6');
@@ -201,6 +227,7 @@
   }
 
   new MutationObserver(() => {
+    inks = new Map();
     document.querySelectorAll('.dag-canvas-container').forEach(paint);
   }).observe(document.documentElement, {
     attributes: true,
