@@ -341,19 +341,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       onFinish = JS(
         sprintf(
           "(edge) => {
-            // A canvas drop's edge was never added to the graph: it ends on
-            // g6R's assist node, which follows the pointer, so that node's
-            // position is where the edge was dropped. The node stays until
-            // this handler returns; should g6R ever remove it first, the drop
-            // sends no point rather than failing.
+            // A canvas drop's edge was never added to the graph; g6R reports
+            // where it was dropped, so the + menu opens there.
             if (edge.targetType === 'canvas') {
-              let at = null;
-              try {
-                const [x, y] = graph.getClientByCanvas(
-                  graph.getElementPosition(edge.target)
-                );
-                at = {x: x, y: y};
-              } catch (err) {}
               Shiny.setInputValue(
                 '%s',
                 {
@@ -363,7 +353,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetType: 'canvas',
                   sourcePort: edge.style?.sourcePort,
                   portType: edge.style?.portType,
-                  at: at
+                  at: edge.dropPoint?.client ?? null
                 }
               );
               return;
