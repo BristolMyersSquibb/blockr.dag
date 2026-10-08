@@ -410,7 +410,7 @@ toolbar_items.dag_extension <- function(x) {
       icon = "blockr-search",
       tooltip = "Search blocks",
       js = "(value, target, current) => {
-        window.blockrDag.toggleFind(target.closest('.dag-canvas-container'));
+        graph.getPluginInstance('search').toggle();
       }"
     ),
     new_toolbar_item(

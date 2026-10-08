@@ -109,11 +109,10 @@
 
    One panel on the menu surface, beside the toolbar: a filter box on top,
    then the board's blocks (the outline). Typing narrows the list to the
-   matches (the search results). Hidden until the tool opens it;
-   dag-chrome.js opens and closes it. */
+   matches (the search results). g6R keeps it hidden until the tool opens
+   it (`g6_search(collapsed = TRUE)`). */
 
 .dag-canvas-container .g6-search {
-  display: none;
   top: 12px;
   right: auto;
   left: 64px;
@@ -129,12 +128,8 @@
   box-shadow: var(--blockr-shadow-md);
 }
 
-.dag-canvas-container.dag-find-open .g6-search {
-  display: block;
-}
-
 /* The tool while its panel is open: pressed, the accent tint. */
-.dag-canvas-container.dag-find-open .g6-toolbar .g6-toolbar-item[value="find"] {
+.dag-canvas-container:has(.g6-search:not([hidden])) .g6-toolbar .g6-toolbar-item[value="find"] {
   background-color: var(--blockr-color-bg-selected);
   color: var(--blockr-color-text-accent-strong);
 }
@@ -177,16 +172,6 @@
 
 .dag-canvas-container .g6-search-input::-webkit-search-cancel-button:hover {
   background-color: var(--blockr-color-bg-hover);
-}
-
-/* While there is text, the matches replace the list of the whole board. */
-.dag-canvas-container .g6-search:has(.g6-search-input:not(:placeholder-shown)) .g6-outline {
-  display: none;
-}
-
-/* The outline lives in the panel: its own head and frame go. */
-.dag-canvas-container .g6-outline-toggle {
-  display: none !important;
 }
 
 /* Results and the board outline: lists inside the panel, holding
