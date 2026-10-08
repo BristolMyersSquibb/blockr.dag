@@ -21,3 +21,34 @@ test_that("has_length checks if object has elements", {
   expect_false(has_length(list()))
   expect_false(has_length(NULL))
 })
+
+test_that("an entry's trigger passes on where the gesture happened", {
+
+  fired <- list()
+
+  actions <- list(
+    append_block_action = function(target, at = NULL) {
+      fired[[length(fired) + 1L]] <<- list(target = target, at = at)
+    }
+  )
+
+  trigger <- update_action_trigger("append_block_action", "ctx_append_block")
+
+  testServer(
+    function(input, output, session) trigger(actions, session),
+    {
+      session$setInputs(ctx_append_block = "a")
+      session$setInputs(
+        ctx_append_block = list(target = "b", at = list(x = 10, y = 20))
+      )
+    }
+  )
+
+  expect_identical(
+    fired,
+    list(
+      list(target = "a", at = NULL),
+      list(target = "b", at = list(x = 10, y = 20))
+    )
+  )
+})

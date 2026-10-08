@@ -78,12 +78,24 @@ resolve_mod_deltas <- function(deltas, current, updater, wrap) {
   wrap(Map(updater, current[names(deltas)], deltas))
 }
 
+# An entry's input holds its action's target, such as the id of a block, or
+# a list of the target and `at`, where the gesture happened (see
+# blockr.dock::new_action()). An action that opens a menu in place opens it
+# there.
 update_action_trigger <- function(action_name, input_name) {
   structure(
     function(actions, session = get_session()) {
       observeEvent(
         session$input[[input_name]],
-        actions[[action_name]](session$input[[input_name]]),
+        {
+          evt <- session$input[[input_name]]
+
+          if (is.list(evt)) {
+            actions[[action_name]](evt[["target"]], at = evt[["at"]])
+          } else {
+            actions[[action_name]](evt)
+          }
+        },
         label = action_name
       )
     },
