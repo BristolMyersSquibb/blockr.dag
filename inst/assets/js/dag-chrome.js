@@ -107,7 +107,9 @@
     if (open && input) {
       input.value = '';
       input.dispatchEvent(new Event('input'));
-      input.focus();
+      // A plain focus() scrolls a narrow canvas to bring the input into
+      // view, sliding the toolbar out from under the tool.
+      input.focus({ preventScroll: true });
     }
   }
 
@@ -128,8 +130,6 @@
     box.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         setFind(container, false);
-        const tool = container.querySelector('.g6-toolbar-item[value="find"]');
-        if (tool) tool.focus();
       } else if (e.key === 'Enter' && box.querySelector('.g6-search-result')) {
         closeSoon(container);
       }

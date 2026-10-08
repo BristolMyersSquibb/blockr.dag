@@ -117,6 +117,9 @@
   top: 12px;
   right: auto;
   left: 64px;
+  /* The DAG panel can be narrower than the panel's 260px: stay inside it. */
+  box-sizing: border-box;
+  max-width: calc(100% - 72px);
   padding: 6px;
   font: inherit;
   font-size: var(--blockr-font-size-base);
