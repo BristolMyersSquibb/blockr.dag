@@ -18,16 +18,17 @@ as_card_nodes <- function(nodes, blocks, cards) {
   }
 
   ids <- from_g6_node_id(chr_ply(nodes, `[[`, "id"))
-  uis <- cards(blocks[ids])
+  blocks <- blocks[ids]
+  uis <- cards(blocks)
 
   for (i in seq_along(nodes)) {
-    nodes[[i]] <- as_card_node(nodes[[i]], uis[[i]])
+    nodes[[i]] <- as_card_node(nodes[[i]], uis[[i]], blocks[[i]])
   }
 
   nodes
 }
 
-as_card_node <- function(node, ui) {
+as_card_node <- function(node, ui, block) {
 
   node$type <- "custom-html-node"
   # The label is not drawn (the card shows the block's name) but kept, since
@@ -37,9 +38,11 @@ as_card_node <- function(node, ui) {
     list(size = card_size(), autoHeight = TRUE, label = FALSE)
   )
 
-  # an icon node places its output under its label; a card has none
-  node$ports[] <- lapply(
-    node$ports,
+  # An icon node's ports are small, and its output sits under its label. A
+  # card's ports are sized to the card by g6R, and a card has no label.
+  ports <- create_block_ports(block, node$id, r = NULL)
+  ports[] <- lapply(
+    ports,
     function(port) {
       if (identical(port$placement, "label-bottom")) {
         port$placement <- "bottom"
@@ -47,6 +50,7 @@ as_card_node <- function(node, ui) {
       port
     }
   )
+  node$style$ports <- ports
 
   node$ui <- ui
   node

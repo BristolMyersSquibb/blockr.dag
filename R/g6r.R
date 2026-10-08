@@ -558,8 +558,10 @@ g6_edges_from_links <- function(links, blocks) {
 #' Create block ports for g6 node
 #' @param block Block object.
 #' @param id Block ID.
+#' @param r Port radius; `NULL` leaves it to g6R, which sizes the ports of an
+#'   HTML node to the node.
 #' @keywords internal
-create_block_ports <- function(block, id) {
+create_block_ports <- function(block, id, r = 3) {
   inputs <- blockr.core::block_inputs(block)
   arity <- blockr.core::block_arity(block)
   input_ports <- list()
@@ -573,7 +575,7 @@ create_block_ports <- function(block, id) {
       arity = Inf,
       placement = "top",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   } else if (length(inputs) == 1 && arity == 1) {
     # Mono input
@@ -583,7 +585,7 @@ create_block_ports <- function(block, id) {
       arity = 1,
       placement = "top",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   } else if (length(inputs) > 1) {
     # Multi input
@@ -600,7 +602,7 @@ create_block_ports <- function(block, id) {
         arity = 1,
         placement = c(xs[i], 0),
         fill = fill_col,
-        r = 3
+        r = r
       )
     })
   }
@@ -615,7 +617,7 @@ create_block_ports <- function(block, id) {
       arity = Inf,
       placement = "label-bottom",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   )
   do.call(g6_ports, ports)
