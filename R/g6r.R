@@ -307,11 +307,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       enable = JS(
         "(e) => {
           if (e.shiftKey || e.altKey) return false;
-          // Access graph via HTMLWidgets and check if edge creation is in progress
-          const target = e.nativeEvent?.target;
-          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
+          // No drag while an edge is being created from a port.
           try {
-            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
+            if (graph.getNodeData('g6-create-edge-assist-node-id')) return false;
           } catch (err) {}
           return true;
         }"
@@ -343,7 +341,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
       onFinish = JS(
         sprintf(
           "(edge) => {
-            const graph = HTMLWidgets.find('#%s').getWidget();
             // A canvas drop's edge was never added to the graph: it ends on
             // g6R's assist node, which follows the pointer, so that node's
             // position is where the edge was dropped. The node stays until
@@ -391,7 +388,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
               graph.removeEdgeData([edge.id]);
             }
           }",
-          graph_id(ns),
           ns("added_edge"),
           ns("added_edge")
         )
