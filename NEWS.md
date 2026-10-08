@@ -32,7 +32,7 @@
 
 ## Internal changes
 
-- The "Search blocks" panel is g6R's collapsible search (`g6_search(collapsed = TRUE)`, with `g6_outline(header = FALSE)` anchored under it) rather than a layer `dag-chrome.js` built around the plugins from outside ([#190](https://github.com/BristolMyersSquibb/blockr.dag/issues/190)). Opening, closing and picking behave as before. Requires `g6R (>= 0.6.5.9004)` ([cynkra/g6R#74](https://github.com/cynkra/g6R/pull/74)).
+- The "Search blocks" panel is g6R's collapsible search (`g6_search(collapsed = TRUE)`, with `g6_outline(header = FALSE)` anchored under it) rather than a layer `dag-chrome.js` built around the plugins from outside ([#190](https://github.com/BristolMyersSquibb/blockr.dag/issues/190)). Opening, closing and picking behave as before. Requires `g6R (>= 0.6.5.9006)`, which also gives each DAG widget on a page its own graph ([cynkra/g6R#74](https://github.com/cynkra/g6R/pull/74), [cynkra/g6R#79](https://github.com/cynkra/g6R/pull/79)).
 
 # blockr.dag 0.1.5
 
