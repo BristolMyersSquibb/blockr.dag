@@ -105,22 +105,49 @@
   background-color: var(--blockr-color-bg-danger);
 }
 
-/* --- Search: the spec's search field ------------------------------------ */
+/* --- Find: the board's blocks, behind the toolbar's "Search blocks" ------
+
+   One panel on the menu surface, beside the toolbar: a filter box on top,
+   then the board's blocks (the outline). Typing narrows the list to the
+   matches (the search results). Hidden until the tool opens it;
+   dag-chrome.js opens and closes it. */
 
 .dag-canvas-container .g6-search {
+  display: none;
+  top: 12px;
+  right: auto;
+  left: 64px;
+  /* The DAG panel can be narrower than the panel's 260px: stay inside it. */
+  box-sizing: border-box;
+  max-width: calc(100% - 72px);
+  padding: 6px;
   font: inherit;
-  font-size: var(--blockr-font-size-sm);
+  font-size: var(--blockr-font-size-base);
+  background: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
 }
 
+.dag-canvas-container.dag-find-open .g6-search {
+  display: block;
+}
+
+/* The tool while its panel is open: pressed, the accent tint. */
+.dag-canvas-container.dag-find-open .g6-toolbar .g6-toolbar-item[value="find"] {
+  background-color: var(--blockr-color-bg-selected);
+  color: var(--blockr-color-text-accent-strong);
+}
+
+/* The filter box: 30px, part of the menu rather than a field, so 13px, no
+   magnifier and no focus ring (it holds focus while the panel is open). */
 .dag-canvas-container .g6-search-input {
   height: var(--blockr-control-h-sm, 30px);
-  padding: 0 6px 0 30px;
+  padding: 0 4px 0 10px;
   font: inherit;
   font-size: var(--blockr-font-size-sm);
   color: var(--blockr-color-text-default);
-  background: var(--blockr-color-bg-field)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='%236b7280'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E")
-    no-repeat 9px center;
+  background: var(--blockr-color-bg-field);
   border: 1px solid var(--blockr-color-border-default);
   border-radius: var(--blockr-radius-md, 6px);
   box-shadow: none;
@@ -131,9 +158,9 @@
 }
 
 .dag-canvas-container .g6-search-input:focus {
-  background-color: var(--blockr-color-bg-surface);
-  border-color: var(--blockr-color-border-accent);
-  box-shadow: var(--blockr-focus-ring, 0 0 0 3px rgba(37, 99, 235, 0.12));
+  outline: none;
+  border-color: var(--blockr-color-border-default);
+  box-shadow: none;
 }
 
 /* The clear button: a thin x in text-muted. */
@@ -152,20 +179,32 @@
   background-color: var(--blockr-color-bg-hover);
 }
 
-/* Results and the board outline: the menu surface, holding block-list rows
-   (design system, "Block lists" and "Picking a block"). */
+/* While there is text, the matches replace the list of the whole board. */
+.dag-canvas-container .g6-search:has(.g6-search-input:not(:placeholder-shown)) .g6-outline {
+  display: none;
+}
+
+/* The outline lives in the panel: its own head and frame go. */
+.dag-canvas-container .g6-outline-toggle {
+  display: none !important;
+}
+
+/* Results and the board outline: lists inside the panel, holding
+   block-list rows (design system, "Block lists" and "Picking a block"). */
 .dag-canvas-container .g6-search-results,
-.dag-canvas-container .g6-outline {
-  background: var(--blockr-color-bg-raised);
-  border: 1px solid var(--blockr-color-border-default);
-  border-radius: var(--blockr-radius-lg, 8px);
-  box-shadow: var(--blockr-shadow-md);
-  font-size: var(--blockr-font-size-base);
+.dag-canvas-container .g6-outline,
+.dag-canvas-container .g6-outline[data-anchor="search"] {
+  margin: 6px 0 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .dag-canvas-container .g6-search-results,
 .dag-canvas-container .g6-outline-body {
-  padding: 6px;
+  padding: 0;
   max-height: 320px;
 }
 
@@ -194,8 +233,7 @@
 
 .dag-canvas-container .g6-search-result:hover,
 .dag-canvas-container .g6-search-result[data-active="true"],
-.dag-canvas-container .g6-outline-row:hover,
-.dag-canvas-container .g6-outline-toggle:hover {
+.dag-canvas-container .g6-outline-row:hover {
   background: var(--blockr-color-bg-hover);
 }
 
@@ -277,8 +315,7 @@
 
 /* The fold chevron sits at the row's end (design system, "Chevrons"): 12px,
    text-muted, default under the pointer. */
-.dag-canvas-container .g6-outline-row > .g6-outline-caret,
-.dag-canvas-container .g6-outline-toggle > .g6-outline-caret {
+.dag-canvas-container .g6-outline-row > .g6-outline-caret {
   order: 99;
   width: 12px;
   color: var(--blockr-color-text-muted);
@@ -290,8 +327,7 @@
   transition: transform var(--blockr-transition, 0.15s ease);
 }
 
-.dag-canvas-container .g6-outline-row:hover > .g6-outline-caret,
-.dag-canvas-container .g6-outline-toggle:hover > .g6-outline-caret {
+.dag-canvas-container .g6-outline-row:hover > .g6-outline-caret {
   color: var(--blockr-color-text-default);
 }
 
@@ -320,40 +356,6 @@
 
 .dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row .g6-panel-label {
   font-weight: var(--blockr-font-weight-semibold, 600);
-}
-
-/* The panel's head: a section title with the board's totals, its chevron at
-   the end. */
-.dag-canvas-container .g6-outline[data-anchor="search"] {
-  border-radius: var(--blockr-radius-lg, 8px);
-}
-
-.dag-canvas-container .g6-outline-toggle {
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
-  background: var(--blockr-color-bg-raised);
-  color: var(--blockr-color-text-muted);
-  font-size: var(--blockr-font-size-xs);
-  font-weight: var(--blockr-font-weight-semibold, 600);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--blockr-color-border-default);
-}
-
-.dag-canvas-container .g6-outline-toggle[aria-expanded="false"] {
-  border-bottom: 0;
-}
-
-.dag-canvas-container .g6-outline-total {
-  font-size: var(--blockr-font-size-xs);
-  font-weight: var(--blockr-font-weight-normal, 400);
-  letter-spacing: 0;
-  color: var(--blockr-color-text-muted);
-}
-
-.dag-canvas-container .g6-outline-total .g6-panel-glyph {
-  color: var(--blockr-color-text-muted);
 }
 
 /* --- Canvas ------------------------------------------------------------- */

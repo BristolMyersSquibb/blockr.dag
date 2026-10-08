@@ -413,16 +413,15 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
         )
       )
     ),
-    # Navigating a large board: search jumps to a named block, the outline lists
-    # what is there. The outline hangs under the search box as a dropdown, so
-    # the two read as one control; it must follow the search in this list, since
-    # that is what it anchors to.
+    # Navigating a large board: one panel, opened by the toolbar's "Search
+    # blocks" tool, lists the board (the outline) and narrows to the blocks
+    # that match as you type (the search). The outline hangs in the search box,
+    # so it must follow the search in this list. dag.css places the panel
+    # beside the toolbar and hides it until the tool opens it.
     g6_search(
       outputId = graph_id(ns),
       placeholder = "Search blocks",
-      # Top-right: the toolbar already owns the left edge, and the search box
-      # plus its outline dropdown would sit on top of it.
-      position = "top-right",
+      position = "top-left",
       width = 260,
       # `combo` is g6's word for what a board calls a stack.
       labels = c(node = "block", combo = "stack", edge = "link")
@@ -431,7 +430,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       outputId = graph_id(ns),
       title = "Board contents",
       anchor = "search",
-      open = FALSE,
+      open = TRUE,
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
     # The floating surface and its colours are set in dag.css, from tokens,

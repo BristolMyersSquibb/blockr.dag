@@ -387,6 +387,14 @@ context_menu_items.dag_extension <- function(x) {
 toolbar_items.dag_extension <- function(x) {
   list(
     new_toolbar_item(
+      id = "find",
+      icon = "blockr-search",
+      tooltip = "Search blocks",
+      js = "(value, target, current) => {
+        window.blockrDag.toggleFind(target.closest('.dag-canvas-container'));
+      }"
+    ),
+    new_toolbar_item(
       id = "zoom_in",
       icon = "zoom-in",
       js = "(value, target, current) => {
