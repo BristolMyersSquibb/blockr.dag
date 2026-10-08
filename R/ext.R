@@ -410,16 +410,13 @@ toolbar_items.dag_extension <- function(x) {
       icon = "blockr-search",
       tooltip = "Search blocks",
       js = "(value, target, current) => {
-        window.blockrDag.toggleFind(target.closest('.dag-canvas-container'));
+        graph.getPluginInstance('search').toggle();
       }"
     ),
     new_toolbar_item(
       id = "zoom_in",
       icon = "zoom-in",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.zoomTo(graph.getZoom() + 0.1);
       }"
     ),
@@ -427,9 +424,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "zoom_out",
       icon = "zoom-out",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.zoomTo (graph.getZoom() - 0.1);
       }"
     ),
@@ -437,9 +431,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "auto_fit",
       icon = "auto-fit",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.fitView();
       }"
     ),
@@ -447,9 +438,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "layout",
       icon = "reset",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.layout();
       }"
     ),

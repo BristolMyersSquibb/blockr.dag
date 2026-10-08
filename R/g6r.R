@@ -312,11 +312,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       enable = JS(
         "(e) => {
           if (e.shiftKey || e.altKey) return false;
-          // Access graph via HTMLWidgets and check if edge creation is in progress
-          const target = e.nativeEvent?.target;
-          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
+          // No drag while an edge is being created from a port.
           try {
-            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
+            if (graph.getNodeData('g6-create-edge-assist-node-id')) return false;
           } catch (err) {}
           return true;
         }"
@@ -348,20 +346,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       onFinish = JS(
         sprintf(
           "(edge) => {
-            const graph = HTMLWidgets.find('#%s').getWidget();
-            // A canvas drop's edge was never added to the graph: it ends on
-            // g6R's assist node, which follows the pointer, so that node's
-            // position is where the edge was dropped. The node stays until
-            // this handler returns; should g6R ever remove it first, the drop
-            // sends no point rather than failing.
+            // A canvas drop's edge was never added to the graph; g6R reports
+            // where it was dropped, so the + menu opens there.
             if (edge.targetType === 'canvas') {
-              let at = null;
-              try {
-                const [x, y] = graph.getClientByCanvas(
-                  graph.getElementPosition(edge.target)
-                );
-                at = {x: x, y: y};
-              } catch (err) {}
               Shiny.setInputValue(
                 '%s',
                 {
@@ -371,7 +358,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetType: 'canvas',
                   sourcePort: edge.style?.sourcePort,
                   portType: edge.style?.portType,
-                  at: at
+                  at: edge.dropPoint?.client ?? null
                 }
               );
               return;
@@ -396,7 +383,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
               graph.removeEdgeData([edge.id]);
             }
           }",
-          graph_id(ns),
           ns("added_edge"),
           ns("added_edge")
         )
@@ -453,13 +439,15 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
     # Navigating a large board: one panel, opened by the toolbar's "Search
     # blocks" tool, lists the board (the outline) and narrows to the blocks
     # that match as you type (the search). The outline hangs in the search box,
-    # so it must follow the search in this list. dag.css places the panel
-    # beside the toolbar and hides it until the tool opens it.
+    # so it must follow the search in this list. The search starts collapsed:
+    # the tool, Escape, a click outside and a pick open and close it. dag.css
+    # places the panel beside the toolbar.
     g6_search(
       outputId = graph_id(ns),
       placeholder = "Search blocks",
       position = "top-left",
       width = 260,
+      collapsed = TRUE,
       # `combo` is g6's word for what a board calls a stack.
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
@@ -467,7 +455,7 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       outputId = graph_id(ns),
       title = "Board contents",
       anchor = "search",
-      open = TRUE,
+      header = FALSE,
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
     # The floating surface and its colours are set in dag.css, from tokens,

@@ -115,72 +115,6 @@
     graph.draw();
   }
 
-  // --- Find: the panel behind the toolbar's "Search blocks" tool -----------
-  //
-  // A layer (design system, "Dismissing"): the tool, Escape, a click outside
-  // and a pick close it. Opening starts from the whole board with the focus in
-  // the filter box.
-
-  function findBox(container) {
-    return container && container.querySelector('.g6-search');
-  }
-
-  function setFind(container, open) {
-    const box = findBox(container);
-    if (!box) return;
-    container.classList.toggle('dag-find-open', open);
-    const input = box.querySelector('.g6-search-input');
-    if (open && input) {
-      input.value = '';
-      input.dispatchEvent(new Event('input'));
-      // A plain focus() scrolls a narrow canvas to bring the input into
-      // view, sliding the toolbar out from under the tool.
-      input.focus({ preventScroll: true });
-    }
-  }
-
-  function toggleFind(container) {
-    setFind(container, !container.classList.contains('dag-find-open'));
-  }
-
-  // Close after the pick has been read: the plugins act on mousedown/click.
-  function closeSoon(container) {
-    setTimeout(() => setFind(container, false), 0);
-  }
-
-  function wireFind(container) {
-    const box = findBox(container);
-    if (!box || box.dataset.dagFind) return;
-    box.dataset.dagFind = '1';
-
-    box.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        setFind(container, false);
-      } else if (e.key === 'Enter' && box.querySelector('.g6-search-result')) {
-        closeSoon(container);
-      }
-    });
-    // Capture: the outline stops its clicks from bubbling past itself.
-    box.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.g6-search-result')) closeSoon(container);
-    }, true);
-    box.addEventListener('click', (e) => {
-      if (e.target.closest('.g6-outline-row') &&
-          !e.target.closest('.g6-outline-caret')) {
-        closeSoon(container);
-      }
-    }, true);
-  }
-
-  document.addEventListener('pointerdown', (e) => {
-    document.querySelectorAll('.dag-canvas-container.dag-find-open')
-      .forEach((container) => {
-        if (e.target.closest('.g6-search') ||
-            e.target.closest('.g6-toolbar-item[value="find"]')) return;
-        setFind(container, false);
-      });
-  }, true);
-
   // The tool's magnifier, as a symbol the toolbar's `<use>` can point at:
   // G6's icon font draws it in another hand than the other tools.
   function addSymbols() {
@@ -197,10 +131,7 @@
     document.body.appendChild(sprite);
   }
 
-  window.blockrDag = Object.assign(window.blockrDag || {}, { toggleFind });
-
   function adopt(container) {
-    wireFind(container);
     container.querySelectorAll('.g6-toolbar-item[title]').forEach((item) => {
       item.setAttribute(ATTR, item.getAttribute('title'));
       item.removeAttribute('title');
