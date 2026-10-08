@@ -272,3 +272,20 @@ test_that("resolve_target_ports works", {
   expect_identical(res[[2]], "node-c-in")
   expect_identical(res[[3]], "node-c-in")
 })
+
+test_that("a node's badges and collapse button are drawn in the tokens (#174)", {
+
+  opts <- set_g6_options(g6())$x
+
+  expect_s3_class(opts$node$style$badges, "JS_EVAL")
+  expect_s3_class(opts$node$style$collapse, "JS_EVAL")
+  expect_s3_class(opts$combo$style$collapse, "JS_EVAL")
+
+  nodes <- g6_nodes_from_blocks(as_blocks(c(a = new_dataset_block())), list())
+  collapse <- nodes[[1L]]$style$collapse
+
+  # The upper right corner is the status dot's.
+  expect_identical(collapse$placement, "right")
+  expect_match(collapse$fill, "^var\\(--blockr-color-bg-surface, ")
+  expect_match(collapse$stroke, "^var\\(--blockr-color-border-strong, ")
+})

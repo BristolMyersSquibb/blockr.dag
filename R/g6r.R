@@ -169,6 +169,23 @@ use_svg_renderer <- function() {
   isTRUE(getOption("blockr.dag.svg_renderer", FALSE))
 }
 
+# A style an element carries in its data whose colours are tokens, such as a
+# node's status dot and collapse button. The colours are `var()`s, which G6
+# cannot draw, so a function resolves them each time G6 draws the element
+# (`blockrDag.ink()` in dag-chrome.js), or passes them on as they are until
+# that script has loaded.
+data_ink <- function(field) {
+  JS(
+    sprintf(
+      "function (d) {
+        const x = d.style?.%s;
+        return window.blockrDag?.ink ? window.blockrDag.ink(x) : x;
+      }",
+      field
+    )
+  )
+}
+
 set_g6_options <- function(graph, ...) {
   renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
   g6_options(
@@ -193,7 +210,9 @@ set_g6_options <- function(graph, ...) {
         labelOffsetY = 4,
         labelPadding = c(1, 5, 1, 5),
         labelFontSize = 12, # font-size-xs
-        labelFontFamily = "Open Sans, system-ui, sans-serif"
+        labelFontFamily = "Open Sans, system-ui, sans-serif",
+        badges = data_ink("badges"),
+        collapse = data_ink("collapse")
       ),
       state = list(
         # Selected: the accent tint, without an edge, as a selected row.
@@ -215,7 +234,8 @@ set_g6_options <- function(graph, ...) {
         labelFontFamily = "Open Sans, system-ui, sans-serif",
         # below edges (-1): a combo otherwise swallows clicks meant for the
         # edges between its member nodes, making in-stack links unselectable
-        zIndex = -2
+        zIndex = -2,
+        collapse = data_ink("collapse")
       )
     ),
     edge = list(
@@ -663,10 +683,10 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
 
   ids <- to_g6_node_id(names(blocks))
 
-  # The node sizes itself to its icon image (custom-image-node adopts the
-  # image's natural size on load), and the icon comes from the shared
-  # `blockr.dock::blk_icon_data_uri()` -- so the DAG node and the dock block
-  # card show the same-sized icon without either side stating a size.
+  # The image is the block's mark at 32px, G6's default node size, so the
+  # node and the dock header show the same mark. The collapse button sits on
+  # the right edge: the status dot has the upper right corner, the ports the
+  # top and the bottom, and the name the space below.
   base_args <- list(
     id = ids,
     style = map(
@@ -677,7 +697,7 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
     ports = map(create_block_ports, blocks, ids),
     collapse = lapply(blocks, function(block) {
-      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
+      collapse_options(placement = "right")
     })
   )
 
@@ -732,9 +752,7 @@ g6_combos_data_from_stacks <- function(stacks) {
         radius = 8
       )
     ),
-    collapse = lapply(stacks, function(stack) {
-      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
-    })
+    collapse = lapply(stacks, function(stack) collapse_options())
   )
 
   if (length(res)) {
@@ -742,6 +760,16 @@ g6_combos_data_from_stacks <- function(stacks) {
   } else {
     res
   }
+}
+
+# The collapse button on a node or a stack, in the tokens (see `data_ink()`).
+collapse_options <- function(...) {
+  g6_collapse_options(
+    visibility = "hover",
+    fill = "var(--blockr-color-bg-surface, #ffffff)",
+    stroke = "var(--blockr-color-border-strong, #d1d5db)",
+    ...
+  )
 }
 
 #' Create network data from board
