@@ -37,6 +37,19 @@
   board switches between light and dark. blockr.dag now imports
   blockr.ui.
 
+- A node’s status dot is drawn from the spec the dock draws its own from
+  ([\#174](https://github.com/BristolMyersSquibb/blockr.dag/issues/174)).
+  Its colours are the blockr.ui tokens
+  [`blockr.dock::block_status_badge()`](https://bristolmyerssquibb.github.io/blockr.dock/reference/meta.html)
+  names, so the dot follows the switch between light and dark, and it
+  sits on the mark’s upper right as on the dock’s card, with a waiting
+  block’s dot drawn as a hollow ring. The collapse button of a node with
+  children moves to the node’s right edge to leave that corner to the
+  dot, and it takes the tokens as well, as a stack’s does. Its +/- icon
+  takes whichever of a light and a dark grey stands out on that fill,
+  which needs `g6R (>= 0.6.5.9003)`
+  ([cynkra/g6R#72](https://github.com/cynkra/g6R/pull/72)).
+
 - The Workflow extension carries structured metadata rather than one
   free-text blob
   ([\#161](https://github.com/BristolMyersSquibb/blockr.dag/issues/161)).
