@@ -92,6 +92,7 @@ board_ui.dag_board <- function(id, x, plugins = board_plugins(x),
     },
     htmltools::div(
       class = "blockr-dag-board",
+      `data-card-gap` = card_gap(),
       blockr.dock::extension_ui(
         blockr.dock::dock_extensions(x)[[dag]],
         dag,
@@ -215,6 +216,7 @@ dag_board_dep <- function() {
     version = pkg_version(),
     src = c(file = "assets"),
     stylesheet = file.path("css", "dag-board.css"),
+    script = file.path("js", "make-room.js"),
     package = pkg_name()
   )
 }

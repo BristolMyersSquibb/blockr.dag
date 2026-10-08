@@ -9,6 +9,10 @@
 # card's height (g6R's autoHeight), so a card never scrolls as a whole.
 card_size <- function() c(380, 200)
 
+# Room between cards, across and down: the layout's spacing, and what a card
+# that grows keeps above the cards below it (make-room.js).
+card_gap <- function() 80
+
 # `cards` is a function of a `blocks` object returning one card per block,
 # in order (see block_cards()); NULL leaves the nodes as they are.
 as_card_nodes <- function(nodes, blocks, cards) {

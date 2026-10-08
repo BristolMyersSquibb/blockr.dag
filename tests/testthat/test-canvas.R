@@ -25,3 +25,11 @@ test_that("card nodes leave their ports' size to g6R", {
     port_field(icons, "key")
   )
 })
+
+test_that("the board makes room for cards that grow", {
+  dep <- dag_board_dep()
+  expect_true("make-room.js" %in% basename(unlist(dep$script)))
+  expect_true(
+    file.exists(system.file("assets", "js", "make-room.js", package = "blockr.dag"))
+  )
+})

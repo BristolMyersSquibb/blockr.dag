@@ -282,7 +282,7 @@ set_g6_options <- function(graph, ..., cards = FALSE) {
 set_g6_layout <- function(graph, cards = FALSE) {
   # card nodes are far larger than icon nodes, and need room between them for
   # the links to read
-  sep <- if (cards) 80 else 50
+  sep <- if (cards) card_gap() else 50
   g6_layout(
     graph,
     layout = antv_dagre_layout(
