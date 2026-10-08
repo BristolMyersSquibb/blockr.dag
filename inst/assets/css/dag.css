@@ -5,6 +5,11 @@
 
 /* --- Empty canvas: one italic line where the graph would be ------------- */
 
+/* The canvas is painted opaque, so the line has to sit above it. */
+.dag-canvas-container {
+  isolation: isolate;
+}
+
 .dag-empty-state {
   position: absolute;
   inset: 0;
@@ -12,7 +17,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  z-index: -1;
+  z-index: 1;
 }
 
 /* --- Toolbar: 26px tools on the floating surface ------------------------- */
