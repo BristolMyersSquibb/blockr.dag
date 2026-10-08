@@ -50,6 +50,19 @@
   which needs `g6R (>= 0.6.5.9003)`
   ([cynkra/g6R#72](https://github.com/cynkra/g6R/pull/72)).
 
+- The DAG opens the “+” menu where the user acted
+  ([\#179](https://github.com/BristolMyersSquibb/blockr.dag/issues/179)).
+  Since
+  [blockr.dock#483](https://github.com/BristolMyersSquibb/blockr.dock/pull/483),
+  adding, appending, prepending and inserting a block open that menu in
+  place, where the action’s trigger says the gesture happened, and in a
+  fixed spot under the navbar when it says nothing, which is how the DAG
+  fired them. Now “Append block”, “Insert block” and “Add block” in the
+  context menu, and the toolbar’s add button, hang the menu under what
+  was clicked, and an edge dropped on the canvas opens it where the edge
+  was dropped. Requires a `blockr.dock` whose action triggers take `at`
+  (0.1.3.9002).
+
 - The Workflow extension carries structured metadata rather than one
   free-text blob
   ([\#161](https://github.com/BristolMyersSquibb/blockr.dag/issues/161)).
