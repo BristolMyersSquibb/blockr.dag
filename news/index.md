@@ -25,9 +25,12 @@
   [`blockr.ui::block_mark_svg()`](https://bristolmyerssquibb.github.io/blockr.ui/reference/block_mark.html)
   at the dock header’s 32px, with its name in 12px under it on a plain
   surface halo, and a selected node’s name takes the accent tint. The
-  right-click menu, the search box with its results and the board
-  outline, and the toolbar take the spec’s menu surface, search field
-  and 26px tools; the toolbar’s icons name themselves with
+  search box and the board outline move into one panel opened by a
+  “Search blocks” tool at the top of the toolbar: it lists the board’s
+  blocks, stacks as tinted bands, and narrows to the matches as you
+  type; Escape, a click outside or a pick closes it. The right-click
+  menu, that panel and the toolbar take the spec’s menu surface, search
+  field and 26px tools; the toolbar’s icons name themselves with
   `Blockr.tooltip`, and a remove entry sits last in the menu after a
   divider. The empty canvas says so in one line. The canvas takes its
   colours from the blockr.ui tokens when it starts and whenever the
