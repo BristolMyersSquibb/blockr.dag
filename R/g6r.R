@@ -176,28 +176,31 @@ set_g6_options <- function(graph, ...) {
     ...,
     renderer = renderer,
     animation = FALSE,
+    # The canvas cannot read CSS variables, so the tokens are written as
+    # their light values (blockr.ui's blockr-tokens.css), named beside each.
     node = list(
       type = "custom-image-node",
       style = list(
-        labelFill = "#6b7280",
+        # The name: 12px text-default under the mark, on a bg-surface halo
+        # (no edge) so it stays readable where a link passes behind it.
+        labelFill = "#111827", # text-default
         labelBackground = TRUE,
-        labelBackgroundFill = "#f3f4f6",
-        labelBackgroundStroke = "#e5e7eb",
-        labelBackgroundRadius = 4,
-        labelPlacement = "bottom",
-        labelOffsetY = 8,
-        labelBackgroundLineWidth = 1,
-        labelBackgroundRadius = 4,
+        labelBackgroundFill = "#ffffff", # bg-surface
+        labelBackgroundLineWidth = 0,
+        labelBackgroundRadius = 4, # radius-sm
         labelBackgroundOpacity = 1,
-        labelPadding = c(1, 6, 1, 6),
-        labelFontSize = 11,
+        labelPlacement = "bottom",
+        labelOffsetY = 4,
+        labelPadding = c(1, 5, 1, 5),
+        labelFontSize = 12, # font-size-xs
         labelFontFamily = "Open Sans, system-ui, sans-serif"
       ),
       state = list(
+        # Selected: the accent tint, without an edge, as a selected row.
         selected = list(
-          labelBackgroundFill = "#dbeafe",
-          labelBackgroundStroke = "#0D99FF",
-          labelFontWeight = 700
+          labelFill = "#1d4ed8", # text-accent-strong
+          labelBackgroundFill = "#f0f4fe", # bg-selected on bg-surface
+          labelFontWeight = 500
         )
       )
     ),
@@ -208,6 +211,8 @@ set_g6_options <- function(graph, ...) {
       style = list(
         # more bottom padding, because of the badge
         padding = c(20, 20, 40, 20),
+        labelFill = "#111827", # text-default
+        labelFontFamily = "Open Sans, system-ui, sans-serif",
         # below edges (-1): a combo otherwise swallows clicks meant for the
         # edges between its member nodes, making in-stack links unselectable
         zIndex = -2
@@ -420,16 +425,15 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
         )
       )
     ),
-    # Navigating a large board: search jumps to a named block, the outline lists
-    # what is there. The outline hangs under the search box as a dropdown, so
-    # the two read as one control; it must follow the search in this list, since
-    # that is what it anchors to.
+    # Navigating a large board: one panel, opened by the toolbar's "Search
+    # blocks" tool, lists the board (the outline) and narrows to the blocks
+    # that match as you type (the search). The outline hangs in the search box,
+    # so it must follow the search in this list. dag.css places the panel
+    # beside the toolbar and hides it until the tool opens it.
     g6_search(
       outputId = graph_id(ns),
       placeholder = "Search blocks",
-      # Top-right: the toolbar already owns the left edge, and the search box
-      # plus its outline dropdown would sit on top of it.
-      position = "top-right",
+      position = "top-left",
       width = 260,
       # `combo` is g6's word for what a board calls a stack.
       labels = c(node = "block", combo = "stack", edge = "link")
@@ -438,17 +442,13 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       outputId = graph_id(ns),
       title = "Board contents",
       anchor = "search",
-      open = FALSE,
+      open = TRUE,
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
+    # The floating surface and its colours are set in dag.css, from tokens,
+    # so the toolbar follows the scheme.
     toolbar(
       style = list(
-        backgroundColor = "#f5f5f5",
-        padding = "8px",
-        boxShadow = "0 2px 8px rgba(0, 0, 0, 0.15)",
-        borderRadius = "8px",
-        border = "1px solid #e8e8e8",
-        opacity = "0.9",
         marginTop = "12px",
         marginLeft = "12px"
       ),

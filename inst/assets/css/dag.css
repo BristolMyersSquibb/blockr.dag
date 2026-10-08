@@ -1,0 +1,375 @@
+/* The DAG's chrome on the blockr.ui design system: tokens from
+   blockr-tokens.css, surfaces as in the spec's "Floating layer". g6R ships
+   neutral styles for its plugins; these rules, scoped to the DAG's container,
+   restyle them. Canvas styles (nodes, links) are set in R/g6r.R. */
+
+/* --- Empty canvas: one italic line where the graph would be ------------- */
+
+/* The canvas is painted opaque, so the line has to sit above it. */
+.dag-canvas-container {
+  isolation: isolate;
+}
+
+.dag-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Toolbar: 26px tools on the floating surface ------------------------- */
+
+.dag-canvas-container .g6-toolbar {
+  gap: 2px;
+  padding: 4px;
+  background: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+  opacity: 1;
+}
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item {
+  width: 16px;
+  height: 16px;
+  padding: 5px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  color: var(--blockr-color-text-muted);
+  transition: background-color var(--blockr-transition, 0.15s ease),
+    color var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item svg {
+  fill: currentcolor;
+}
+
+.dag-canvas-container .g6-toolbar .g6-toolbar-item:hover {
+  background-color: var(--blockr-color-bg-hover);
+  color: var(--blockr-color-text-default);
+}
+
+/* --- Right-click menu: a menu of actions -------------------------------- */
+
+.dag-canvas-container .g6-contextmenu {
+  font: inherit;
+  font-size: var(--blockr-font-size-base);
+  color: var(--blockr-color-text-default);
+  background-color: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+  z-index: var(--blockr-z-menu, 1070);
+}
+
+.dag-canvas-container .g6-contextmenu-ul {
+  min-width: 180px;
+  max-width: 320px;
+  padding: 6px;
+}
+
+.dag-canvas-container .g6-contextmenu-li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--blockr-radius-md, 6px);
+  white-space: nowrap;
+}
+
+.dag-canvas-container .g6-contextmenu-li:hover {
+  background-color: var(--blockr-color-bg-hover);
+}
+
+/* The destructive row: its own group after a divider, red only under the
+   pointer. The menu orders it last (build_context_menu()). */
+.dag-canvas-container .g6-contextmenu-li:not([value^="remove_"]) + .g6-contextmenu-li[value^="remove_"] {
+  margin-top: 13px;
+}
+
+.dag-canvas-container .g6-contextmenu-li:not([value^="remove_"]) + .g6-contextmenu-li[value^="remove_"]::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: -6px;
+  right: -6px;
+  height: 1px;
+  background: var(--blockr-color-border-default);
+}
+
+.dag-canvas-container .g6-contextmenu-li[value^="remove_"]:hover {
+  color: var(--blockr-color-text-danger);
+  background-color: var(--blockr-color-bg-danger);
+}
+
+/* --- Find: the board's blocks, behind the toolbar's "Search blocks" ------
+
+   One panel on the menu surface, beside the toolbar: a filter box on top,
+   then the board's blocks (the outline). Typing narrows the list to the
+   matches (the search results). Hidden until the tool opens it;
+   dag-chrome.js opens and closes it. */
+
+.dag-canvas-container .g6-search {
+  display: none;
+  top: 12px;
+  right: auto;
+  left: 64px;
+  /* The DAG panel can be narrower than the panel's 260px: stay inside it. */
+  box-sizing: border-box;
+  max-width: calc(100% - 72px);
+  padding: 6px;
+  font: inherit;
+  font-size: var(--blockr-font-size-base);
+  background: var(--blockr-color-bg-raised);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-lg, 8px);
+  box-shadow: var(--blockr-shadow-md);
+}
+
+.dag-canvas-container.dag-find-open .g6-search {
+  display: block;
+}
+
+/* The tool while its panel is open: pressed, the accent tint. */
+.dag-canvas-container.dag-find-open .g6-toolbar .g6-toolbar-item[value="find"] {
+  background-color: var(--blockr-color-bg-selected);
+  color: var(--blockr-color-text-accent-strong);
+}
+
+/* The filter box: 30px, part of the menu rather than a field, so 13px, no
+   magnifier and no focus ring (it holds focus while the panel is open). */
+.dag-canvas-container .g6-search-input {
+  height: var(--blockr-control-h-sm, 30px);
+  padding: 0 4px 0 10px;
+  font: inherit;
+  font-size: var(--blockr-font-size-sm);
+  color: var(--blockr-color-text-default);
+  background: var(--blockr-color-bg-field);
+  border: 1px solid var(--blockr-color-border-default);
+  border-radius: var(--blockr-radius-md, 6px);
+  box-shadow: none;
+}
+
+.dag-canvas-container .g6-search-input::placeholder {
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-search-input:focus {
+  outline: none;
+  border-color: var(--blockr-color-border-default);
+  box-shadow: none;
+}
+
+/* The clear button: a thin x in text-muted. */
+.dag-canvas-container .g6-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--blockr-radius-sm, 4px);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' stroke='%236b7280' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M1 1l8 8M9 1l-8 8'/%3E%3C/svg%3E")
+    no-repeat center;
+  cursor: pointer;
+}
+
+.dag-canvas-container .g6-search-input::-webkit-search-cancel-button:hover {
+  background-color: var(--blockr-color-bg-hover);
+}
+
+/* While there is text, the matches replace the list of the whole board. */
+.dag-canvas-container .g6-search:has(.g6-search-input:not(:placeholder-shown)) .g6-outline {
+  display: none;
+}
+
+/* The outline lives in the panel: its own head and frame go. */
+.dag-canvas-container .g6-outline-toggle {
+  display: none !important;
+}
+
+/* Results and the board outline: lists inside the panel, holding
+   block-list rows (design system, "Block lists" and "Picking a block"). */
+.dag-canvas-container .g6-search-results,
+.dag-canvas-container .g6-outline,
+.dag-canvas-container .g6-outline[data-anchor="search"] {
+  margin: 6px 0 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.dag-canvas-container .g6-search-results,
+.dag-canvas-container .g6-outline-body {
+  padding: 0;
+  max-height: 320px;
+}
+
+/* A row: 34px, radius 6, 8px between its parts; the 24px mark, the name at
+   14px text-default on one line, then the row's end. */
+.dag-canvas-container .g6-search-result,
+.dag-canvas-container .g6-outline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--blockr-radius-md, 6px);
+  color: var(--blockr-color-text-default);
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dag-canvas-container .g6-search-label,
+.dag-canvas-container .g6-panel-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.dag-canvas-container .g6-search-result:hover,
+.dag-canvas-container .g6-search-result[data-active="true"],
+.dag-canvas-container .g6-outline-row:hover {
+  background: var(--blockr-color-bg-hover);
+}
+
+/* The block you are on: the selected row's accent tint. */
+.dag-canvas-container .g6-outline-row[data-current="true"] {
+  background: var(--blockr-color-bg-selected);
+  color: var(--blockr-color-text-accent-strong);
+  font-weight: inherit;
+}
+
+/* The block's mark, as on its card. */
+.dag-canvas-container img.g6-panel-glyph {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+/* A stack's mark: the stack icon in the stack's colour on an 18% tint of it,
+   as in the board outline. */
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"] {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--blockr-radius-md, 6px);
+  color: var(--g6-element-color, var(--blockr-color-text-muted));
+  background: color-mix(in srgb, currentcolor 18%, transparent);
+}
+
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"] svg {
+  display: none;
+}
+
+.dag-canvas-container :is(.g6-search-result, .g6-outline-row) > .g6-panel-glyph[data-type="combo"]::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: currentcolor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5 9-5z'/%3E%3Cpath d='m3 13 9 5 9-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5 9-5z'/%3E%3Cpath d='m3 13 9 5 9-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Meta text at the row's end: 13px text-muted, default on a hovered row. */
+.dag-canvas-container .g6-panel-kind,
+.dag-canvas-container .g6-search-kind,
+.dag-canvas-container .g6-outline-count {
+  flex: none;
+  margin-left: 0;
+  padding-left: 0;
+  font-size: var(--blockr-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-search-result:hover .g6-search-kind,
+.dag-canvas-container .g6-search-result[data-active="true"] .g6-search-kind,
+.dag-canvas-container .g6-outline-row:hover .g6-outline-count {
+  color: var(--blockr-color-text-default);
+}
+
+/* The outline lists blocks flat inside their stack's band: no indent, and
+   no caret column on a block's row. */
+.dag-canvas-container .g6-outline {
+  --g6-outline-gutter: 0px;
+  --g6-outline-indent: 0px;
+}
+
+/* A block outside a stack lines up with the blocks inside one, which sit in
+   the band's 2px padding. */
+.dag-canvas-container .g6-outline-body > .g6-outline-list > .g6-outline-item:not([data-type="combo"]) {
+  padding: 0 2px;
+}
+
+.dag-canvas-container .g6-outline-row > .g6-outline-caret:not([data-open]) {
+  display: none;
+}
+
+/* The fold chevron sits at the row's end (design system, "Chevrons"): 12px,
+   text-muted, default under the pointer. */
+.dag-canvas-container .g6-outline-row > .g6-outline-caret {
+  order: 99;
+  width: 12px;
+  color: var(--blockr-color-text-muted);
+}
+
+.dag-canvas-container .g6-outline-caret svg {
+  width: 12px;
+  height: 12px;
+  transition: transform var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-outline-row:hover > .g6-outline-caret {
+  color: var(--blockr-color-text-default);
+}
+
+/* A stack is a tinted band: its colour at 7% on the surface, radius 8, 2px
+   padding, no border. Its header row carries the name at weight 600; the
+   pointer on it deepens the band to 14%. */
+.dag-canvas-container .g6-outline-item[data-type="combo"] {
+  margin: 2px 0;
+  padding: 2px;
+  border-radius: var(--blockr-radius-lg, 8px);
+  background: color-mix(in srgb,
+    var(--g6-element-color, var(--blockr-color-text-muted)) 7%,
+    var(--blockr-color-bg-surface));
+  transition: background-color var(--blockr-transition, 0.15s ease);
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"]:has(> .g6-outline-row:hover) {
+  background: color-mix(in srgb,
+    var(--g6-element-color, var(--blockr-color-text-muted)) 14%,
+    var(--blockr-color-bg-surface));
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row:hover {
+  background: transparent;
+}
+
+.dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row .g6-panel-label {
+  font-weight: var(--blockr-font-weight-semibold, 600);
+}
+
+/* --- Canvas ------------------------------------------------------------- */
+
+/* G6 edge label transitions - target all child elements */
+g[id^="edge-"] * {
+  transition: opacity 0.3s ease-in-out, fill-opacity 0.3s ease-in-out !important;
+}
+
+/* Prevent browser text selection on G6 canvas and dag container when dragging */
+.dag-canvas-container,
+.dag-canvas-container *,
+.g6-component,
+.g6-component * {
+  user-select: none;
+  -webkit-user-select: none;
+}
