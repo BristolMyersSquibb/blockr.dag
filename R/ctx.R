@@ -9,13 +9,9 @@
 #' @param condition Condition to determine if the entry should be shown.
 #' @param id Unique identifier for the context menu entry.
 #'   Inferred from `name` if not provided
-#' @param retarget When `TRUE`, the entry follows the selection while it
-#'   holds a pinned sidebar panel: selecting another element whose type its
-#'   `condition` accepts re-fires the `action` on that element. Which panel
-#'   the entry fills is not declared here: `blockr.dock` stamps the writing
-#'   action onto the panel as it writes, and
-#'   [blockr.dock::sidebar_owned_by()] reads that back. The `action` must
-#'   expose its name, as `update_action_trigger()` does.
+#' @param retarget Deprecated and ignored. It made an entry follow the
+#'   selection while it held a pinned sidebar panel; the dock's actions open
+#'   menus now, which close on the next click, so there is nothing to follow.
 #' @param x Object to test or extract context menu items from.
 #'
 #' @details
@@ -33,13 +29,16 @@
 #' The `context_menu_items.dag_extension()` method
 #' provides the following actions:
 #' \itemize{
-#'   \item Create link - Creates connections between workflow nodes.
-#'   \item Remove block - Removes individual blocks from the workflow.
-#'   \item Remove link - Removes connections between workflow nodes.
-#'   \item Append block - Adds a new block after the selected node.
-#'   \item Create stack - Creates a new workflow stack.
-#'   \item Remove stack - Removes an entire workflow stack.
-#'   \item Edit stack - Opens stack editing interface.
+#'   \item Connect to - Links the block to another one, either way.
+#'   \item Append block - Adds a new block after the node.
+#'   \item Add to stack - Puts the block, or the selection it is part of,
+#'     into a stack or a new one.
+#'   \item Remove block - Removes the block.
+#'   \item Edit link - Opens the link's menu.
+#'   \item Insert block - Puts a new block into the link.
+#'   \item Remove link - Removes the link.
+#'   \item Edit stack - Opens the stack's menu.
+#'   \item Dissolve stack - Removes the stack; its blocks stay.
 #'   \item Add block - Adds a new block to the canvas.
 #' }
 #'
@@ -84,25 +83,12 @@ new_context_menu_entry <- function(
     is_string(name)
   )
 
-  entry <- structure(
+  structure(
     list(condition = condition, action = action, js = js),
     name = name,
     id = id,
     class = "context_menu_entry"
   )
-
-  if (isTRUE(retarget)) {
-    attr(entry, "sidebar") <- new_sidebar_spec(action)
-  }
-
-  entry
-}
-
-new_sidebar_spec <- function(action) {
-
-  stopifnot(is_string(attr(action, "action_name")))
-
-  list(action = attr(action, "action_name"))
 }
 
 #' @rdname ctx
@@ -117,19 +103,6 @@ context_menu_entry_name <- function(x) attr(x, "name")
 
 context_menu_entry_condition <- function(x, ...) {
   x[["condition"]](...)
-}
-
-sidebar_spec <- function(x) attr(x, "sidebar")
-
-is_sidebar_entry <- function(x) not_null(sidebar_spec(x))
-
-should_retarget <- function(owner, board, type, id, pinned) {
-  not_null(owner) &&
-    isTRUE(pinned) &&
-    length(id) == 1L &&
-    isTRUE(
-      context_menu_entry_condition(owner, board, list(type = type, id = id))
-    )
 }
 
 context_menu_entry_action <- function(x, actions, session = get_session()) {

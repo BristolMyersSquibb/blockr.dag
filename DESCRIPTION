@@ -33,7 +33,7 @@ Imports:
     jsonlite,
     htmltools
 Remotes:
-    BristolMyersSquibb/blockr.dock,
+    BristolMyersSquibb/blockr.dock@544-block-options,
     cynkra/g6R
 Suggests:
     knitr,

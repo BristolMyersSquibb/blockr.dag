@@ -92,8 +92,9 @@ dag_positions_description <- function() {
   )
 }
 
-# Adding, appending and inserting a block open the dock's "+" menu in place,
-# so their entries send where the click happened along with the target, as
+# The entries that open one of the dock's menus (the "+" menu, a link's or a
+# stack's menu, Connect to and Add to stack) send where the click happened
+# along with the target, as
 # the `at` of the action's trigger (see blockr.dock::new_action()). The
 # context menu hides right after the click, so rather than the entry's id
 # they send the bottom-left corner of its box, in viewport pixels: the menu
@@ -102,12 +103,20 @@ dag_positions_description <- function() {
 context_menu_items.dag_extension <- function(x) {
   list(
     new_context_menu_entry(
-      name = "Create link",
+      name = "Connect to\u2026",
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            Shiny.setInputValue('%s', current.id.replace(/^node-/, ''), {priority: 'event'});
+            const box = target.getBoundingClientRect();
+            Shiny.setInputValue(
+              '%s',
+              {
+                target: current.id.replace(/^node-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
+              {priority: 'event'}
+            );
           }",
           ns("ctx_add_link")
         )
@@ -117,8 +126,7 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_add_link"
       ),
       condition = function(board, target) target$type == "node",
-      id = "create_link",
-      retarget = TRUE
+      id = "create_link"
     ),
     new_context_menu_entry(
       name = "Remove block",
@@ -162,9 +170,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^edge-/, ''),
+              {
+                target: current.id.replace(/^edge-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -176,8 +188,7 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_edit_link"
       ),
       condition = function(board, target) target$type == "edge",
-      id = "edit_link",
-      retarget = TRUE
+      id = "edit_link"
     ),
     new_context_menu_entry(
       name = "Insert block",
@@ -203,11 +214,7 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_insert_block"
       ),
       condition = function(board, target) target$type == "edge",
-      id = "insert_block",
-      # Re-targets like the other link-scoped editor: a pinned panel follows
-      # the edge the user selects, so the insert lands on the wire they are
-      # looking at rather than the one they opened with.
-      retarget = TRUE
+      id = "insert_block"
     ),
     new_context_menu_entry(
       name = "Append block",
@@ -232,31 +239,44 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_append_block"
       ),
       condition = function(board, target) target$type == "node",
-      id = "append_block",
-      retarget = TRUE
+      id = "append_block"
     ),
+    # Puts the block in a stack, or the whole selection when the block is one
+    # of several selected: the menu then reads "Add 3 blocks to".
     new_context_menu_entry(
-      name = "Edit inputs",
+      name = "Add to stack",
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
+            const el = document.getElementById('%s');
+            const w = el && HTMLWidgets.find('#' + el.id);
+            const graph = w && w.getWidget();
+            const sel = graph
+              ? graph.getElementDataByState('node', 'selected').map((n) => n.id)
+              : [];
+            const ids = sel.length > 1 && sel.indexOf(current.id) >= 0
+              ? sel : [current.id];
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^node-/, ''),
+              {
+                target: ids.map((id) => id.replace(/^node-/, '')),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
-          ns("ctx_edit_inputs")
+          ns(graph_id()),
+          ns("ctx_add_to_stack")
         )
       },
       action = update_action_trigger(
-        action_name = "edit_inputs_action",
-        input_name = "ctx_edit_inputs"
+        action_name = "add_stack_action",
+        input_name = "ctx_add_to_stack"
       ),
       condition = function(board, target) target$type == "node",
-      id = "edit_inputs",
-      retarget = TRUE
+      id = "add_to_stack"
     ),
     new_context_menu_entry(
       name = "Add block",
@@ -281,24 +301,7 @@ context_menu_items.dag_extension <- function(x) {
       id = "add_block"
     ),
     new_context_menu_entry(
-      name = "Create stack",
-      js = function(ns) {
-        sprintf(
-          "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
-          }",
-          ns("ctx_create_stack")
-        )
-      },
-      action = update_action_trigger(
-        action_name = "add_stack_action",
-        input_name = "ctx_create_stack"
-      ),
-      condition = function(board, target) target$type == "canvas",
-      id = "create_stack"
-    ),
-    new_context_menu_entry(
-      name = "Remove stack",
+      name = "Dissolve stack",
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
@@ -321,9 +324,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^combo-/, ''),
+              {
+                target: current.id.replace(/^combo-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -335,8 +342,7 @@ context_menu_items.dag_extension <- function(x) {
         input_name = "ctx_edit_stack"
       ),
       condition = function(board, target) target$type == "combo",
-      id = "edit_stack",
-      retarget = TRUE
+      id = "edit_stack"
     ),
     new_context_menu_entry(
       name = "Copy",
