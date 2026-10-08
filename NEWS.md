@@ -30,6 +30,10 @@
 
 - The canvas applies each entity's removals before its additions ([#165](https://github.com/BristolMyersSquibb/blockr.dag/issues/165)). A delta may legitimately re-use an id it drops in the same breath, which `modify_board_links()` treats as replacing that element in place. Drawing first and erasing after took the re-added element straight back off the canvas, leaving the board and the drawing disagreeing.
 
+## Internal changes
+
+- The "Search blocks" panel is g6R's collapsible search (`g6_search(collapsed = TRUE)`, with `g6_outline(header = FALSE)` anchored under it) rather than a layer `dag-chrome.js` built around the plugins from outside ([#190](https://github.com/BristolMyersSquibb/blockr.dag/issues/190)). Opening, closing and picking behave as before. Requires `g6R (>= 0.6.5.9004)` ([cynkra/g6R#74](https://github.com/cynkra/g6R/pull/74)).
+
 # blockr.dag 0.1.5
 
 ## Breaking changes
