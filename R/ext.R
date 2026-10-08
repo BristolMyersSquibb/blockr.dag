@@ -92,6 +92,12 @@ dag_positions_description <- function() {
   )
 }
 
+# Adding, appending and inserting a block open the dock's "+" menu in place,
+# so their entries send where the click happened along with the target, as
+# the `at` of the action's trigger (see blockr.dock::new_action()). The
+# context menu hides right after the click, so rather than the entry's id
+# they send the bottom-left corner of its box, in viewport pixels: the menu
+# then hangs under the entry as it would under an element named by id.
 #' @export
 context_menu_items.dag_extension <- function(x) {
   list(
@@ -179,9 +185,13 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^edge-/, ''),
+              {
+                target: current.id.replace(/^edge-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -204,9 +214,13 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
+            const box = target.getBoundingClientRect();
             Shiny.setInputValue(
               '%s',
-              current.id.replace(/^node-/, ''),
+              {
+                target: current.id.replace(/^node-/, ''),
+                at: {x: box.left, y: box.bottom}
+              },
               {priority: 'event'}
             );
           }",
@@ -249,7 +263,12 @@ context_menu_items.dag_extension <- function(x) {
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
+            const box = target.getBoundingClientRect();
+            Shiny.setInputValue(
+              '%s',
+              {target: true, at: {x: box.left, y: box.bottom}},
+              {priority: 'event'}
+            );
           }",
           ns("ctx_add_block")
         )
@@ -387,6 +406,14 @@ context_menu_items.dag_extension <- function(x) {
 toolbar_items.dag_extension <- function(x) {
   list(
     new_toolbar_item(
+      id = "find",
+      icon = "blockr-search",
+      tooltip = "Search blocks",
+      js = "(value, target, current) => {
+        window.blockrDag.toggleFind(target.closest('.dag-canvas-container'));
+      }"
+    ),
+    new_toolbar_item(
       id = "zoom_in",
       icon = "zoom-in",
       js = "(value, target, current) => {
@@ -429,10 +456,17 @@ toolbar_items.dag_extension <- function(x) {
     new_toolbar_item(
       id = "add_block",
       icon = "icon-roundaddfill",
+      # The item has no id to name, so it sends the corner of its box like
+      # "Add block" in the context menu, and the "+" menu hangs under it.
       js = function(ns) {
         sprintf(
           "(value, target, current) => {
-            Shiny.setInputValue('%s', true, {priority: 'event'});
+            const box = target.getBoundingClientRect();
+            Shiny.setInputValue(
+              '%s',
+              {target: true, at: {x: box.left, y: box.bottom}},
+              {priority: 'event'}
+            );
           }",
           ns("tool_add_block")
         )
@@ -530,31 +564,12 @@ extension_block_callback.dag_extension <- function(x, ...) {
           return()
         }
 
-        badges <- if (is.null(spec)) {
-          list()
-        } else {
-          list(
-            list(
-              text = "",
-              placement = "right-bottom",
-              offsetX = -2,
-              offsetY = -2,
-              backgroundFill = spec$color,
-              backgroundStroke = spec$ring_color,
-              backgroundLineWidth = spec$ring,
-              backgroundWidth = spec$size,
-              backgroundHeight = spec$size,
-              backgroundRadius = spec$size / 2
-            )
-          )
-        }
-
         g6_update_nodes(
           dag$proxy,
           list(
             list(
               id = to_g6_node_id(id),
-              style = list(badges = badges)
+              style = list(badges = status_badges(spec))
             )
           )
         )
@@ -566,4 +581,50 @@ extension_block_callback.dag_extension <- function(x, ...) {
 
     NULL
   }
+}
+
+# The node's status dot, from the spec it shares with the dock's
+# (`blockr.dock::block_status_badge()`): `size` across, in its fill, with a
+# `ring` of the surface around it. The node is the block's mark at the size
+# the dock draws it, and the dot sits where the dock puts it, its centre 2px in
+# from the upper right corner. A hollow dot is the same dot with a hole of the
+# surface in it, leaving an `outline`-wide ring in its fill. The colours are
+# tokens, resolved as the dot is drawn (see `data_ink()`).
+status_badges <- function(spec) {
+
+  if (is.null(spec)) {
+    return(list())
+  }
+
+  fill <- sprintf("var(%s, %s)", spec$token, spec$color)
+  surface <- sprintf("var(%s, %s)", spec$ring_token, spec$ring_color)
+
+  # A badge's background is centred on its placement. Its stroke is centred
+  # on its edge, so the ring takes the outer `ring` of a dot `size + ring`
+  # across.
+  disc <- function(width, ...) {
+    list(
+      text = "",
+      placement = "right-top",
+      offsetX = -2,
+      offsetY = 2,
+      backgroundWidth = width,
+      backgroundHeight = width,
+      backgroundRadius = width / 2,
+      ...
+    )
+  }
+
+  dot <- disc(
+    spec$size + spec$ring,
+    backgroundFill = fill,
+    backgroundStroke = surface,
+    backgroundLineWidth = spec$ring
+  )
+
+  if (!isTRUE(spec$hollow)) {
+    return(list(dot))
+  }
+
+  list(dot, disc(spec$size - 2 * spec$outline, backgroundFill = surface))
 }

@@ -200,7 +200,11 @@ build_context_menu <- function(x, ...) {
 
     res <- Filter(not_null, lapply(x, build_context_menu, ...))
 
-    return(unname(res))
+    # A destructive row comes last, in a group of its own (dag.css draws the
+    # divider above it).
+    rm <- grepl("^remove_", chr_xtr(res, "value"))
+
+    return(unname(c(res[!rm], res[rm])))
   }
 
   if (!context_menu_entry_condition(x, ...)) {

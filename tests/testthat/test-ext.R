@@ -466,7 +466,16 @@ test_that("a node badge is pushed only when it changes (#146)", {
 
   # Which status draws which badge is blockr.dock's to decide, so stub it:
   # every status draws the same badge, and a missing one draws none.
-  spec <- list(color = "#000000", ring_color = "#ffffff", ring = 2L, size = 8L)
+  spec <- list(
+    color = "#000000",
+    token = "--blockr-color-text-default",
+    hollow = FALSE,
+    outline = 1.5,
+    size = 8L,
+    ring = 2L,
+    ring_color = "#ffffff",
+    ring_token = "--blockr-color-bg-surface"
+  )
   local_mocked_bindings(
     block_status_badge = function(status, error_count = 0L) {
       if (is.null(status)) NULL else spec
@@ -506,6 +515,50 @@ test_that("a node badge is pushed only when it changes (#146)", {
       expect_length(pushed, 2L)
       expect_length(pushed[[2L]], 0L)
     }
+  )
+})
+
+test_that("a status badge is drawn from the dock's spec (#174)", {
+
+  expect_identical(status_badges(NULL), list())
+
+  failed <- blockr.dock::block_status_badge("failed")
+  dot <- status_badges(failed)
+
+  expect_length(dot, 1L)
+  expect_identical(dot[[1L]]$placement, "right-top")
+  expect_identical(
+    dot[[1L]]$backgroundFill,
+    paste0("var(", failed$token, ", ", failed$color, ")")
+  )
+  expect_identical(
+    dot[[1L]]$backgroundStroke,
+    paste0("var(", failed$ring_token, ", ", failed$ring_color, ")")
+  )
+
+  # The ring is centred on the disc's edge: the fill shows `size` across.
+  expect_equal(dot[[1L]]$backgroundWidth, failed$size + failed$ring)
+  expect_equal(dot[[1L]]$backgroundLineWidth, failed$ring)
+
+  # A waiting block's dot is hollow: an `outline`-wide ring in its fill.
+  waiting <- blockr.dock::block_status_badge("waiting")
+  ring <- status_badges(waiting)
+
+  expect_true(waiting$hollow)
+  expect_length(ring, 2L)
+  expect_identical(
+    ring[[1L]]$backgroundFill,
+    paste0("var(", waiting$token, ", ", waiting$color, ")")
+  )
+  expect_identical(ring[[2L]]$backgroundFill, ring[[1L]]$backgroundStroke)
+  expect_equal(
+    (ring[[1L]]$backgroundWidth - ring[[1L]]$backgroundLineWidth -
+       ring[[2L]]$backgroundWidth) / 2,
+    waiting$outline
+  )
+  expect_identical(
+    ring[[2L]][c("placement", "offsetX", "offsetY")],
+    ring[[1L]][c("placement", "offsetX", "offsetY")]
   )
 })
 
