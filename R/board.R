@@ -220,12 +220,13 @@ dag_board_dep <- function() {
 }
 
 # The stylesheets and scripts of blockr.dock's block card: the card itself,
-# its title rename and block menu, and the tooltip it uses.
+# its title rename and block menu. Its tooltips are `data-blockr-tooltip`
+# attributes, which `blockr.ui::controls_dep()` shows.
 dock_card_deps <- function() {
   lapply(
     c(
       "blockr_dock_dep", "show_block_dep", "block_rename_dep",
-      "add_block_menu_dep", "tooltip_dep"
+      "add_block_menu_dep"
     ),
     function(fn) dock_internal(fn)()
   )
