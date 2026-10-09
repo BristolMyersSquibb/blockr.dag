@@ -50,7 +50,6 @@ dag_ext_srv <- function(positions) {
         setup_copy_paste_kbd()
 
         actions_observers(actions, proxy)
-        setup_sidebar_retarget(c(context_menu, toolbar), actions, board, proxy)
 
         update_observer(update, board, proxy)
 
@@ -331,56 +330,6 @@ actions_observers <- function(actions, proxy) {
   #     )
   #   }
   # )
-}
-
-setup_sidebar_retarget <- function(items, actions, board, proxy) {
-
-  editors <- Filter(is_sidebar_entry, items)
-
-  if (!length(editors)) {
-    return(invisible(NULL))
-  }
-
-  input <- proxy$session$input
-  board_id <- isolate(board$board_id)
-
-  retarget <- function(type, id) {
-
-    for (editor in editors) {
-
-      action <- sidebar_spec(editor)$action
-
-      held <- blockr.dock::sidebar_owned_by(action, board_id)
-
-      if (should_retarget(editor, board$board, type, id, held$pinned)) {
-        actions[[action]](id)
-      }
-    }
-  }
-
-  retarget_selection_observer("node", input, retarget)
-  retarget_selection_observer("edge", input, retarget)
-  retarget_selection_observer("combo", input, retarget)
-
-  invisible(NULL)
-}
-
-retarget_selection_observer <- function(type, input, retarget) {
-
-  selected <- paste0(graph_id(), "-selected_", type)
-
-  extract <- switch(
-    type,
-    node = from_g6_node_id,
-    edge = from_g6_edge_id,
-    combo = from_g6_combo_id
-  )
-
-  observeEvent(
-    input[[selected]],
-    retarget(type, extract(input[[selected]])),
-    label = paste0("retarget_", type)
-  )
 }
 
 empty_state_observer <- function(board, session) {

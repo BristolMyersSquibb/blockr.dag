@@ -11,7 +11,7 @@ test_that("context menu", {
   expect_setequal(
     chr_xtr(node, "value"),
     c(
-      "create_link", "remove_block", "append_block", "edit_inputs", "copy",
+      "create_link", "remove_block", "append_block", "add_to_stack", "copy",
       "cut"
     )
   )
@@ -33,7 +33,7 @@ test_that("context menu", {
 
   expect_setequal(
     chr_xtr(canv, "value"),
-    c("create_stack", "add_block", "paste")
+    c("add_block", "paste")
   )
 
   comb <- build_context_menu(ctx, target = list(type = "combo"))
@@ -47,96 +47,39 @@ test_that("context menu", {
   )
 })
 
-test_that("only re-targeting entries declare anything", {
+test_that("the right-click entries open the dock's menus", {
 
   ctx <- context_menu_items(new_dag_extension())
-  by_id <- set_names(ctx, chr_ply(ctx, context_menu_entry_id))
+  ids <- chr_ply(ctx, context_menu_entry_id)
+  by_id <- set_names(ctx, ids)
 
-  expect_setequal(
-    chr_ply(Filter(is_sidebar_entry, ctx), context_menu_entry_id),
-    c(
-      "create_link", "append_block", "edit_inputs", "edit_stack", "edit_link",
-      "insert_block"
-    )
-  )
+  # The sidebar forms are gone (blockr.dock#544): Edit inputs is covered by
+  # the link menu and Connect, and a stack is made from blocks.
+  expect_false(any(c("edit_inputs", "create_stack") %in% ids))
+  expect_true("add_to_stack" %in% ids)
 
-  expect_identical(
-    sidebar_spec(by_id[["edit_stack"]]),
-    list(action = "edit_stack_action")
-  )
+  expect_identical(context_menu_entry_name(by_id[["create_link"]]), "Connect to\u2026")
+  expect_identical(context_menu_entry_name(by_id[["remove_stack"]]), "Dissolve stack")
 
-  expect_identical(
-    sidebar_spec(by_id[["edit_link"]]),
-    list(action = "edit_link_action")
-  )
+  # The entries that open a menu say where the click was.
+  for (id in c("create_link", "edit_link", "edit_stack", "add_to_stack")) {
+    js <- by_id[[id]]$js(function(x) paste0("ns-", x))
+    expect_match(js, "at: {x: box.left, y: box.bottom}", fixed = TRUE, info = id)
+  }
 
-  expect_identical(
-    sidebar_spec(by_id[["edit_inputs"]]),
-    list(action = "edit_inputs_action")
-  )
-
-  expect_identical(
-    sidebar_spec(by_id[["insert_block"]]),
-    list(action = "insert_block_action")
-  )
-
-  # Panel-filling entries that cannot re-target name nothing at all: the
-  # panel they fill is stamped by `show_sidebar()`, not declared here.
-  expect_null(sidebar_spec(by_id[["add_block"]]))
-  expect_null(sidebar_spec(by_id[["create_stack"]]))
-  expect_null(sidebar_spec(by_id[["remove_link"]]))
-
-  expect_length(Filter(is_sidebar_entry, toolbar_items(new_dag_extension())), 0L)
+  # Add to stack takes the selection when the block is one of several selected.
+  js <- by_id[["add_to_stack"]]$js(function(x) paste0("ns-", x))
+  expect_match(js, "getElementDataByState('node', 'selected')", fixed = TRUE)
+  # `graph` is bound by g6R in plugin callbacks: no lookup by element id.
+  expect_no_match(js, "HTMLWidgets.find", fixed = TRUE)
 })
 
-test_that("re-target matches the panel owner's concern, only when pinned", {
+test_that("retarget is accepted, ignored and warned about", {
+  expect_warning(
+    entry <- new_context_menu_entry("Edit", "() => {}", retarget = TRUE),
+    class = "context_menu_entry_retarget_deprecated"
+  )
+  expect_null(attr(entry, "sidebar"))
 
-  ctx <- context_menu_items(new_dag_extension())
-  by_id <- set_names(ctx, chr_ply(ctx, context_menu_entry_id))
-
-  stack_editor <- by_id[["edit_stack"]]
-  node_editor <- by_id[["create_link"]]
-  link_editor <- by_id[["edit_link"]]
-  inputs_editor <- by_id[["edit_inputs"]]
-
-  expect_true(
-    should_retarget(stack_editor, NULL, "combo", "s1", pinned = TRUE)
-  )
-  expect_false(
-    should_retarget(stack_editor, NULL, "node", "n1", pinned = TRUE)
-  )
-
-  expect_true(
-    should_retarget(node_editor, NULL, "node", "n1", pinned = TRUE)
-  )
-  expect_false(
-    should_retarget(node_editor, NULL, "edge", "e1", pinned = TRUE)
-  )
-
-  expect_true(
-    should_retarget(link_editor, NULL, "edge", "e1", pinned = TRUE)
-  )
-  expect_false(
-    should_retarget(link_editor, NULL, "node", "n1", pinned = TRUE)
-  )
-  expect_false(
-    should_retarget(link_editor, NULL, "edge", "e1", pinned = FALSE)
-  )
-
-  expect_true(
-    should_retarget(inputs_editor, NULL, "node", "n1", pinned = TRUE)
-  )
-  expect_false(
-    should_retarget(inputs_editor, NULL, "edge", "e1", pinned = TRUE)
-  )
-
-  expect_false(
-    should_retarget(stack_editor, NULL, "combo", "s1", pinned = FALSE)
-  )
-  expect_false(
-    should_retarget(stack_editor, NULL, "combo", c("s1", "s2"), TRUE)
-  )
-  expect_false(
-    should_retarget(NULL, NULL, "combo", "s1", pinned = TRUE)
-  )
+  expect_no_warning(new_context_menu_entry("Edit", "() => {}"))
 })
