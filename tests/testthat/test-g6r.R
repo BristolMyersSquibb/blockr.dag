@@ -205,6 +205,62 @@ test_that("positions_equal compares up to whole-pixel rounding", {
   ))
 })
 
+test_that("a card's position records its height", {
+  state <- list(
+    nodes = list(
+      "node-a" = list(
+        id = "node-a",
+        style = list(x = 10, y = 20, size = list(380, 518), autoHeight = TRUE)
+      ),
+      # an icon node's size is not recorded
+      "node-b" = list(id = "node-b", style = list(x = 1, y = 2, size = 48))
+    )
+  )
+
+  res <- project_positions(state)
+
+  expect_identical(res$a, list(x = 10, y = 20, height = 518))
+  expect_identical(res$b, list(x = 1, y = 2))
+})
+
+test_that("a restored card starts at its recorded height", {
+  nodes <- list(
+    structure(
+      list(id = "node-a", style = list(size = c(380, 200), autoHeight = TRUE)),
+      class = "g6_node"
+    )
+  )
+
+  res <- merge_node_positions(nodes, list(a = list(x = 1, y = 2, height = 518)))
+
+  expect_equal(res[[1]]$style$size, c(380, 518))
+  expect_equal(res[[1]]$style$y, 2)
+})
+
+test_that("a height change is a change, but moves no node", {
+  a <- list(a = list(x = 10, y = 20, height = 300))
+  b <- list(a = list(x = 10, y = 20, height = 500))
+
+  expect_false(positions_equal(a, b))
+  expect_length(positions_diff(b, a), 0L)
+})
+
+test_that("positions for every block replace the layout", {
+  board <- new_board(
+    blocks = c(a = new_dataset_block("iris"), b = new_head_block())
+  )
+
+  expect_false(places_all_blocks(board, NULL))
+  expect_false(places_all_blocks(board, list(a = list(x = 1, y = 2))))
+  expect_true(
+    places_all_blocks(
+      board,
+      list(a = list(x = 1, y = 2), b = list(x = 3, y = 4))
+    )
+  )
+  expect_false(places_all_blocks(new_board(), list()))
+})
+
 test_that("positions_diff returns only changed entries (echo guard)", {
   live <- list(a = list(x = 10, y = 20), b = list(x = 5, y = 5))
 

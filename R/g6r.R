@@ -63,6 +63,11 @@ g6_from_board <- function(board, positions = NULL, cards = NULL) {
 # Supplied coordinates set `style$x/y`, which g6R's position-preservation
 # (BEFORE/AFTER_LAYOUT) honors over the auto-layout. Unknown or stale ids
 # are ignored; nodes without an entry keep no preset and fall to the layout.
+places_all_blocks <- function(board, positions) {
+  ids <- names(board_blocks(board))
+  length(ids) > 0L && all(ids %in% names(positions))
+}
+
 merge_node_positions <- function(nodes, positions) {
   if (!length(nodes) || !length(positions)) {
     return(nodes)
@@ -73,6 +78,10 @@ merge_node_positions <- function(nodes, positions) {
     if (!is.null(pos)) {
       node[["style"]][["x"]] <- pos[["x"]]
       node[["style"]][["y"]] <- pos[["y"]]
+      size <- node[["style"]][["size"]]
+      if (!is.null(pos[["height"]]) && length(size) == 2L) {
+        node[["style"]][["size"]] <- c(size[[1L]], pos[["height"]])
+      }
     }
     node
   })
@@ -81,8 +90,20 @@ merge_node_positions <- function(nodes, positions) {
 # Round coordinates to whole pixels so sub-pixel jitter echoed back by the
 # client doesn't read as a change (used to break the external-control echo
 # loop and to debounce client drags).
-round_positions <- function(positions) {
-  lapply(positions, function(p) list(x = round(p[["x"]]), y = round(p[["y"]])))
+# A card's position comes with its height (see project_positions()), which
+# counts as a change when comparing positions, but not when moving nodes.
+round_positions <- function(positions, height = FALSE) {
+  lapply(
+    positions,
+    function(p) {
+      c(
+        list(x = round(p[["x"]]), y = round(p[["y"]])),
+        if (height && !is.null(p[["height"]])) {
+          list(height = round(p[["height"]]))
+        }
+      )
+    }
+  )
 }
 
 # Position specs equal up to whole-pixel rounding, compared per block id
@@ -91,8 +112,8 @@ positions_equal <- function(a, b) {
   if (length(a) != length(b)) {
     return(FALSE)
   }
-  a <- round_positions(a)
-  b <- round_positions(b)
+  a <- round_positions(a, height = TRUE)
+  b <- round_positions(b, height = TRUE)
   ids <- union(names(a), names(b))
   all(vapply(ids, function(id) identical(a[[id]], b[[id]]), logical(1)))
 }
@@ -149,11 +170,19 @@ project_positions <- function(state) {
   }
 
   res <- lapply(nodes, function(node) {
-    xy <- node[["style"]][c("x", "y")]
-    if (is.null(xy[["x"]]) || is.null(xy[["y"]])) {
+    style <- node[["style"]]
+    if (is.null(style[["x"]]) || is.null(style[["y"]])) {
       return(NULL)
     }
-    list(x = xy[["x"]], y = xy[["y"]])
+    # A card's centre places it only at the height it had: a restored card
+    # starts at that height rather than growing from card_size() around a
+    # fixed top edge.
+    c(
+      list(x = style[["x"]], y = style[["y"]]),
+      if (isTRUE(style[["autoHeight"]]) && length(style[["size"]]) == 2L) {
+        list(height = style[["size"]][[2L]])
+      }
+    )
   })
 
   res <- filter_null(res)
@@ -493,7 +522,12 @@ init_g6 <- function(board, positions = NULL, ..., cards = NULL,
   res <- g6_from_board(board, positions, cards)
 
   res <- set_g6_options(res, cards = !is.null(cards))
-  res <- set_g6_layout(res, cards = !is.null(cards))
+
+  # Positions for every block, as a restored board has them, are the layout:
+  # running one would move the nodes away from them.
+  if (!places_all_blocks(board, positions)) {
+    res <- set_g6_layout(res, cards = !is.null(cards))
+  }
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 

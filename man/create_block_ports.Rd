@@ -4,12 +4,15 @@
 \alias{create_block_ports}
 \title{Create block ports for g6 node}
 \usage{
-create_block_ports(block, id)
+create_block_ports(block, id, r = 3)
 }
 \arguments{
 \item{block}{Block object.}
 
 \item{id}{Block ID.}
+
+\item{r}{Port radius; \code{NULL} leaves it to g6R, which sizes the ports of an
+HTML node to the node.}
 }
 \description{
 Create block ports for g6 node
