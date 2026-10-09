@@ -76,3 +76,54 @@ test_that("without cards, the nodes stay icon nodes", {
 
   expect_identical(as_card_nodes(icons, blocks, NULL), icons)
 })
+
+test_that("the cards on screen are held eager and painted", {
+  visibility <- list(
+    visible = list2env(
+      list(a = reactiveVal(NA), b = reactiveVal(NA), c = reactiveVal(NA))
+    )
+  )
+  update <- reactiveVal()
+
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        hold_on_screen(input, update, visibility, "owner")
+      })
+    },
+    {
+      painted <- function() {
+        vapply(c("a", "b", "c"), function(id) visibility$visible[[id]](), NA)
+      }
+      held <- function() update()$eager$owner$set
+
+      session$setInputs(on_screen = list("a", "b"))
+      expect_identical(held(), c("a", "b"))
+      expect_identical(unname(painted()), c(TRUE, TRUE, NA))
+
+      # a card that leaves the screen is released and no longer painted
+      update(NULL)
+      session$setInputs(on_screen = list("b", "c"))
+      expect_identical(held(), c("b", "c"))
+      expect_identical(unname(painted()), c(FALSE, TRUE, TRUE))
+
+      # a report naming a block the board no longer has
+      update(NULL)
+      session$setInputs(on_screen = list("b", "c", "gone"))
+      expect_null(update())
+
+      session$setInputs(on_screen = list())
+      expect_identical(held(), character())
+    }
+  )
+})
+
+test_that("the board reports its cards on screen", {
+  dep <- dag_board_dep()
+  expect_true("on-screen.js" %in% basename(unlist(dep$script)))
+
+  html <- htmltools::renderTags(
+    board_ui("board", new_dag_board(blocks = c(a = new_dataset_block())))
+  )$html
+  expect_match(html, "data-on-screen-input=\"board-on_screen\"", fixed = TRUE)
+})

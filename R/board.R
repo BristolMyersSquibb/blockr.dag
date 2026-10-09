@@ -93,6 +93,7 @@ board_ui.dag_board <- function(id, x, plugins = board_plugins(x),
     htmltools::div(
       class = "blockr-dag-board",
       `data-card-gap` = card_gap(),
+      `data-on-screen-input` = NS(id, "on_screen"),
       blockr.dock::extension_ui(
         blockr.dock::dock_extensions(x)[[dag]],
         dag,
@@ -138,7 +139,8 @@ remove_block_ui.dag_board <- function(id, x, blocks = NULL, ...,
 # The board server callback of a DAG board: the front-end independent half of
 # blockr.dock's board_server_callback(). It runs the extension servers and
 # registers the board's and extensions' actions; there are no dock views to
-# reconcile. It declares no eager set, so the board evaluates every block.
+# reconcile. The board is lazy: it evaluates the blocks whose cards are on
+# screen, and what feeds them (see hold_on_screen()).
 dag_board_callback <- function(board, update, visibility, ..., session,
                                plugins) {
 
@@ -198,11 +200,15 @@ dag_board_callback <- function(board, update, visibility, ..., session,
 
   dock_internal("register_actions")(actions, triggers, board, update, ext_res)
 
+  owner <- session$ns("canvas")
+  hold_on_screen(session$input, update, visibility, owner)
+
   list(
     dock = NULL,
     actions = triggers,
     view_data = NULL,
-    extensions = ext_res
+    extensions = ext_res,
+    eager = blockr.core::eager(owner)
   )
 }
 
@@ -216,7 +222,7 @@ dag_board_dep <- function() {
     version = pkg_version(),
     src = c(file = "assets"),
     stylesheet = file.path("css", "dag-board.css"),
-    script = file.path("js", "make-room.js"),
+    script = file.path("js", c("make-room.js", "on-screen.js")),
     package = pkg_name()
   )
 }

@@ -85,7 +85,13 @@ test_that("the board callback serves the DAG extension and the actions", {
     {
       res <- captured$res
 
-      expect_named(res, c("dock", "actions", "view_data", "extensions"))
+      expect_named(
+        res,
+        c("dock", "actions", "view_data", "extensions", "eager")
+      )
+      # lazy, holding nothing until the canvas reports its cards on screen
+      expect_s3_class(res[["eager"]], "eager_blocks")
+      expect_identical(res[["eager"]][["blocks"]], character())
       expect_null(res[["dock"]])
       expect_null(res[["view_data"]])
       expect_named(res[["extensions"]], dag_extension_id(board))

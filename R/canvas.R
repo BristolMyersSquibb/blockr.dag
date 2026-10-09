@@ -92,3 +92,54 @@ mark_drag_handle <- function(card) {
     addAttrs(`data-g6-drag-handle` = NA)$
     allTags()
 }
+
+# The board is lazy (see dag_board_callback()): core evaluates the blocks the
+# canvas holds eager, and renders a block once it is reported painted. The
+# canvas holds the cards on screen, as on-screen.js reports them, and nothing
+# before its first report. A report can name a block that a removal has just
+# taken off the board, so it is read against the blocks core still has.
+hold_on_screen <- function(input, update, visibility, owner) {
+
+  held <- new.env(parent = emptyenv())
+  held$ids <- character()
+
+  observeEvent(
+    input$on_screen,
+    {
+      # an empty report (nothing on screen) arrives as an empty list
+      on_screen <- as.character(unlist(input$on_screen))
+      ids <- sort(intersect(on_screen, ls(visibility$visible)))
+
+      for (id in setdiff(ls(visibility$visible), ids)) {
+        if (isTRUE(visibility$visible[[id]]())) {
+          visibility$visible[[id]](FALSE)
+        }
+      }
+
+      for (id in ids) {
+        if (!isTRUE(visibility$visible[[id]]())) {
+          visibility$visible[[id]](TRUE)
+        }
+      }
+
+      if (!identical(held$ids, ids)) {
+        held$ids <- ids
+        hold_eager(update, owner, ids)
+      }
+    },
+    ignoreNULL = FALSE
+  )
+
+  invisible()
+}
+
+# Core takes one board update per flush, so the eager set is folded into what
+# is already pending rather than replacing it.
+hold_eager <- function(update, owner, ids) {
+  update(
+    utils::modifyList(
+      coal(isolate(update()), list(), fail_all = FALSE),
+      list(eager = set_names(list(list(set = ids)), owner))
+    )
+  )
+}
