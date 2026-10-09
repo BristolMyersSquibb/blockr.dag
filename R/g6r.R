@@ -283,10 +283,16 @@ set_g6_layout <- function(graph, cards = FALSE) {
   # card nodes are far larger than icon nodes, and need room between them for
   # the links to read
   sep <- if (cards) card_gap() else 50
+  # dagre places the nodes' centres from `begin`: a card's top-left corner
+  # goes where an icon node's centre would
+  begin <- c(150, 150)
+  if (cards) {
+    begin <- begin + card_size() / 2
+  }
   g6_layout(
     graph,
     layout = antv_dagre_layout(
-      begin = c(150, 150),
+      begin = begin,
       nodesep = sep,
       ranksep = sep,
       sortByCombo = TRUE
