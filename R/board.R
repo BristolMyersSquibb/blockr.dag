@@ -48,7 +48,7 @@ new_dag_board <- function(blocks = list(), links = list(), stacks = list(),
     stacks = stacks,
     ...,
     extensions = extensions,
-    ctor = ctor,
+    ctor = blockr.core::forward_ctor(ctor),
     pkg = pkg,
     class = c(class, "dag_board")
   )
