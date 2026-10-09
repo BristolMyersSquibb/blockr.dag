@@ -14,18 +14,26 @@ body {
 
 /* A block card takes its natural height; its node follows it. In a dock
    panel the card fills the panel, which frames it; on the canvas it frames
-   itself. */
+   itself.
+   TODO: this frame and the selected state below style a component this
+   package does not own. Move them to blockr.ui in a follow-up, as a framed
+   surface with a selected modifier (blockr.dock's card using it until the
+   card itself moves to blockr.ui, BristolMyersSquibb/blockr.ui#29), and only
+   switch them on from here. */
 .blockr-dag-board .g6-node-content > .blockr-block-card {
   border: 1px solid var(--blockr-color-border-default);
   border-radius: var(--blockr-radius-lg, 8px);
   box-shadow: var(--blockr-shadow-sm);
 }
 
+/* TODO: the drag handle is g6R's attribute (data-g6-drag-handle), so its
+   cursor belongs in g6R's stylesheet, for every app. */
 .blockr-dag-board .g6-node-content .blockr-block-header {
   cursor: move;
 }
 
-/* Selection: g6R mirrors the node's states onto its HTML wrapper. */
+/* Selection: g6R mirrors the node's states onto its HTML wrapper.
+   TODO: blockr.ui, with the frame above. */
 .blockr-dag-board .g6-html-node[data-g6-states~="selected"] > .g6-node-content > .blockr-block-card {
   border-color: var(--blockr-color-border-accent);
   box-shadow: var(--blockr-focus-ring);
