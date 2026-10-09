@@ -31,7 +31,7 @@ Imports:
     blockr.dock (>= 0.2.0),
     shiny,
     shinyjs,
-    g6R (>= 0.6.5.9008),
+    g6R (>= 0.6.5.9009),
     jsonlite,
     htmltools (>= 0.5.2)
 Remotes:
