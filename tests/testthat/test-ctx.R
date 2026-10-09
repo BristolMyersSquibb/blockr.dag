@@ -70,10 +70,16 @@ test_that("the right-click entries open the dock's menus", {
   # Add to stack takes the selection when the block is one of several selected.
   js <- by_id[["add_to_stack"]]$js(function(x) paste0("ns-", x))
   expect_match(js, "getElementDataByState('node', 'selected')", fixed = TRUE)
-  expect_match(js, "ns-graph", fixed = TRUE)
+  # `graph` is bound by g6R in plugin callbacks: no lookup by element id.
+  expect_no_match(js, "HTMLWidgets.find", fixed = TRUE)
 })
 
-test_that("retarget is accepted and ignored", {
-  entry <- new_context_menu_entry("Edit", "() => {}", retarget = TRUE)
+test_that("retarget is accepted, ignored and warned about", {
+  expect_warning(
+    entry <- new_context_menu_entry("Edit", "() => {}", retarget = TRUE),
+    class = "context_menu_entry_retarget_deprecated"
+  )
   expect_null(attr(entry, "sidebar"))
+
+  expect_no_warning(new_context_menu_entry("Edit", "() => {}"))
 })

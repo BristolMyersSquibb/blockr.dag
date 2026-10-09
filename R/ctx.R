@@ -62,6 +62,16 @@ new_context_menu_entry <- function(
   id = tolower(gsub(" +", "_", name)),
   retarget = FALSE
 ) {
+  if (isTRUE(retarget)) {
+    blockr_warn(
+      "`retarget` is deprecated and ignored: the dock's actions open menus, ",
+      "which close on the next click, so there is no panel to follow.",
+      class = "context_menu_entry_retarget_deprecated",
+      frequency = "once",
+      frequency_id = "context_menu_entry_retarget"
+    )
+  }
+
   if (is.null(action)) {
     action <- function(...) NULL
   }

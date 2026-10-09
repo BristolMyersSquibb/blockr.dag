@@ -249,12 +249,9 @@ context_menu_items.dag_extension <- function(x) {
         sprintf(
           "(value, target, current) => {
             if (current.id === undefined) return;
-            const el = document.getElementById('%s');
-            const w = el && HTMLWidgets.find('#' + el.id);
-            const graph = w && w.getWidget();
             const sel = graph
-              ? graph.getElementDataByState('node', 'selected').map((n) => n.id)
-              : [];
+              .getElementDataByState('node', 'selected')
+              .map((n) => n.id);
             const ids = sel.length > 1 && sel.indexOf(current.id) >= 0
               ? sel : [current.id];
             const box = target.getBoundingClientRect();
@@ -267,7 +264,6 @@ context_menu_items.dag_extension <- function(x) {
               {priority: 'event'}
             );
           }",
-          ns(graph_id()),
           ns("ctx_add_to_stack")
         )
       },
