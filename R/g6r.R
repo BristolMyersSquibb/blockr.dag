@@ -169,6 +169,23 @@ use_svg_renderer <- function() {
   isTRUE(getOption("blockr.dag.svg_renderer", FALSE))
 }
 
+# A style an element carries in its data whose colours are tokens, such as a
+# node's status dot and collapse button. The colours are `var()`s, which G6
+# cannot draw, so a function resolves them each time G6 draws the element
+# (`blockrDag.ink()` in dag-chrome.js), or passes them on as they are until
+# that script has loaded.
+data_ink <- function(field) {
+  JS(
+    sprintf(
+      "function (d) {
+        const x = d.style?.%s;
+        return window.blockrDag?.ink ? window.blockrDag.ink(x) : x;
+      }",
+      field
+    )
+  )
+}
+
 set_g6_options <- function(graph, ...) {
   renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
   g6_options(
@@ -176,28 +193,33 @@ set_g6_options <- function(graph, ...) {
     ...,
     renderer = renderer,
     animation = FALSE,
+    # The canvas cannot read CSS variables, so the tokens are written as
+    # their light values (blockr.ui's blockr-tokens.css), named beside each.
     node = list(
       type = "custom-image-node",
       style = list(
-        labelFill = "#6b7280",
+        # The name: 12px text-default under the mark, on a bg-surface halo
+        # (no edge) so it stays readable where a link passes behind it.
+        labelFill = "#111827", # text-default
         labelBackground = TRUE,
-        labelBackgroundFill = "#f3f4f6",
-        labelBackgroundStroke = "#e5e7eb",
-        labelBackgroundRadius = 4,
-        labelPlacement = "bottom",
-        labelOffsetY = 8,
-        labelBackgroundLineWidth = 1,
-        labelBackgroundRadius = 4,
+        labelBackgroundFill = "#ffffff", # bg-surface
+        labelBackgroundLineWidth = 0,
+        labelBackgroundRadius = 4, # radius-sm
         labelBackgroundOpacity = 1,
-        labelPadding = c(1, 6, 1, 6),
-        labelFontSize = 11,
-        labelFontFamily = "Open Sans, system-ui, sans-serif"
+        labelPlacement = "bottom",
+        labelOffsetY = 4,
+        labelPadding = c(1, 5, 1, 5),
+        labelFontSize = 12, # font-size-xs
+        labelFontFamily = "Open Sans, system-ui, sans-serif",
+        badges = data_ink("badges"),
+        collapse = data_ink("collapse")
       ),
       state = list(
+        # Selected: the accent tint, without an edge, as a selected row.
         selected = list(
-          labelBackgroundFill = "#dbeafe",
-          labelBackgroundStroke = "#0D99FF",
-          labelFontWeight = 700
+          labelFill = "#1d4ed8", # text-accent-strong
+          labelBackgroundFill = "#f0f4fe", # bg-selected on bg-surface
+          labelFontWeight = 500
         )
       )
     ),
@@ -208,9 +230,12 @@ set_g6_options <- function(graph, ...) {
       style = list(
         # more bottom padding, because of the badge
         padding = c(20, 20, 40, 20),
+        labelFill = "#111827", # text-default
+        labelFontFamily = "Open Sans, system-ui, sans-serif",
         # below edges (-1): a combo otherwise swallows clicks meant for the
         # edges between its member nodes, making in-stack links unselectable
-        zIndex = -2
+        zIndex = -2,
+        collapse = data_ink("collapse")
       )
     ),
     edge = list(
@@ -282,11 +307,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       enable = JS(
         "(e) => {
           if (e.shiftKey || e.altKey) return false;
-          // Access graph via HTMLWidgets and check if edge creation is in progress
-          const target = e.nativeEvent?.target;
-          const graph = HTMLWidgets.find(`#${target?.closest?.('.g6')?.id}`)?.getWidget();
+          // No drag while an edge is being created from a port.
           try {
-            if (graph?.getNodeData?.('g6-create-edge-assist-node-id')) return false;
+            if (graph.getNodeData('g6-create-edge-assist-node-id')) return false;
           } catch (err) {}
           return true;
         }"
@@ -318,20 +341,9 @@ set_g6_behaviors <- function(graph, ..., ns) {
       onFinish = JS(
         sprintf(
           "(edge) => {
-            const graph = HTMLWidgets.find('#%s').getWidget();
-            // A canvas drop's edge was never added to the graph: it ends on
-            // g6R's assist node, which follows the pointer, so that node's
-            // position is where the edge was dropped. The node stays until
-            // this handler returns; should g6R ever remove it first, the drop
-            // sends no point rather than failing.
+            // A canvas drop's edge was never added to the graph; g6R reports
+            // where it was dropped, so the + menu opens there.
             if (edge.targetType === 'canvas') {
-              let at = null;
-              try {
-                const [x, y] = graph.getClientByCanvas(
-                  graph.getElementPosition(edge.target)
-                );
-                at = {x: x, y: y};
-              } catch (err) {}
               Shiny.setInputValue(
                 '%s',
                 {
@@ -341,7 +353,7 @@ set_g6_behaviors <- function(graph, ..., ns) {
                   targetType: 'canvas',
                   sourcePort: edge.style?.sourcePort,
                   portType: edge.style?.portType,
-                  at: at
+                  at: edge.dropPoint?.client ?? null
                 }
               );
               return;
@@ -366,7 +378,6 @@ set_g6_behaviors <- function(graph, ..., ns) {
               graph.removeEdgeData([edge.id]);
             }
           }",
-          graph_id(ns),
           ns("added_edge"),
           ns("added_edge")
         )
@@ -420,17 +431,18 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
         )
       )
     ),
-    # Navigating a large board: search jumps to a named block, the outline lists
-    # what is there. The outline hangs under the search box as a dropdown, so
-    # the two read as one control; it must follow the search in this list, since
-    # that is what it anchors to.
+    # Navigating a large board: one panel, opened by the toolbar's "Search
+    # blocks" tool, lists the board (the outline) and narrows to the blocks
+    # that match as you type (the search). The outline hangs in the search box,
+    # so it must follow the search in this list. The search starts collapsed:
+    # the tool, Escape, a click outside and a pick open and close it. dag.css
+    # places the panel beside the toolbar.
     g6_search(
       outputId = graph_id(ns),
       placeholder = "Search blocks",
-      # Top-right: the toolbar already owns the left edge, and the search box
-      # plus its outline dropdown would sit on top of it.
-      position = "top-right",
+      position = "top-left",
       width = 260,
+      collapsed = TRUE,
       # `combo` is g6's word for what a board calls a stack.
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
@@ -438,17 +450,13 @@ set_g6_plugins <- function(graph, ..., ns, path, ctx, tools) {
       outputId = graph_id(ns),
       title = "Board contents",
       anchor = "search",
-      open = FALSE,
+      header = FALSE,
       labels = c(node = "block", combo = "stack", edge = "link")
     ),
+    # The floating surface and its colours are set in dag.css, from tokens,
+    # so the toolbar follows the scheme.
     toolbar(
       style = list(
-        backgroundColor = "#f5f5f5",
-        padding = "8px",
-        boxShadow = "0 2px 8px rgba(0, 0, 0, 0.15)",
-        borderRadius = "8px",
-        border = "1px solid #e8e8e8",
-        opacity = "0.9",
         marginTop = "12px",
         marginLeft = "12px"
       ),
@@ -663,10 +671,10 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
 
   ids <- to_g6_node_id(names(blocks))
 
-  # The node sizes itself to its icon image (custom-image-node adopts the
-  # image's natural size on load), and the icon comes from the shared
-  # `blockr.dock::blk_icon_data_uri()` -- so the DAG node and the dock block
-  # card show the same-sized icon without either side stating a size.
+  # The image is the block's mark at 32px, G6's default node size, so the
+  # node and the dock header show the same mark. The collapse button sits on
+  # the right edge: the status dot has the upper right corner, the ports the
+  # top and the bottom, and the name the space below.
   base_args <- list(
     id = ids,
     style = map(
@@ -677,7 +685,7 @@ g6_nodes_from_blocks <- function(blocks, stacks, children = NULL) {
     combo = lapply(stk_blks[names(blocks)], to_g6_combo_id),
     ports = map(create_block_ports, blocks, ids),
     collapse = lapply(blocks, function(block) {
-      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
+      collapse_options(placement = "right")
     })
   )
 
@@ -732,9 +740,7 @@ g6_combos_data_from_stacks <- function(stacks) {
         radius = 8
       )
     ),
-    collapse = lapply(stacks, function(stack) {
-      g6_collapse_options(visibility = "hover", stroke = "#D1D5DB")
-    })
+    collapse = lapply(stacks, function(stack) collapse_options())
   )
 
   if (length(res)) {
@@ -742,6 +748,16 @@ g6_combos_data_from_stacks <- function(stacks) {
   } else {
     res
   }
+}
+
+# The collapse button on a node or a stack, in the tokens (see `data_ink()`).
+collapse_options <- function(...) {
+  g6_collapse_options(
+    visibility = "hover",
+    fill = "var(--blockr-color-bg-surface, #ffffff)",
+    stroke = "var(--blockr-color-border-strong, #d1d5db)",
+    ...
+  )
 }
 
 #' Create network data from board

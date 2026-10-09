@@ -412,12 +412,17 @@ context_menu_items.dag_extension <- function(x) {
 toolbar_items.dag_extension <- function(x) {
   list(
     new_toolbar_item(
+      id = "find",
+      icon = "blockr-search",
+      tooltip = "Search blocks",
+      js = "(value, target, current) => {
+        graph.getPluginInstance('search').toggle();
+      }"
+    ),
+    new_toolbar_item(
       id = "zoom_in",
       icon = "zoom-in",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.zoomTo(graph.getZoom() + 0.1);
       }"
     ),
@@ -425,9 +430,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "zoom_out",
       icon = "zoom-out",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.zoomTo (graph.getZoom() - 0.1);
       }"
     ),
@@ -435,9 +437,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "auto_fit",
       icon = "auto-fit",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.fitView();
       }"
     ),
@@ -445,9 +444,6 @@ toolbar_items.dag_extension <- function(x) {
       id = "layout",
       icon = "reset",
       js = "(value, target, current) => {
-        const graph = HTMLWidgets.find(
-          `#${target.closest('.g6').id}`
-        ).getWidget();
         graph.layout();
       }"
     ),
@@ -556,31 +552,12 @@ extension_block_callback.dag_extension <- function(x, ...) {
           return()
         }
 
-        badges <- if (is.null(spec)) {
-          list()
-        } else {
-          list(
-            list(
-              text = "",
-              placement = "right-bottom",
-              offsetX = -2,
-              offsetY = -2,
-              backgroundFill = spec$color,
-              backgroundStroke = spec$ring_color,
-              backgroundLineWidth = spec$ring,
-              backgroundWidth = spec$size,
-              backgroundHeight = spec$size,
-              backgroundRadius = spec$size / 2
-            )
-          )
-        }
-
         g6_update_nodes(
           dag$proxy,
           list(
             list(
               id = to_g6_node_id(id),
-              style = list(badges = badges)
+              style = list(badges = status_badges(spec))
             )
           )
         )
@@ -592,4 +569,50 @@ extension_block_callback.dag_extension <- function(x, ...) {
 
     NULL
   }
+}
+
+# The node's status dot, from the spec it shares with the dock's
+# (`blockr.dock::block_status_badge()`): `size` across, in its fill, with a
+# `ring` of the surface around it. The node is the block's mark at the size
+# the dock draws it, and the dot sits where the dock puts it, its centre 2px in
+# from the upper right corner. A hollow dot is the same dot with a hole of the
+# surface in it, leaving an `outline`-wide ring in its fill. The colours are
+# tokens, resolved as the dot is drawn (see `data_ink()`).
+status_badges <- function(spec) {
+
+  if (is.null(spec)) {
+    return(list())
+  }
+
+  fill <- sprintf("var(%s, %s)", spec$token, spec$color)
+  surface <- sprintf("var(%s, %s)", spec$ring_token, spec$ring_color)
+
+  # A badge's background is centred on its placement. Its stroke is centred
+  # on its edge, so the ring takes the outer `ring` of a dot `size + ring`
+  # across.
+  disc <- function(width, ...) {
+    list(
+      text = "",
+      placement = "right-top",
+      offsetX = -2,
+      offsetY = 2,
+      backgroundWidth = width,
+      backgroundHeight = width,
+      backgroundRadius = width / 2,
+      ...
+    )
+  }
+
+  dot <- disc(
+    spec$size + spec$ring,
+    backgroundFill = fill,
+    backgroundStroke = surface,
+    backgroundLineWidth = spec$ring
+  )
+
+  if (!isTRUE(spec$hollow)) {
+    return(list(dot))
+  }
+
+  list(dot, disc(spec$size - 2 * spec$outline, backgroundFill = surface))
 }

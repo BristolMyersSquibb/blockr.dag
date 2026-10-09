@@ -6,6 +6,10 @@
 
 ## New features
 
+- The DAG follows the blockr.ui design system. A node is the block's mark from `blockr.ui::block_mark_svg()` at the dock header's 32px, with its name in 12px under it on a plain surface halo, and a selected node's name takes the accent tint. The search box and the board outline move into one panel opened by a "Search blocks" tool at the top of the toolbar: it lists the board's blocks, stacks as tinted bands, and narrows to the matches as you type; Escape, a click outside or a pick closes it. The right-click menu, that panel and the toolbar take the spec's menu surface, search field and 26px tools; the toolbar's icons name themselves with `Blockr.tooltip`, and a remove entry sits last in the menu after a divider. The empty canvas says so in one line. The canvas takes its colours from the blockr.ui tokens when it starts and whenever the board switches between light and dark. blockr.dag now imports blockr.ui.
+
+- A node's status dot is drawn from the spec the dock draws its own from ([#174](https://github.com/BristolMyersSquibb/blockr.dag/issues/174)). Its colours are the blockr.ui tokens `blockr.dock::block_status_badge()` names, so the dot follows the switch between light and dark, and it sits on the mark's upper right as on the dock's card, with a waiting block's dot drawn as a hollow ring. The collapse button of a node with children moves to the node's right edge to leave that corner to the dot, and it takes the tokens as well, as a stack's does. Its +/- icon takes whichever of a light and a dark grey stands out on that fill, which needs `g6R (>= 0.6.5.9003)` ([cynkra/g6R#72](https://github.com/cynkra/g6R/pull/72)).
+
 - The right-click entries follow the dock's menus ([blockr.dock#544](https://github.com/BristolMyersSquibb/blockr.dock/issues/544)). "Create link" is "Connect to…", "Remove stack" is "Dissolve stack", and a block has "Add to stack", which takes the whole selection when the block is one of several selected. "Edit inputs" and the canvas's "Create stack" are gone: the link's menu and Connect cover the one, Add to stack the other. The entries that open a menu say where the click was, so the menu opens there. Selecting an element no longer re-fires a pinned sidebar form, and `new_context_menu_entry()`'s `retarget` is ignored.
 
 - The DAG opens the "+" menu where the user acted ([#179](https://github.com/BristolMyersSquibb/blockr.dag/issues/179)). Since [blockr.dock#483](https://github.com/BristolMyersSquibb/blockr.dock/pull/483), adding, appending, prepending and inserting a block open that menu in place, where the action's trigger says the gesture happened, and in a fixed spot under the navbar when it says nothing, which is how the DAG fired them. Now "Append block", "Insert block" and "Add block" in the context menu, and the toolbar's add button, hang the menu under what was clicked, and an edge dropped on the canvas opens it where the edge was dropped. Requires a `blockr.dock` whose action triggers take `at` (0.1.3.9002).
@@ -27,6 +31,10 @@
 ## Bug fixes
 
 - The canvas applies each entity's removals before its additions ([#165](https://github.com/BristolMyersSquibb/blockr.dag/issues/165)). A delta may legitimately re-use an id it drops in the same breath, which `modify_board_links()` treats as replacing that element in place. Drawing first and erasing after took the re-added element straight back off the canvas, leaving the board and the drawing disagreeing.
+
+## Internal changes
+
+- The "Search blocks" panel is g6R's collapsible search (`g6_search(collapsed = TRUE)`, with `g6_outline(header = FALSE)` anchored under it) rather than a layer `dag-chrome.js` built around the plugins from outside ([#190](https://github.com/BristolMyersSquibb/blockr.dag/issues/190)). Opening, closing and picking behave as before. Requires `g6R (>= 0.6.5.9006)`, which also gives each DAG widget on a page its own graph ([cynkra/g6R#74](https://github.com/cynkra/g6R/pull/74), [cynkra/g6R#79](https://github.com/cynkra/g6R/pull/79)).
 
 # blockr.dag 0.1.5
 
