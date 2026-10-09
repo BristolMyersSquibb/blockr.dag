@@ -45,13 +45,14 @@ to_g6_port_id <- function(x, node) {
   x
 }
 
-g6_from_board <- function(board, positions = NULL) {
+g6_from_board <- function(board, positions = NULL, cards = NULL) {
   stopifnot(is_board(board))
 
   graph <- g6_data_from_board(board)
+  nodes <- as_card_nodes(graph_nodes(graph), board_blocks(board), cards)
 
   g6(
-    nodes = merge_node_positions(graph_nodes(graph), positions),
+    nodes = merge_node_positions(nodes, positions),
     edges = graph_edges(graph),
     combos = graph_combos(graph)
   )
@@ -62,6 +63,11 @@ g6_from_board <- function(board, positions = NULL) {
 # Supplied coordinates set `style$x/y`, which g6R's position-preservation
 # (BEFORE/AFTER_LAYOUT) honors over the auto-layout. Unknown or stale ids
 # are ignored; nodes without an entry keep no preset and fall to the layout.
+places_all_blocks <- function(board, positions) {
+  ids <- names(board_blocks(board))
+  length(ids) > 0L && all(ids %in% names(positions))
+}
+
 merge_node_positions <- function(nodes, positions) {
   if (!length(nodes) || !length(positions)) {
     return(nodes)
@@ -72,6 +78,10 @@ merge_node_positions <- function(nodes, positions) {
     if (!is.null(pos)) {
       node[["style"]][["x"]] <- pos[["x"]]
       node[["style"]][["y"]] <- pos[["y"]]
+      size <- node[["style"]][["size"]]
+      if (!is.null(pos[["height"]]) && length(size) == 2L) {
+        node[["style"]][["size"]] <- c(size[[1L]], pos[["height"]])
+      }
     }
     node
   })
@@ -80,8 +90,20 @@ merge_node_positions <- function(nodes, positions) {
 # Round coordinates to whole pixels so sub-pixel jitter echoed back by the
 # client doesn't read as a change (used to break the external-control echo
 # loop and to debounce client drags).
-round_positions <- function(positions) {
-  lapply(positions, function(p) list(x = round(p[["x"]]), y = round(p[["y"]])))
+# A card's position comes with its height (see project_positions()), which
+# counts as a change when comparing positions, but not when moving nodes.
+round_positions <- function(positions, height = FALSE) {
+  lapply(
+    positions,
+    function(p) {
+      c(
+        list(x = round(p[["x"]]), y = round(p[["y"]])),
+        if (height && !is.null(p[["height"]])) {
+          list(height = round(p[["height"]]))
+        }
+      )
+    }
+  )
 }
 
 # Position specs equal up to whole-pixel rounding, compared per block id
@@ -90,8 +112,8 @@ positions_equal <- function(a, b) {
   if (length(a) != length(b)) {
     return(FALSE)
   }
-  a <- round_positions(a)
-  b <- round_positions(b)
+  a <- round_positions(a, height = TRUE)
+  b <- round_positions(b, height = TRUE)
   ids <- union(names(a), names(b))
   all(vapply(ids, function(id) identical(a[[id]], b[[id]]), logical(1)))
 }
@@ -148,11 +170,19 @@ project_positions <- function(state) {
   }
 
   res <- lapply(nodes, function(node) {
-    xy <- node[["style"]][c("x", "y")]
-    if (is.null(xy[["x"]]) || is.null(xy[["y"]])) {
+    style <- node[["style"]]
+    if (is.null(style[["x"]]) || is.null(style[["y"]])) {
       return(NULL)
     }
-    list(x = xy[["x"]], y = xy[["y"]])
+    # A card's centre places it only at the height it had: a restored card
+    # starts at that height rather than growing from card_size() around a
+    # fixed top edge.
+    c(
+      list(x = style[["x"]], y = style[["y"]]),
+      if (isTRUE(style[["autoHeight"]]) && length(style[["size"]]) == 2L) {
+        list(height = style[["size"]][[2L]])
+      }
+    )
   })
 
   res <- filter_null(res)
@@ -186,7 +216,7 @@ data_ink <- function(field) {
   )
 }
 
-set_g6_options <- function(graph, ...) {
+set_g6_options <- function(graph, ..., cards = FALSE) {
   renderer <- if (use_svg_renderer()) JS("() => new SVGRenderer()")
   g6_options(
     graph,
@@ -196,7 +226,8 @@ set_g6_options <- function(graph, ...) {
     # The canvas cannot read CSS variables, so the tokens are written as
     # their light values (blockr.ui's blockr-tokens.css), named beside each.
     node = list(
-      type = "custom-image-node",
+      # the options' type wins over the nodes' own, so card nodes need it here
+      type = if (cards) "custom-html-node" else "custom-image-node",
       style = list(
         # The name: 12px text-default under the mark, on a bg-surface halo
         # (no edge) so it stays readable where a link passes behind it.
@@ -277,13 +308,22 @@ set_g6_options <- function(graph, ...) {
   )
 }
 
-set_g6_layout <- function(graph) {
+set_g6_layout <- function(graph, cards = FALSE) {
+  # card nodes are far larger than icon nodes, and need room between them for
+  # the links to read
+  sep <- if (cards) card_gap() else 50
+  # dagre places the nodes' centres from `begin`: a card's top-left corner
+  # goes where an icon node's centre would
+  begin <- c(150, 150)
+  if (cards) {
+    begin <- begin + card_size() / 2
+  }
   g6_layout(
     graph,
     layout = antv_dagre_layout(
-      begin = c(150, 150),
-      nodesep = 50,
-      ranksep = 50,
+      begin = begin,
+      nodesep = sep,
+      ranksep = sep,
       sortByCombo = TRUE
     )
   )
@@ -471,16 +511,23 @@ blockr_g6_proxy <- function(session = get_session()) {
   g6_proxy(graph_id(session$ns), session = session)
 }
 
-init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
+init_g6 <- function(board, positions = NULL, ..., cards = NULL,
+                    session = get_session()) {
   ns <- session$ns
 
   # The board is the single source of truth for nodes / edges / combos and
   # all board-derived styling. The extension owns only board-independent view
-  # attributes, which for now is node positions overlaid on top.
-  res <- g6_from_board(board, positions)
+  # attributes, which for now is node positions overlaid on top. On a DAG
+  # board, `cards` turns the nodes into block cards (see as_card_nodes()).
+  res <- g6_from_board(board, positions, cards)
 
-  res <- set_g6_options(res)
-  res <- set_g6_layout(res)
+  res <- set_g6_options(res, cards = !is.null(cards))
+
+  # Positions for every block, as a restored board has them, are the layout:
+  # running one would move the nodes away from them.
+  if (!places_all_blocks(board, positions)) {
+    res <- set_g6_layout(res, cards = !is.null(cards))
+  }
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 
@@ -571,8 +618,10 @@ g6_edges_from_links <- function(links, blocks) {
 #' Create block ports for g6 node
 #' @param block Block object.
 #' @param id Block ID.
+#' @param r Port radius; `NULL` leaves it to g6R, which sizes the ports of an
+#'   HTML node to the node.
 #' @keywords internal
-create_block_ports <- function(block, id) {
+create_block_ports <- function(block, id, r = 3) {
   inputs <- blockr.core::block_inputs(block)
   arity <- blockr.core::block_arity(block)
   input_ports <- list()
@@ -586,7 +635,7 @@ create_block_ports <- function(block, id) {
       arity = Inf,
       placement = "top",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   } else if (length(inputs) == 1 && arity == 1) {
     # Mono input
@@ -596,7 +645,7 @@ create_block_ports <- function(block, id) {
       arity = 1,
       placement = "top",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   } else if (length(inputs) > 1) {
     # Multi input
@@ -613,7 +662,7 @@ create_block_ports <- function(block, id) {
         arity = 1,
         placement = c(xs[i], 0),
         fill = fill_col,
-        r = 3
+        r = r
       )
     })
   }
@@ -628,7 +677,7 @@ create_block_ports <- function(block, id) {
       arity = Inf,
       placement = "label-bottom",
       fill = fill_col,
-      r = 3
+      r = r
     ))
   )
   do.call(g6_ports, ports)
@@ -908,8 +957,10 @@ space_spliced_node <- function(ins, upd, board, proxy = blockr_g6_proxy(),
   apply_node_positions(out, proxy)
 }
 
-add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
+add_nodes <- function(blocks, board, proxy = blockr_g6_proxy(),
+                      cards = NULL) {
   nodes <- g6_nodes_from_blocks(blocks, board_stacks(board))
+  nodes <- as_card_nodes(nodes, blocks, cards)
 
   mouse_pos <- proxy$session$input[[paste0(graph_id(), "-mouse_position")]]
   base_x <- mouse_pos$x %||% 150
@@ -919,9 +970,11 @@ add_nodes <- function(blocks, board, proxy = blockr_g6_proxy()) {
     nodes[[1]]$style$x <- base_x
     nodes[[1]]$style$y <- base_y
   } else if (length(nodes) > 1) {
+    # cards stack by their (starting) height, icon nodes by a fixed step
+    step <- if (is.null(cards)) 130 else card_size()[2] + 80
     for (i in seq_along(nodes)) {
       nodes[[i]]$style$x <- base_x
-      nodes[[i]]$style$y <- base_y + (i - 1) * 130
+      nodes[[i]]$style$y <- base_y + (i - 1) * step
     }
   }
 

@@ -12,10 +12,11 @@ nodes, as a named list keyed by block id, each element a list with numeric
 \code{x} and \code{y} (e.g. \code{list(a = list(x = 100, y = 200))}). Persisted across
 save / restore. Unknown or stale block ids are ignored. This handle is
 externally controllable: positions can be set programmatically through the
-board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> = list(positions = ...)))))}), which moves the corresponding nodes. Note: the
-auto-layout currently computes final node placement at cold start, so
-supplied positions are not yet honored over it (a follow-up will let
-positions pin over the layout).}
+board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> = list(positions = ...)))))}), which moves the corresponding nodes. With a
+position for every block, as a restored board has, the nodes are placed
+there and no layout runs; otherwise the auto-layout places them. On a DAG
+board, each card's position also records its \code{height}, so a restored card
+starts at the size it was saved at and keeps its place.}
 
 \item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
 }

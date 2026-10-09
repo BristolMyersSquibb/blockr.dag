@@ -19,10 +19,11 @@
 #' save / restore. Unknown or stale block ids are ignored. This handle is
 #' externally controllable: positions can be set programmatically through the
 #' board update lifecycle (`update(list(extensions = list(mod = list(<ext_id> =
-#' list(positions = ...)))))`), which moves the corresponding nodes. Note: the
-#' auto-layout currently computes final node placement at cold start, so
-#' supplied positions are not yet honored over it (a follow-up will let
-#' positions pin over the layout).
+#' list(positions = ...)))))`), which moves the corresponding nodes. With a
+#' position for every block, as a restored board has, the nodes are placed
+#' there and no layout runs; otherwise the auto-layout places them. On a DAG
+#' board, each card's position also records its `height`, so a restored card
+#' starts at the size it was saved at and keeps its place.
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system
@@ -511,6 +512,12 @@ extension_block_callback.dag_extension <- function(x, ...) {
     ...,
     session = get_session()
   ) {
+    # A DAG board's nodes are block cards, whose header shows the block's
+    # status already, from the same blockr.dock::block_status_badge().
+    if (is_dag_board(isolate(board$board))) {
+      return(NULL)
+    }
+
     dag <- dag_ext_result(board, extensions)
 
     graph_ready <- reactive(
