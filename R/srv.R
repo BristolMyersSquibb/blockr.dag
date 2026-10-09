@@ -1,4 +1,4 @@
-dag_ext_srv <- function(positions) {
+dag_ext_srv <- function(positions, layout = dag_layout()) {
   function(id, board, update, actions, ...) {
     dot_args <- list(...)
 
@@ -33,6 +33,7 @@ dag_ext_srv <- function(positions) {
         init_g6(
           board = initial_board,
           positions = positions,
+          layout = layout,
           path = ctx_path,
           ctx = context_menu,
           tools = toolbar,
@@ -42,6 +43,7 @@ dag_ext_srv <- function(positions) {
         proxy <- blockr_g6_proxy(session)
 
         ext_positions <- setup_positions_ctrl(positions, proxy)
+        ext_layout <- setup_layout_ctrl(layout)
 
         context_menu_entry_action(context_menu, actions, session)
         toolbar_item_action(toolbar, actions, session)
@@ -75,7 +77,8 @@ dag_ext_srv <- function(positions) {
 
         list(
           state = list(
-            positions = ext_positions
+            positions = ext_positions,
+            layout = ext_layout
           ),
           proxy = proxy
         )
@@ -106,6 +109,109 @@ reveal_panel_delta <- function(board, block) {
   }
 
   list(views = list(mod = set_names(list(ops), view)))
+}
+
+# Bidirectional sync for the externally-controllable `layout` handle.
+#
+# Reads: the toolbar's layout menu switches the layout in the browser and
+# reports the pick as `input$layout`, which the returned `reactiveVal` takes.
+#
+# Writes: an external set (the board update lifecycle, as for `positions`)
+# lands in the same `reactiveVal`; an observer validates it and sends it to
+# the client, which applies it as a pick from the menu would. A value equal
+# to what the client last reported is not sent back, which ends the echo.
+setup_layout_ctrl <- function(layout, session = get_session()) {
+  input <- session$input
+
+  rv <- reactiveVal(layout)
+  from_client <- reactiveVal(layout)
+
+  # What the toolbar's layout menu needs, once the graph is there to use it.
+  observeEvent(
+    input[[paste0(graph_id(), "-initialized")]],
+    session$sendCustomMessage(
+      "blockr-dag-layout-init",
+      list(
+        id = session$ns(graph_id()),
+        input = session$ns("layout"),
+        catalog = dag_layout_catalog(),
+        layout = unclass(isolate(rv()))
+      )
+    ),
+    once = TRUE,
+    label = "layout_init"
+  )
+
+  # g6R put the previous layout back because this one failed.
+  observeEvent(
+    input[[paste0(graph_id(), "-layout_fallback")]],
+    {
+      fb <- input[[paste0(graph_id(), "-layout_fallback")]]
+      showNotification(
+        paste("This layout could not be applied:", fb$reason),
+        type = "warning",
+        session = session
+      )
+    },
+    label = "layout_fallback"
+  )
+
+  observeEvent(
+    input$layout,
+    {
+      picked <- tryCatch(as_dag_layout(input$layout), error = function(e) NULL)
+      req(picked)
+      from_client(picked)
+      if (!identical(unclass(picked), unclass(rv()))) {
+        rv(picked)
+      }
+    },
+    label = "layout_from_client"
+  )
+
+  observeEvent(
+    rv(),
+    {
+      wanted <- tryCatch(
+        as_dag_layout(rv()),
+        error = function(e) {
+          blockr_warn(
+            "Ignoring an invalid DAG layout: {conditionMessage(e)}",
+            class = "dag_layout_ignored"
+          )
+          NULL
+        }
+      )
+
+      if (is.null(wanted)) {
+        rv(from_client())
+        return()
+      }
+
+      # A plain list (as an external set or a restore gives it) is stored as
+      # the layout it stands for; this observer then runs again on that.
+      if (!identical(wanted, rv())) {
+        rv(wanted)
+        return()
+      }
+
+      if (!identical(unclass(wanted), unclass(from_client()))) {
+        push_layout(wanted, session)
+      }
+    },
+    ignoreInit = TRUE,
+    label = "layout_to_client"
+  )
+
+  rv
+}
+
+# Hand a layout to the client, which applies it as a pick from the menu.
+push_layout <- function(layout, session = get_session()) {
+  session$sendCustomMessage(
+    "blockr-dag-layout",
+    list(id = session$ns(graph_id()), layout = unclass(layout))
+  )
 }
 
 # Bidirectional sync for the externally-controllable `positions` handle.
