@@ -33,3 +33,46 @@ test_that("the board makes room for cards that grow", {
     file.exists(system.file("assets", "js", "make-room.js", package = "blockr.dag"))
   )
 })
+
+test_that("a card node is an HTML node holding its block's card", {
+  blocks <- as_blocks(c(a = new_dataset_block(), b = new_head_block()))
+  stacks <- list()
+  class(stacks) <- c("stacks", "list")
+  icons <- g6_nodes_from_blocks(blocks, stacks)
+
+  seen <- NULL
+  cards <- as_card_nodes(
+    icons,
+    blocks,
+    function(blks) {
+      seen <<- names(blks)
+      lapply(names(blks), function(id) htmltools::div(id = paste0("card-", id)))
+    }
+  )
+
+  # one card per node, in the nodes' order
+  expect_identical(seen, c("a", "b"))
+  expect_identical(
+    vapply(cards, `[[`, character(1L), "id"),
+    vapply(icons, `[[`, character(1L), "id")
+  )
+
+  card <- cards[[1L]]
+  expect_identical(card$type, "custom-html-node")
+  expect_identical(card$ui$attribs$id, "card-a")
+  expect_identical(card$style$size, card_size())
+  expect_true(card$style$autoHeight)
+  # the card shows the name; the label stays for search and the outline
+  expect_false(card$style$label)
+  expect_identical(card$style$labelText, icons[[1L]]$style$labelText)
+  expect_null(card$style$src)
+})
+
+test_that("without cards, the nodes stay icon nodes", {
+  blocks <- as_blocks(c(a = new_dataset_block()))
+  stacks <- list()
+  class(stacks) <- c("stacks", "list")
+  icons <- g6_nodes_from_blocks(blocks, stacks)
+
+  expect_identical(as_card_nodes(icons, blocks, NULL), icons)
+})
