@@ -4,7 +4,7 @@
 \alias{new_dag_extension}
 \title{DAG extension}
 \usage{
-new_dag_extension(positions = NULL, ...)
+new_dag_extension(positions = NULL, layout = NULL, ...)
 }
 \arguments{
 \item{positions}{Optional node positions overlaid on the board-derived
@@ -16,6 +16,12 @@ board update lifecycle (\verb{update(list(extensions = list(mod = list(<ext_id> 
 auto-layout currently computes final node placement at cold start, so
 supplied positions are not yet honored over it (a follow-up will let
 positions pin over the layout).}
+
+\item{layout}{The layout's direction and spacing, from \code{\link[=dag_layout]{dag_layout()}}; top
+to bottom with normal spacing when \code{NULL}. Users change it from the
+toolbar's layout menu.
+Persisted across save / restore and, like \code{positions}, externally
+controllable through the board update lifecycle.}
 
 \item{...}{Forwarded to \code{\link[blockr.dock:extension]{blockr.dock::new_dock_extension()}}.}
 }
