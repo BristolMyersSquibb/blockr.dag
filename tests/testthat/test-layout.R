@@ -17,13 +17,12 @@ test_that("a layout survives a JSON round trip", {
   expect_error(as_dag_layout(list(direction = "RL")), class = "dag_layout_invalid")
 })
 
-test_that("a layout maps to the layered g6R layout", {
+test_that("a layout maps to dagre, which keeps stacks apart", {
   cfg <- dag_layout_config(dag_layout("LR", "compact"))
-  expect_identical(cfg$type, "antv-dagre")
+  expect_identical(cfg$type, "dagre")
   expect_identical(cfg$rankdir, "LR")
-  expect_identical(cfg$nodesep, 20)
-  expect_identical(cfg$ranksep, 30)
-  expect_true(cfg$sortByCombo)
+  expect_identical(cfg$nodesep, 50)
+  expect_identical(cfg$ranksep, 50)
 })
 
 test_that("the client's catalog builds what R builds", {

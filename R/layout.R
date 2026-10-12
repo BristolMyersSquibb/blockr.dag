@@ -63,24 +63,33 @@ as_dag_layout <- function(x) {
   )
 }
 
-# The gaps per spacing: between blocks in a layer, and between layers.
+# The gaps per spacing: between blocks in a layer (`nodesep`), and between
+# layers (`ranksep`). A stack's box draws padding around its blocks (20px on
+# top and the sides, 40px under, its name above) that dagre doesn't know, so
+# both have to leave room for it: two stacks side by side keep about
+# `nodesep - 35` px apart, and a stack's name clears the stack before it
+# only from `ranksep = 50`. Compact is the least that keeps stacks apart.
 dag_layout_spacing <- function() {
   list(
-    compact = list(nodesep = 20, ranksep = 30),
-    normal = list(nodesep = 50, ranksep = 50),
-    loose = list(nodesep = 80, ranksep = 90)
+    compact = list(nodesep = 50, ranksep = 50),
+    normal = list(nodesep = 70, ranksep = 70),
+    loose = list(nodesep = 100, ranksep = 100)
   )
 }
 
-# The g6R layout for a `dag_layout`, as `g6_layout()` takes it.
+# The g6R layout for a `dag_layout`, as `g6_layout()` takes it. `dagre`
+# rather than `antv-dagre`: given combos, dagre lays each stack out as a
+# cluster, so a stack's blocks stay together and stacks don't overlap or take
+# in blocks outside them; antv-dagre only sorts blocks by stack within each
+# layer and draws a stack's box around wherever they land.
 dag_layout_config <- function(x) {
   x <- as_dag_layout(x)
   c(
     list(
-      type = "antv-dagre",
+      type = "dagre",
       rankdir = x$direction,
-      begin = c(150, 150),
-      sortByCombo = TRUE
+      marginx = 150,
+      marginy = 150
     ),
     dag_layout_spacing()[[x$spacing]]
   )
