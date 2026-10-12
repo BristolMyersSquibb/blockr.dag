@@ -26,7 +26,5 @@ export(toolbar_items)
 import(blockr.core)
 import(g6R)
 import(shiny)
-importFrom(blockr.dock,
-  board_actions,
-  extension_block_callback
-)
+importFrom(blockr.dock,board_actions)
+importFrom(blockr.dock,extension_block_callback)
