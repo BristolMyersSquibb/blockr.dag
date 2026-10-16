@@ -5,8 +5,10 @@ dag_ext_ui <- function(id, board) {
   tagList(
     tags$div(
       class = "dag-canvas-container",
-      style = "position: relative; width: 100%; height: 100vh;",
-      g6_output(graph_id(ns), height = "100vh"),
+      # The panel's height, not the window's: the dock's header and tabs sit
+      # above it, and a 100vh canvas hid its bottom under the panel's edge.
+      style = "position: relative; width: 100%; height: 100%;",
+      g6_output(graph_id(ns), height = "100%"),
       # An empty panel says so in one italic line (design system, Messages).
       tags$div(
         id = ns("empty-state"),
@@ -25,6 +27,13 @@ dag_ext_ui <- function(id, board) {
       src = c(file = "assets"),
       script = file.path("js", "dag-chrome.js"),
       stylesheet = file.path("css", "dag.css"),
+      package = pkg_name()
+    ),
+    htmltools::htmlDependency(
+      name = "dag-layout-menu",
+      version = pkg_version(),
+      src = c(file = "assets"),
+      script = file.path("js", "layout-menu.js"),
       package = pkg_name()
     ),
     htmltools::htmlDependency(

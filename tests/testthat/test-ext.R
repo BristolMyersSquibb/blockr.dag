@@ -12,8 +12,11 @@ test_that("dag extension ctor", {
   expect_s3_class(ext, "dag_extension")
 })
 
-test_that("positions is an externally controllable handle", {
-  expect_identical(attr(new_dag_extension(), "external_ctrl"), "positions")
+test_that("positions and layout are externally controllable handles", {
+  expect_identical(
+    attr(new_dag_extension(), "external_ctrl"),
+    c("positions", "layout")
+  )
 })
 
 test_that("external position set pushes the moved node to the client", {

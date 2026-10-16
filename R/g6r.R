@@ -277,16 +277,8 @@ set_g6_options <- function(graph, ...) {
   )
 }
 
-set_g6_layout <- function(graph) {
-  g6_layout(
-    graph,
-    layout = antv_dagre_layout(
-      begin = c(150, 150),
-      nodesep = 50,
-      ranksep = 50,
-      sortByCombo = TRUE
-    )
-  )
+set_g6_layout <- function(graph, layout = dag_layout()) {
+  g6_layout(graph, layout = dag_layout_config(layout))
 }
 
 set_g6_behaviors <- function(graph, ..., ns) {
@@ -471,7 +463,8 @@ blockr_g6_proxy <- function(session = get_session()) {
   g6_proxy(graph_id(session$ns), session = session)
 }
 
-init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
+init_g6 <- function(board, positions = NULL, layout = dag_layout(), ...,
+                    session = get_session()) {
   ns <- session$ns
 
   # The board is the single source of truth for nodes / edges / combos and
@@ -480,7 +473,7 @@ init_g6 <- function(board, positions = NULL, ..., session = get_session()) {
   res <- g6_from_board(board, positions)
 
   res <- set_g6_options(res)
-  res <- set_g6_layout(res)
+  res <- set_g6_layout(res, layout)
   res <- set_g6_behaviors(res, ns = ns)
   res <- set_g6_plugins(res, ..., ns = ns)
 

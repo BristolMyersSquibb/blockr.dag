@@ -23,20 +23,25 @@
 #' auto-layout currently computes final node placement at cold start, so
 #' supplied positions are not yet honored over it (a follow-up will let
 #' positions pin over the layout).
+#' @param layout The layout's direction and spacing, from [dag_layout()]; top
+#' to bottom with normal spacing when `NULL`. Users change it from the
+#' toolbar's layout menu.
+#' Persisted across save / restore and, like `positions`, externally
+#' controllable through the board update lifecycle.
 #' @param ... Forwarded to [blockr.dock::new_dock_extension()].
 #'
 #' @return A `dag_extension` object that extends the dock extension system
 #' for visualizing and manipulating DAG workflows.
 #' @rdname dag
 #' @export
-new_dag_extension <- function(positions = NULL, ...) {
+new_dag_extension <- function(positions = NULL, layout = NULL, ...) {
   blockr.dock::new_dock_extension(
-    dag_ext_srv(positions),
+    dag_ext_srv(positions, as_dag_layout(layout)),
     dag_ext_ui,
     name = "Workflow",
     description = dag_ext_meta(),
     class = "dag_extension",
-    external_ctrl = "positions",
+    external_ctrl = c("positions", "layout"),
     ...
   )
 }
@@ -59,15 +64,26 @@ dag_ext_meta <- function() {
           my_block = list(x = 120, y = 80),
           other_block = list(x = 270, y = 80)
         )
+      ),
+      layout = blockr.core::new_arg_spec(
+        description = paste(
+          "How the diagram arranges the blocks: a layered DAG. JSON object",
+          "with `direction` (\"TB\", top to bottom, the default; or \"LR\",",
+          "left to right, which turns a wide board into a tall one) and",
+          "`spacing` (\"compact\", \"normal\" or \"loose\")."
+        ),
+        example = list(direction = "LR", spacing = "compact")
       )
     ),
     guidance = paste(
       "A block's place in this diagram is a canvas coordinate, not a",
       "dockview panel or view: move a block with `modify_extension` on",
-      "`positions`, never with the view or panel tools."
+      "`positions`, never with the view or panel tools. Setting `layout`",
+      "re-arranges every block, so set it before placing blocks by hand."
     ),
     examples = list(
-      list(positions = list(my_block = list(x = 120, y = 80)))
+      list(positions = list(my_block = list(x = 120, y = 80))),
+      list(layout = list(direction = "LR", spacing = "compact"))
     )
   )
 }
@@ -436,9 +452,10 @@ toolbar_items.dag_extension <- function(x) {
     ),
     new_toolbar_item(
       id = "layout",
-      icon = "reset",
+      icon = "blockr-layout",
+      tooltip = "Layout",
       js = "(value, target, current) => {
-        graph.layout();
+        window.blockrDag.layoutMenu(graph, target);
       }"
     ),
     new_toolbar_item(

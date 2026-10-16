@@ -3,6 +3,14 @@
    neutral styles for its plugins; these rules, scoped to the DAG's container,
    restyle them. Canvas styles (nodes, links) are set in R/g6r.R. */
 
+/* --- Canvas size: the panel's, not the window's --------------------------- */
+
+/* The canvas fills its dock panel. The panel's content wrapper has no height
+   of its own, so the one holding the canvas takes the panel's. */
+.dockview-panel > div:has(> .dag-canvas-container) {
+  height: 100%;
+}
+
 /* --- Empty canvas: one italic line where the graph would be ------------- */
 
 /* The canvas is painted opaque, so the line has to sit above it. */
@@ -341,6 +349,29 @@
 
 .dag-canvas-container .g6-outline-item[data-type="combo"] > .g6-outline-row .g6-panel-label {
   font-weight: var(--blockr-font-weight-semibold, 600);
+}
+
+/* --- Layout menu: the layouts, then the current one's controls ---------- */
+
+/* Each control is a row: its name muted on the left, a 26px segmented
+   control on the right. */
+.dag-layout-menu__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px 4px;
+}
+
+.dag-layout-menu__control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dag-layout-menu__control-label {
+  font-size: var(--blockr-font-size-sm);
+  color: var(--blockr-color-text-muted);
 }
 
 /* --- Canvas ------------------------------------------------------------- */
