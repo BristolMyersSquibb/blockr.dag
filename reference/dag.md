@@ -6,7 +6,7 @@ provides UI elements to manipulate the board.
 ## Usage
 
 ``` r
-new_dag_extension(positions = NULL, ...)
+new_dag_extension(positions = NULL, layout = NULL, ...)
 ```
 
 ## Arguments
@@ -24,6 +24,15 @@ new_dag_extension(positions = NULL, ...)
   computes final node placement at cold start, so supplied positions are
   not yet honored over it (a follow-up will let positions pin over the
   layout).
+
+- layout:
+
+  The layout's direction and spacing, from
+  [`dag_layout()`](https://bristolmyerssquibb.github.io/blockr.dag/reference/dag_layout.md);
+  top to bottom with normal spacing when `NULL`. Users change it from
+  the toolbar's layout menu. Persisted across save / restore and, like
+  `positions`, externally controllable through the board update
+  lifecycle.
 
 - ...:
 

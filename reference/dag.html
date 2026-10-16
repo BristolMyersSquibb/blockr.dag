@@ -48,7 +48,7 @@ UI elements to manipulate the board.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">new_dag_extension</span><span class="op">(</span>positions <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">new_dag_extension</span><span class="op">(</span>positions <span class="op">=</span> <span class="cn">NULL</span>, layout <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +65,14 @@ board update lifecycle (<code>update(list(extensions = list(mod = list(&lt;ext_i
 auto-layout currently computes final node placement at cold start, so
 supplied positions are not yet honored over it (a follow-up will let
 positions pin over the layout).</p></dd>
+
+
+<dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
+<dd><p>The layout's direction and spacing, from <code><a href="dag_layout.html">dag_layout()</a></code>; top
+to bottom with normal spacing when <code>NULL</code>. Users change it from the
+toolbar's layout menu.
+Persisted across save / restore and, like <code>positions</code>, externally
+controllable through the board update lifecycle.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
