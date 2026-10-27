@@ -34,7 +34,7 @@ Imports:
     jsonlite,
     htmltools
 Remotes:
-    BristolMyersSquibb/blockr.dock,
+    BristolMyersSquibb/blockr.dock@544-block-options,
     BristolMyersSquibb/blockr.ui,
     cynkra/g6R
 Suggests:
