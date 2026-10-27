@@ -123,8 +123,10 @@ reveal_panel_delta <- function(board, block) {
 setup_layout_ctrl <- function(layout, session = get_session()) {
   input <- session$input
 
-  rv <- reactiveVal(layout)
-  from_client <- reactiveVal(layout)
+  # The state holds the layout as a plain list: it is saved with the board,
+  # and jsonlite has no method for the `dag_layout` class.
+  rv <- reactiveVal(unclass(as_dag_layout(layout)))
+  from_client <- reactiveVal(isolate(rv()))
 
   # What the toolbar's layout menu needs, once the graph is there to use it.
   observeEvent(
@@ -135,7 +137,7 @@ setup_layout_ctrl <- function(layout, session = get_session()) {
         id = session$ns(graph_id()),
         input = session$ns("layout"),
         catalog = dag_layout_catalog(),
-        layout = unclass(isolate(rv()))
+        layout = isolate(rv())
       )
     ),
     once = TRUE,
@@ -161,9 +163,9 @@ setup_layout_ctrl <- function(layout, session = get_session()) {
     {
       picked <- tryCatch(as_dag_layout(input$layout), error = function(e) NULL)
       req(picked)
-      from_client(picked)
-      if (!identical(unclass(picked), unclass(rv()))) {
-        rv(picked)
+      from_client(unclass(picked))
+      if (!identical(unclass(picked), rv())) {
+        rv(unclass(picked))
       }
     },
     label = "layout_from_client"
@@ -188,14 +190,14 @@ setup_layout_ctrl <- function(layout, session = get_session()) {
         return()
       }
 
-      # A plain list (as an external set or a restore gives it) is stored as
-      # the layout it stands for; this observer then runs again on that.
-      if (!identical(wanted, rv())) {
-        rv(wanted)
+      # A set from outside is stored as the layout it stands for, normalised
+      # (defaults filled, order fixed); this observer then runs again on that.
+      if (!identical(unclass(wanted), rv())) {
+        rv(unclass(wanted))
         return()
       }
 
-      if (!identical(unclass(wanted), unclass(from_client()))) {
+      if (!identical(unclass(wanted), from_client())) {
         push_layout(wanted, session)
       }
     },
