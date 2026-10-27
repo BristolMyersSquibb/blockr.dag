@@ -54,15 +54,18 @@ test_that("the layout state follows the menu and pushes external sets", {
     {
       rv <- session$userData$rv
 
+      # The state is a plain list, which a board save writes as JSON.
+      expect_identical(rv(), unclass(dag_layout()))
+
       # A change from the menu: taken, not sent back.
       session$setInputs(layout = list(direction = "LR", spacing = "loose"))
-      expect_identical(rv(), dag_layout("LR", "loose"))
+      expect_identical(rv(), unclass(dag_layout("LR", "loose")))
       expect_length(pushed, 0L)
 
       # Set from outside, as a plain list: validated and sent to the client.
       rv(list(direction = "TB", spacing = "compact"))
       session$flushReact()
-      expect_identical(rv(), dag_layout("TB", "compact"))
+      expect_identical(rv(), unclass(dag_layout("TB", "compact")))
       expect_length(pushed, 1L)
       expect_identical(pushed[[1L]], dag_layout("TB", "compact"))
 
@@ -74,7 +77,35 @@ test_that("the layout state follows the menu and pushes external sets", {
         },
         class = "dag_layout_ignored"
       )
-      expect_identical(rv(), dag_layout("LR", "loose"))
+      expect_identical(rv(), unclass(dag_layout("LR", "loose")))
+    }
+  )
+})
+
+test_that("the layout state saves and restores with the board", {
+  testServer(
+    function(id) {
+      moduleServer(id, function(input, output, session) {
+        session$userData$rv <- setup_layout_ctrl(dag_layout("LR", "compact"))
+      })
+    },
+    {
+      ser <- blockr.core::blockr_ser(
+        new_dag_extension(),
+        data = list(positions = list(), layout = session$userData$rv())
+      )
+
+      # A board save writes this as JSON: no class jsonlite can't handle.
+      json <- jsonlite::toJSON(ser, auto_unbox = TRUE, null = "null")
+      back <- jsonlite::fromJSON(json, simplifyVector = FALSE)
+
+      expect_identical(
+        as_dag_layout(back$payload$layout),
+        dag_layout("LR", "compact")
+      )
+
+      ext <- new_dag_extension(layout = back$payload$layout)
+      expect_s3_class(ext, "dag_extension")
     }
   )
 })
